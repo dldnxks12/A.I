@@ -1,1 +1,0 @@
-print("Why dont you say me, git?")
