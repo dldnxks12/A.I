@@ -24,5 +24,18 @@ plt.imshow(image_list[1])
 # npy file로 저장 -> 경로 재설정할 것 
 np.save("/content/drive/MyDrive/Colab Notebooks/Project/kiki/numpy_image", image_list)
 
-# File 불러오기 
-# load_list = np.load("/content/drive/MyDrive/Colab Notebooks/Project/kiki/numpy_image.npy")
+# Making label 
+kiki_list = np.load(kiki_folder)
+kong_list = np.load(kong_folder)
+
+test_label = []
+
+for _ in kiki_list:
+  test_label.append('kiki')  
+ 
+for _ in kong_list:
+  test_label.append('kong')    
+  
+   
+  
+  
