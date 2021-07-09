@@ -153,7 +153,8 @@ while True:
                                                                 
             cap.release()    
             cv.destroyAllWindows()
-
+    else:
+        count = 0 
     if( End_Program == 1):
         break
         
