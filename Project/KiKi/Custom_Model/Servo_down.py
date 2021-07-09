@@ -81,7 +81,8 @@ count = 0
 Valid = 0
 
 while True:
-
+    
+    check_again = 0 # loop 결정
     GPIO.output(TRIG, True)
     time.sleep(0.00001)
     GPIO.output(TRIG, False)
@@ -136,8 +137,12 @@ while True:
                             servo.ChangeDutyCycle(2.5)                        
                             time.sleep(3)                                                                       
                             servo.stop()
+                            
+                            check_again = 1
                             Valid = 100
-
+                        elif(pred[0][0] > 0.6 and pred[0][0] < 0.8):
+                            check_again = 2
+                            
                     if(Valid == 100):
                         Valid = 0
                         break 
@@ -149,6 +154,8 @@ while True:
             cap.release()    
             cv.destroyAllWindows()
 
-        elif (count == 20):            
-            count = 0
+    if(check_again == 1):
+        break
+    elif(check_gain == 2):
+        count = 0
 
