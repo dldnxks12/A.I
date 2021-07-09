@@ -79,10 +79,11 @@ if not face_cascade.load(cv.samples.findFile('/home/pi/ML/Project/haarcascade_fr
 
 count = 0
 Valid = 0
+Check = 0 
+End_Program = 0
 
 while True:
-    
-    check_again = 0 # loop 결정
+
     GPIO.output(TRIG, True)
     time.sleep(0.00001)
     GPIO.output(TRIG, False)
@@ -96,10 +97,10 @@ while True:
     distance = check_time * 34300 / 2
     print(distance)
     time.sleep(0.4)    
-
+    
     if(distance < 10):
         count += 1         
-        print(count)
+        print("count", count)
 
         if(count == 10):            
 
@@ -114,47 +115,46 @@ while True:
                 exit(0)            
 
             while True:
-
-                ret, frame = cap.read()
-                # print(type(frame)) : Numpy
+                ret, frame = cap.read()                
                 frame = cv.flip(frame, -1)
                 if frame is None:
                     print('--(!) No captured frame -- Break!')
                     break
                                 
-                face = detectAndDisplay(frame)
-
-                if(len(face) != 480):                    
+                face = detectAndDisplay(frame)                                
+                if(len(face) != 480):         
+                    print("valid",Valid)           
                     Valid += 1
                     if(Valid == 3):                                        
                         train_sample = ImgProcessing(face)
                         train_sample = np.expand_dims(train_sample, axis = 0)
                         pred = reconstruct.predict(train_sample)
-                        print("pred",pred)
-
-                        if(pred[0][0] > 0.8):
-                            # Food Open                         
-                            servo.ChangeDutyCycle(2.5)                        
-                            time.sleep(3)                                                                       
-                            servo.stop()
-                            
-                            check_again = 1
-                            Valid = 100
-                        elif(pred[0][0] > 0.6 and pred[0][0] < 0.8):
-                            check_again = 2
-                            
-                    if(Valid == 100):
-                        Valid = 0
-                        break 
-                                               
+                        print("pred",pred)                        
+                        if(pred[0][0] > 0.9):                            
+                            Check += 1                             
+                            if( Check == 2):
+                                # Food Open                         
+                                print("Check 2")
+                                print("Hi, KiKi")
+                                servo.ChangeDutyCycle(12.5)                        
+                                time.sleep(1)                                                                       
+                                servo.stop()                            
+                                End_Program = 1
+                                break  
+                            print("Check 1")
+                            Valid = 0                                                   
+                        else:
+                            print("Not Clean")
+                            Check = 0 
+                            Valid = 0
+                        
                 if cv.waitKey(10) == 27:
                     break
                                                                 
             cap.release()    
             cv.destroyAllWindows()
 
-    if(check_again == 1):
+    if( End_Program == 1):
         break
-    elif(check_gain == 2):
-        count = 0
-
+        
+   
