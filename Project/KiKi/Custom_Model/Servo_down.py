@@ -146,8 +146,7 @@ while True:
                     if(Valid == 100):
                         Valid = 0
                         break 
-                                     
-                # Servo 모터 작동하면 Stop 할 것             
+                                               
                 if cv.waitKey(10) == 27:
                     break
                                                                 
