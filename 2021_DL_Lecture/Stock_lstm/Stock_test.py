@@ -1,3 +1,17 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import pandas_datareader as pdr
+from datetime import datetime
+import tensorflow as tf
+from keras.models import save_model, load_model
+from sklearn.preprocessing import MinMaxScaler
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers import Dropout
+import keras
+
 # 모델 불러오기 
 
 recent_model = load_model('drive/MyDrive/Corab notebook/이종수_2014741002.h5')
