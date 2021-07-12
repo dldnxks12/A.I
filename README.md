@@ -1,4 +1,4 @@
-# Maching learning and Deep learning
+# Deep learning
 
-- Machine Learning & Deep Learning Codes  
+- Deep Learning Codes  
 
