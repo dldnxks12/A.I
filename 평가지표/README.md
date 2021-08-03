@@ -2,17 +2,18 @@
 
 - 평가지표로 사용되는 용어들
     
-        1. Accuracy
-        2. Precision ok
-        3. Recall ok
-        4. F1 Score (Harmonic mean of Precision and Recall)
+        1. Accuracy - ok
+        2. Precision - ok
+        3. Recall - ok
+        4. F1 Score (Harmonic mean of Precision and Recall) - ok
         5. IOU (Intersection over Union) - ok
-        6. PR Curve (Precision & Recall Curve)
-        7. AP (Average Precision)
-        8. mAP (mean Average Precision)
-        9. ROC Curve
-        10. AUC (Area Under ROC Curve)
-        11. Multi-Class ROC
+        6. PR Curve (Precision & Recall Curve) - ok
+        7. AP (Average Precision) - ok
+        8. mAP (mean Average Precision) - ok
+        9. Fall-out
+        10. ROC Curve
+        11. AUC (Area Under ROC Curve)
+        12. Multi-Class ROC
         
         ...
 
@@ -34,6 +35,12 @@ Object Detecting의 평가는 보통 PR curve 와 AP 로 평가한다.
         FN(False Negative) : 실제 Positive - 검출 Negative
             - 검출해야 되는 것을 검출 안함 (Bad)
 
+- Accuracy
+
+    정확도는 검출해야하는 것을 검출한 경우. 그리고 검출하지 말아야 할 것을 검출 하지 않는 경우를 이야기한다.
+    
+        - (TP + TN) / (TP+FP+TN+FN)
+
 - Precision
 
     모든 검출 결과 중 옳게 검출 한 것의 비율  - Model 관점에서 평가
@@ -49,35 +56,50 @@ Object Detecting의 평가는 보통 PR curve 와 AP 로 평가한다.
         - TP / (TP + FN) --- 알고리즘이 마땅히 검출해야하는 것들 중에서 제대로 검출해낸 것의 비율 
         
         - (검출해야하는 것 검출) / {(검출해야하는 것 검출) + (검출해야하는 것을 검출 안함)}
-        
+               
+---
+
 - IOU (Intersection of Union)
 
     IOU는 '옳은 검출'(TP)와 '틀린 검출'(FP) 를 구분하는 기준 
 
 ![333](https://user-images.githubusercontent.com/59076451/128002292-a766be23-a7e7-4d5b-9e96-333c38b7e7cd.PNG)
 
-Red box는 검출되야할 물체를 감싸고 있고, Green Box는 예측된 Boundary
+    Red box는 검출되야할 물체를 감싸고 있고, Green Box는 예측된 Boundary
 
     이 때 Green box가 감싸고 있는 물체가 잘 검출된 것인지 어떤식으로 결정하는 것이 좋은가?
     
-    IOU는 예측된 박스 실제 라벨 박스 간의 중첩되는 면적을 합집합의 면적으로 나누어준다. 
+    IOU는 예측된 박스 실제 라벨 박스 간의 중첩되는 면적을 합집합의 면적으로 나누어준다. (label과 prediction 사이의 공통 Pixel / 총 Pixel)
  
         IOU 값이 0.5 이상이면 제대로 검출(TP)라고 판단.
         
         반면 0.5 미만이면 FP 라고 판단
         
-        
+![4446](https://user-images.githubusercontent.com/59076451/128006755-725e3b4b-0a81-4c39-8268-dfc2f6bc25d0.PNG)
 
+    
 #### Precision and Recall Trade off
 
 Precision과 Recall은 평가 관점이 다르다. 또한 Precision이 높으면 Recall이 낮고, Precision이 낮으면 Recall이 낮은 trade off 관계를 가진다.
 
 따라서 알고리즘의 성능을 적절히 평가하기 위해 두 평가 지표를 적절히 사용해야한다. 
 
+    - F1 Score
     - Precision & Recall Curve
-    - AP
+    - AP / mAP
     
     
+- F1 Score
+
+    F1 Score는 Precision과 Recall의 조화평균이다.
+    
+        F1 Score = 2 * (Precision x Recall) / (Precision + Recall)
+    
+        - 산술 평균 대신 조화 평균을 사용하는 이유
+        
+            - 큰 값이 끼치는 Bias가 줄어든다. (mean 과 median의 outliar 같은 느낌)
+    
+
 - PR Curve
 
     PR Curve는 Confidence와 Threshold를 이용하여 물체 인식의 평가지표 신뢰도를 높이는 방법이다.
@@ -126,10 +148,54 @@ Ex) 15개의 얼굴이 존재하는 어떤 데이터셋 에서 한 얼굴 알고
     
 ![999](https://user-images.githubusercontent.com/59076451/128005129-d29f7d78-363a-44a9-bd3b-82cbeb70decf.PNG)
 
-    
        
+- AP (CV 분야에서 물체 검출 및 이미지 분류 알고리즘의 성능은 대부분 이 AP를 사용한다)
 
+    PR Curve도 좋은 지표지만 숫자 하나로 알고리즘의 성능을 평가하기엔 부족
+
+![11](https://user-images.githubusercontent.com/59076451/128006409-0fb4aa23-9d41-4ddd-8a6e-3f4a6b815477.PNG)
+
+    AP는 PR Curve의 Graph 선 아래쪽의 면적을 계산한다.
+
+- mAP
+
+    물체 클래스가 여러 개 일 경우, 각 클래스당 AP를 구한다음 이것의 평균을 구한다.
+
+
+- Fall-out
+
+    Fall-out은 FPR (False Positive Rate)로, 실제 False인 데이터 중에서, 알고리즘이 물체를 검출한 비율이다. (검출하지 않아야 하는 것들 중에서 검출한 비율)
     
+        - FP / (TN + FP)
+    
+    - Recall과 반대되는 개념 -> True인 데이터 중에서 실제로 True라고 검출한 비율
+
+
+
+- ROC
+
+    x 축을 FPR , y 축을 Recall 로 놓고 그려지는 그래프 
+
+    Curve가 왼쪽 상단모서리에 가까울 수록 좋은 알고리즘이라 평가된다. (즉, Recall이 높고, FPR이 낮은 알고리즘)
+    
+![asaas](https://user-images.githubusercontent.com/59076451/128009068-a9fd2aea-a612-48a8-a238-f9ae0406409c.PNG)    
+
+- AUC 
+
+    ROC Curve는 Graph이기 때문에 명확한 수치로써 비교하기 어렵다. 따라서 수치적으로 알고리즘 성능을 비교하기 위해 Graph 아래의 면적을 이용한다.
+    
+    최대값은 1이며, 좋은 모델일 수록 1에 가까운 값이 나온다. 
+    
+![fff](https://user-images.githubusercontent.com/59076451/128009487-fa3f0af3-8c9f-4692-9699-1c5483a147b8.PNG)
+
+    A가 일부 영역에서는 B보다 더 좋은 성능을 보여 ROC를 이용하면 A가 B보다 더 성능이 좋다고 할 수 있지만, 사실 일반적으로 B 알고리즘이 성능이 더 뛰어나다.
+    
+    AUC를 이용하면 위와 같은 평가가 가능하다. 
     
 
+#### 참고자료 
+
+https://23min.tistory.com/7
+https://sumniya.tistory.com/26
+https://velog.io/@crescent702/%EB%B2%88%EC%97%AD-Evaluation-Metrics-for-Machine-Learning-Models
 
