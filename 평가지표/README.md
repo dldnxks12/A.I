@@ -2,18 +2,17 @@
 
 - 평가지표로 사용되는 용어들
     
-        1. Accuracy - ok
-        2. Precision - ok
-        3. Recall - ok
-        4. F1 Score (Harmonic mean of Precision and Recall) - ok
-        5. IOU (Intersection over Union) - ok
-        6. PR Curve (Precision & Recall Curve) - ok
-        7. AP (Average Precision) - ok
-        8. mAP (mean Average Precision) - ok
+        1. Accuracy 
+        2. Precision 
+        3. Recall 
+        4. F1 Score (Harmonic mean of Precision and Recall) 
+        5. IOU (Intersection over Union) 
+        6. PR Curve (Precision & Recall Curve) 
+        7. AP (Average Precision) 
+        8. mAP (mean Average Precision) 
         9. Fall-out
         10. ROC Curve
         11. AUC (Area Under ROC Curve)
-        12. Multi-Class ROC
         
         ...
 
