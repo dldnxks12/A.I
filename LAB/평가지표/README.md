@@ -1,8 +1,7 @@
 #### 평가지표 
 
-
-성능 평가지표들...
-
+    - 평가지표로 사용되는 용어들
+    
     1. Accuracy
     2. Recall
     3. pecision
@@ -13,4 +12,5 @@
     8. AUC (Area Under ROC Curve)
     9. Multi-Class ROC
     10. PR Curve
+    ...
 
