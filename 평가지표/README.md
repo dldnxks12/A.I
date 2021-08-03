@@ -194,7 +194,7 @@ Ex) 15개의 얼굴이 존재하는 어떤 데이터셋 에서 한 얼굴 알고
 
 #### 참고자료 
 
-https://23min.tistory.com/7
-https://sumniya.tistory.com/26
+https://23min.tistory.com/7<br>
+https://sumniya.tistory.com/26<br>
 https://velog.io/@crescent702/%EB%B2%88%EC%97%AD-Evaluation-Metrics-for-Machine-Learning-Models
 
