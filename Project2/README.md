@@ -18,8 +18,12 @@
 
   - Python Code Analysis
 
-        1. argparse
-        2. torch         
+        * segtrain.py
+        
+        1. argparse - ok 
+        2. torch - dataloader 
+        3. torchvision - deeplabv-resnet50 , deeplabv-resnet101         
+
 
 #### 2주차
 
