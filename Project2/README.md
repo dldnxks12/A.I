@@ -18,9 +18,14 @@
         2. 관련 논문 몇 가지 정리 
         3. 가장 잘 사용되는 모델과 특징 분석 및 모델 선택
 
+  - Python Code Analysis
+
+        1. argparse
+        2. torch         
+
 #### 2주차
 
-  - 가장 기본적인 Segmentation 구현
+  - 기본적인 Segmentation 구현
 
         Clone Coding도 좋고, 직접 구현도 좋지만 근본적으로 모델 Flow 이해하는 것에 Focusing
   
