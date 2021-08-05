@@ -2,7 +2,7 @@
 
 #### Purpose of this Project  
 
-  - Building Segmentation Model for Sonar Image Processing for medical purposes
+  - Building Segmentation Model for Ultrasonic-Wave Image Processing for medical purposes
 
         what to do? 
         
