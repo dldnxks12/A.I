@@ -7,8 +7,13 @@
         what to do? 
         
         가공된 데이터를 넣어 질병의 유무를 Classification 해줄 Segmentation 모델을 만들 것
+               
                 
 ### To do list
+
+Pytorch 사용법 숙지
+
+[repo](https://www.github.com/dldnxks12/A.I/DeepLearning/Pytorch)
 
 #### 1주차
 
