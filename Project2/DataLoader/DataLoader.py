@@ -28,6 +28,17 @@ train_loader = DataLoader(dataset = dataset,
                          shuffle = True,
                          num_workers = 2)
 
+
+# dataloader의 return 값? 
+
+# enumerate(x) ---- (index , element) 형태로 return 
+
+# for i , data in enumerate(train_loader):
+# i    --- index
+# data --- train_loader의 element 
+# data? ---inputs , labels  (x_data, y_data)로 구성  
+
+
 for epoch in range(2):  
   # train_loader의 return 값이 궁금하다 --- desktop에서 돌려보며 확인해보자 
   # enumerate(train_loader, 1) 과 같이 쓸 때와 어떤 차이가 있는지.. 
@@ -45,3 +56,6 @@ for epoch in range(2):
 
 
 
+
+    
+    
