@@ -13,7 +13,7 @@
 
 Pytorch 사용법 숙지
 
-[repo](https://www.github.com/dldnxks12/A.I/DeepLearning/Pytorch)
+[Pytorch](https://www.github.com/dldnxks12/A.I/DeepLearning/Pytorch/READMD.md)
 
 #### 1주차
 
