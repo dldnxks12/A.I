@@ -69,3 +69,27 @@ print(losses)
 cost = torch.mean(losses)
 
 print(cost)
+
+# 출력 결과로 나온 값을 처리 --- 0.5 이상이면 True, 그렇지 않다면 False
+
+new_var = torch.FloatTensor([3,4])
+pred = torch.sigmoid(new_var.matmul(W) + b)
+
+if pred >= torch.FloatTensor([0.5]):
+        print(True)
+else:
+        print(False)
+        
+'''
+0.6931471824645996
+tensor([[0.6931],
+        [0.6931],
+        [0.6931],
+        [0.6931],
+        [0.6931],
+        [0.6931]], grad_fn=<NegBackward>)
+tensor(0.6931, grad_fn=<MeanBackward0>)
+
+
+True
+'''
