@@ -63,3 +63,12 @@ for epoch in range(num_epochs+1):
         print("Epoch", epoch)
         print("Idx : " , batch_idx)
         print("Sample : ", samples) # enumerate ----  ( index , dataloader[index] )
+
+# ------------------------ test ---------------------- #
+
+new_var = torch.FloatTensor([[40,80,90]])
+pred = model(new_var) # forward 수행
+
+# return 되는 값도 tensor 일것
+
+print(pred.item())
