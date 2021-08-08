@@ -42,6 +42,14 @@ for epoch in range(num_epochs + 1):
     
     if epoch % 100 == 0:
         print(epoch , cost)
+   
+new_var = torch.FloatTensor([[1,2,3,4]])
+hypothesis = F.softmax(new_var.matmul(W) + b , dim = 1)    
+
+print(hypothesis.data[0]) # tensor([0.2577, 0.6430, 0.0993])
+nd = np.array(hypothesis.data[0]) # tensor -> numpy  tensor([0.2577, 0.6430, 0.0993]) ->  [0.25768545 0.6430299  0.09928469]
+
+print(np.argmax(nd)) # 1 
 
         
 '''
