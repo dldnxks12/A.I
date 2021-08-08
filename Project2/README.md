@@ -15,9 +15,7 @@
 #### 1주차
 
   - Pytorch remind
-    
-    [Repo](https://github.com/dldnxks12/A.I/blob/1d39a141862fdc561a985d66757c1f47ba9d85d0/DeepLearning/Pytorch)
-    
+
         1. Linear Regression   - ok
         2. Logistic Regression - ok
         3. Softmax Regression  - ok
