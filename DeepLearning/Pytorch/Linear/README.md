@@ -4,7 +4,11 @@
 
       - zero_grad 실습 참고
 
-#### Autograd --- required_grad = True , backward() ...
+#### Autograd 
+
+    required_grad = True , backward() ...
+
+
 
     경사 하강법 코드에서 required_grad = True 나 backward() 함수를 보게 된다.
 
@@ -12,5 +16,8 @@
 
       - autograd 실습 참고 
 
+autograd의 Variable에 대해서도 알아두는 것이 좋을 것 같다. [autograd]https://data-panic.tistory.com/8    
+    
+   
 
 
