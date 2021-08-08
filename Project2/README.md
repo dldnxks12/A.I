@@ -28,6 +28,11 @@ Pytorch 사용법 숙지 - [Pytorch](https://github.com/dldnxks12/A.I/blob/1d39a
         3. torchvision - deeplabv-resnet50 , deeplabv-resnet101         
 
 
+https://shangom-developer.tistory.com/4
+
+https://github.com/jfzhang95/pytorch-deeplab-xception
+
+
 #### 2주차
 
   - 기본적인 Segmentation 구현
