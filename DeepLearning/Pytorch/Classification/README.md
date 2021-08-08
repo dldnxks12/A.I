@@ -2,6 +2,16 @@
 
   Softmax를 이용해서 여러 개의 class도 분류할 수 있다.
   
+  Sudo code
+  
+    1. Label Data -> One-hot Encoding
+    2. nn.Linear(x_train)
+    3. nn.Softmax(x_train)
+    4. CrossEntropy(prediction, y_label_one_hot)
+    5. update -> goto step 1
+
+    라벨 데이터 원 핫 인코딩 - 선형 회귀 Hypothesis 생성 (Weight, Bias 학습 및 출력 Class와 차원 맞추기) - Softmax 함수 통과 (0~1 사이 확률 값으로 매핑) -  Cost 계산 - 업데이트
+  
 ---
  
 #### One-hot Encoding
@@ -24,15 +34,22 @@
 
 #### Softmax Regression
 
-   binary classification(이진 분류) 에서는 출력 값으로 0 또는 1의 값을 갖게 했다.
+  binary classification(이진 분류) 에서는 출력 값으로 0 또는 1의 값을 갖게 했다.
    
-   Softmax regression 또는 multi class classification에서는 다양한 class에 대해서 각각 확률로써 결과값을 도출한다. 
+  우리는 이제 Linear Regression으로 도출한 Hypothesis를 Sigmoid가 아니라 Softmax 라는 함수에 통과시킨다!
+
+    입력 데이터를 Linear Regression을 통해 Class와 차원이 같은 Vector로 만들어주고, 이 Vector를 Softmax 함수에 통과시킨다.    
+
+    Softmax regression 또는 multi class classification에서는 다양한 class에 대해서 각각 확률로써 결과값을 도출한다. 
+    
+    이 결과값에 대해서 Cost 를 계산해서 학습한다. (Cross Entropy)
    
 ![image](https://user-images.githubusercontent.com/59076451/128623574-55c2e674-52a0-4e83-b63c-3a285d03a894.png)
 
 
 
-  이제 Linear Regression으로 도출한 Hypothesis를 Sigmoid가 아니라 Softmax 라는 함수에 통과시킨다!
+  
+  
 
 ---
 
