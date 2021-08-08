@@ -31,12 +31,13 @@
         
         1. argparse - ok 
         2. torch - dataloader - ok
-        3. torchvision - deeplabv-resnet50 , deeplabv-resnet101         
+        3. torchvision - ok 
 
+  - About deeplabv-resnet50 , deeplabv-resnet101         
 
-https://shangom-developer.tistory.com/4
+    링크 - https://shangom-developer.tistory.com/4
 
-https://github.com/jfzhang95/pytorch-deeplab-xception
+    링크 - https://github.com/jfzhang95/pytorch-deeplab-xception
 
 ---
 
