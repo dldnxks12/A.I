@@ -11,7 +11,7 @@
     5. update -> goto step 1
 
   - 라벨 데이터 원 핫 인코딩 
-  - 선형 회귀 Hypothesis 생성 (Weight, Bias 학습 및 출력 Class와 차원 맞추기) 
+  - 선형 회귀 Hypothesis 생성 --- 입력데이터와 Weight, Bias의 행렬곱 (출력 Class와 차원 맞추기) 
   - Softmax 함수 통과 (0~1 사이 확률 값으로 매핑) 
   - Cost 계산 
   - 업데이트
