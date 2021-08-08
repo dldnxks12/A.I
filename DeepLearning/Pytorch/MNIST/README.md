@@ -25,8 +25,12 @@
 
 #### torchvision module 
 
-    torchvision은 유명한 데이터셋(dataset), 이미 구현되있는 유명한 모델(models), 그리고 일반적인 이미지 전처리 도구들(transforms)을 포함하고 있는 유용한 패키지이다.
+    torchvision은 다음을 포함하고 있는 유용한 패키지이다. 
+    
+        유명한 데이터셋(dataset) 
+        이미 구현되있는 유명한 모델(models)
+        일반적인 이미지 전처리 도구들(transforms)
 
-    링크 : https://pytorch.org/docs/stable/torchvision/index.html  
+   링크 : https://pytorch.org/docs/stable/torchvision/index.html  
   
   
