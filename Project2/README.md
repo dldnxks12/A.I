@@ -11,9 +11,17 @@
                 
 ### To do list
 
-Pytorch 사용법 숙지 - [Pytorch](https://github.com/dldnxks12/A.I/blob/1d39a141862fdc561a985d66757c1f47ba9d85d0/DeepLearning/Pytorch)
+
 
 #### 1주차
+
+  - Pytorch remind
+    
+    [Pytorch](https://github.com/dldnxks12/A.I/blob/1d39a141862fdc561a985d66757c1f47ba9d85d0/DeepLearning/Pytorch)
+    
+        1. Linear Regression   - ok
+        2. Logistic Regression - ok
+        3. Softmax Regression  - ok
 
   - Segmentation ?
 
@@ -21,10 +29,10 @@ Pytorch 사용법 숙지 - [Pytorch](https://github.com/dldnxks12/A.I/blob/1d39a
 
   - Python Code Analysis
 
-        * segtrain.py
+        * segtrain.py - ok
         
         1. argparse - ok 
-        2. torch - dataloader 
+        2. torch - dataloader - ok
         3. torchvision - deeplabv-resnet50 , deeplabv-resnet101         
 
 
