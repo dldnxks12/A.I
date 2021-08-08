@@ -16,7 +16,7 @@
 
       - autograd 실습 참고 
 
-autograd의 Variable에 대해서도 알아두는 것이 좋을 것 같다. [autograd](https://data-panic.tistory.com/8)    
+autograd의 Variable에 대해서도 알아두는 것이 좋을 것 같다. [Variable](https://data-panic.tistory.com/8)    
     
    
 
