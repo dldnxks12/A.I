@@ -2,6 +2,8 @@
 
   Softmax를 이용해서 여러 개의 class도 분류할 수 있다.
   
+---
+ 
 #### One-hot Encoding
 
   선택지의 개수만큼의 차원을 가지면서, 해당 선택지의 인덱스에 해당하는 원소는 1, 나머지는 0의 값을 가지도록 하는 표현법
@@ -18,7 +20,8 @@
                                 [0, 1, 0]
                                 [0, 0, 1] ]) 
                                 
-                                
+---
+
 #### Softmax Regression
 
    binary classification(이진 분류) 에서는 출력 값으로 0 또는 1의 값을 갖게 했다.
@@ -30,7 +33,9 @@
 
 
   이제 Linear Regression으로 도출한 Hypothesis를 Sigmoid가 아니라 Softmax 라는 함수에 통과시킨다!
-  
+
+---
+
 #### Softmax function
 
   이 함수는 분류해야 하는 클래스의 총 개수를 k라고 할 때, k 차원의 벡터를 입력으로 받고 각 클래스에 대한 확률을 추정한다. 
@@ -40,6 +45,7 @@
 
 ![image](https://user-images.githubusercontent.com/59076451/128623751-756ffae3-c24d-4485-9886-0500c955e3f8.png)
 
+---
 
 #### Cost Function
 
