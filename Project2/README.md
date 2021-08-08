@@ -7,21 +7,21 @@
         what to do? 
         
         가공된 데이터를 넣어 질병의 유무를 Classification 해줄 Segmentation 모델을 만들 것
-               
+        
+---               
                 
 ### To do list
-
-
 
 #### 1주차
 
   - Pytorch remind
     
-    [Pytorch](https://github.com/dldnxks12/A.I/blob/1d39a141862fdc561a985d66757c1f47ba9d85d0/DeepLearning/Pytorch)
+    [Repo](https://github.com/dldnxks12/A.I/blob/1d39a141862fdc561a985d66757c1f47ba9d85d0/DeepLearning/Pytorch)
     
         1. Linear Regression   - ok
         2. Logistic Regression - ok
         3. Softmax Regression  - ok
+    
 
   - Segmentation ?
 
@@ -40,6 +40,7 @@ https://shangom-developer.tistory.com/4
 
 https://github.com/jfzhang95/pytorch-deeplab-xception
 
+---
 
 #### 2주차
 
@@ -49,6 +50,8 @@ https://github.com/jfzhang95/pytorch-deeplab-xception
         2. 가장 잘 사용되는 모델과 특징 분석 및 모델 선택
         3. Clone Coding도 좋고, 직접 구현도 좋지만 근본적으로 모델 Flow 이해하는 것에 Focusing      
              - API를 쓰지 않을 수 있다면 최대한 numpy로 구현해보기 
+
+---
 
 #### 3주차
 
