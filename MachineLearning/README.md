@@ -129,4 +129,23 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
 
 [Gradient](https://wikidocs.net/61271)
    
+   
+1. Weight Initialization
+
+        1. Xavier Initialization
+            - Sigmoid , tanh 활성함수와 잘 맞는다.
+
+        2. He initialization    
+            - ReLu 활성함수와 잘 맞는다.
+        
+2. Batch normalization
+
+        신경망의 각 Layer에 들어가는 입력을 평균과 분산으로 정규화해서 학습을 효율적이게 해준다. 
+
+            미니 배치 크기에 의존적이다 
+                - 너무작은 배치 크기에서는 잘 동작하지 않는다.
+
+            RNN에 적용하기 어렵다.
+        
+3. Layer normalization
         
