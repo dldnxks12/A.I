@@ -19,7 +19,8 @@
         1. Linear Regression   - ok
         2. Logistic Regression - ok
         3. Softmax Regression  - ok
-    
+        4. MLP/ANN 
+        5. CNN
 
   - Segmentation ?
 
