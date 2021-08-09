@@ -44,3 +44,8 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
 
 이를 모델을 training 시킨다고 한다. 
 
+---
+
+### 활성함수로 비선형 함수를 선택해야 하는 이유 
+
+![image](https://user-images.githubusercontent.com/59076451/128674911-40e86d52-d650-48e3-8409-0759d3ebc49d.png)
