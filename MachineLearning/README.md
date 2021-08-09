@@ -1,5 +1,4 @@
-#### Before Machine Learning ...
-
+### Before Machine Learning ...
 
 Single Layer Perceptron 을 사용하여 간단한 분류 문제는 해결할 수 있다. 
 
@@ -19,8 +18,9 @@ Multi Layer Perceptron 은 비선형 영역에 대한 해답을 가지고 있다
 
 ![image](https://user-images.githubusercontent.com/59076451/128667633-2606f7d7-6604-42ed-b18c-fdbb36d5e9a0.png)
     
+---
 
-#### MLP
+### MLP
 
 XOR와 같은 문제는 Multi Layer Perceptron로 해결이 가능하다. 
 
