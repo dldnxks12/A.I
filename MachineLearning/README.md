@@ -140,7 +140,8 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
         
 2. Batch normalization
 
-        신경망의 각 Layer에 들어가는 입력을 평균과 분산으로 정규화해서 학습을 효율적이게 해준다. 
+        신경망의 각 Layer에 들어가는 입력을 평균과 분산으로 정규화해서 학습을 효율적이게 해준다. (batch 단위로)
+        각 층에서 활성함수를 통과시키기 전에 수행된다. + Drop Out과 시너지가 좋다.
 
             미니 배치 크기에 의존적이다 
                 - 너무작은 배치 크기에서는 잘 동작하지 않는다.
@@ -148,4 +149,6 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
             RNN에 적용하기 어렵다.
         
 3. Layer normalization
-        
+
+![image](https://user-images.githubusercontent.com/59076451/128681055-f3ab4239-bac8-4988-a806-566e5634c244.png)
+
