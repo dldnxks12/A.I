@@ -1,7 +1,5 @@
 ## Machine Learning 
 
----
-
 #### Before Machine Learning ...
 
 Single Layer Perceptron 을 사용하여 간단한 분류 문제는 해결할 수 있다. 
@@ -67,11 +65,17 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
 
 [Overfitting](https://wikidocs.net/60751)
 
-데이터 양 늘리기   - Data Augmentation  
+##### 데이터 양 늘리기   
+   
+    - Data Augmentation  
 
-모델 복잡도 줄이기 - Architecture Simplify 
+##### 모델 복잡도 줄이기 
 
-드롭 아웃         - Drop out
+    - Architecture Simplify 
+
+##### 드롭 아웃         
+
+        - Drop out
 
         학습 과정에서 신경망의 일부를 사용하지 않는 방법
         신경만 학습 시에만 사용하고, 예측 시에는 사용하지 앟는 것이 일반적이다.
@@ -80,7 +84,9 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
         
                             매번 랜덤으로 뉴런들을 선택해서 사용하므로 서로 다른 신경망을 앙상블하는 것과 같은 효과를 준다.
 
-가중치 규제       - Regularization (Normalization과 혼동 X)
+##### 가중치 규제       
+
+        - Regularization (Normalization과 혼동 X)
     
         복잡한 모델이 간단한 모델보다 Overfitting될 가능성이 높다. (간단한 모델 매개변수 수 < 복잡한 모델 매개변수 수)
         복잡한 모델을 간단하게 만드는 방법 중 하나로 가중치 규제가 있다.
@@ -114,6 +120,8 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
             
 ![image](https://user-images.githubusercontent.com/59076451/128677581-499e90d5-7876-456e-9c07-a8f8240b37a7.png)
             
+---
+
 #### Gradient 
 
 [Gradient](https://wikidocs.net/61271)
