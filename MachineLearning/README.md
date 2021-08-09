@@ -51,6 +51,9 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
 ![image](https://user-images.githubusercontent.com/59076451/128674911-40e86d52-d650-48e3-8409-0759d3ebc49d.png)
 
 
+![image](https://user-images.githubusercontent.com/59076451/128675331-77c95643-6856-4bab-be4f-60f622318042.png)
+
+
 - 활성함수의 사용 위치
 
 ![image](https://user-images.githubusercontent.com/59076451/128675015-044ee335-aa0c-46af-9147-f9f8526e7e56.png)
