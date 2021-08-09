@@ -137,6 +137,8 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
 
         2. He initialization    
             - ReLu 활성함수와 잘 맞는다.
+
+
         
 2. Batch normalization
 
@@ -147,6 +149,8 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
                 - 너무작은 배치 크기에서는 잘 동작하지 않는다.
 
             RNN에 적용하기 어렵다.
+            
+            
         
 3. Layer normalization
 
