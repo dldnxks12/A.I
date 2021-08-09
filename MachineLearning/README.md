@@ -48,7 +48,7 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
 
 ---
 
-#### 활성함수로 비선형 함수를 선택해야 하는 이유 
+## 활성함수로 비선형 함수를 선택해야 하는 이유 
 
 ![image](https://user-images.githubusercontent.com/59076451/128674911-40e86d52-d650-48e3-8409-0759d3ebc49d.png)
 
@@ -60,6 +60,7 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
 
 ![image](https://user-images.githubusercontent.com/59076451/128675015-044ee335-aa0c-46af-9147-f9f8526e7e56.png)
 
+---
 
 #### Overfitting Solver
 
@@ -98,11 +99,13 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
         λ는 규제의 강도를 정하는 변수이다. 
         λ가 크다면 모델이 훈련 데이터에 대해 적합한 Weight, Bias를 찾는 것 보다 규제를 위해 추가된 항들을 작게 유지하는 것을 우선한다는 의미이다. 
         
-        각 각의 값은 기존 Cost function에 더해서 발전된 Cost function의 형태를 갖는다.
+        Cost function = 기존 Cost function + λ() 의 형태를 갖는다.
+        
         위 두 식 모두 Cost function을 최소화 하기 위해서 가중치 Weight들이 작아져야 한다는 특징이 있다.
         
         L1 규제를 예로 들면, 비용 함수가 최소가 되게 하는 Weight와 Bias를 찾는 동시에, 가중치들의 절대값 합도 최소가 되는 방향으로 학습된다.
         다시말해서..        
+        
              1. 알맞은 Weight, Bias들은 오차가 최소가 되도록 한 후 그대로 놔두는 방향으로 학습된다.
              2. 알맞지 않은 Weight, Bias들은 값이 거의 0에 가깝도록 조정되어 모델에 거의 사용되지 않게 된다.
 
