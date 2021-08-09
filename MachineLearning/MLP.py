@@ -14,7 +14,7 @@ if device == 'cuda':
 x_data = torch.FloatTensor([[0,0],[0,1],[1,0],[1,1]]).to(device) # defualt = CPU
 y_data = torch.FloatTensor([[0],[1],[1],[0]]).to(device)         # defualt = CPU
 
-
+# * Layer 쌓기 * ---------------------------------------------------------------------------- 이 부분을 통해 비선형 문제를 해결 
 model = nn.Sequential(
     nn.Linear(2, 10, bias = True),
     nn.Sigmoid(),
@@ -25,7 +25,9 @@ model = nn.Sequential(
     nn.Linear(10,1, bias = True),
     nn.Sigmoid()
 ).to(device)
-    
+
+# * Layer 쌓기 * ---------------------------------------------------------------------------- 
+
 # Optimizer 선언
 optimizer = optim.SGD(model.parameters(), lr = 1)
 for step in range(10000):
