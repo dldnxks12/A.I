@@ -49,3 +49,8 @@ AND, NAND, OR 문제를 풀기 위해 사용한 함수를 섞어서 사용하면
 ### 활성함수로 비선형 함수를 선택해야 하는 이유 
 
 ![image](https://user-images.githubusercontent.com/59076451/128674911-40e86d52-d650-48e3-8409-0759d3ebc49d.png)
+
+
+- 활성함수의 사용 위치
+
+![image](https://user-images.githubusercontent.com/59076451/128675015-044ee335-aa0c-46af-9147-f9f8526e7e56.png)
