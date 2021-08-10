@@ -34,22 +34,56 @@
         2. torch - dataloader - ok
         3. torchvision - ok 
 
-  - About deeplabv-resnet50 , deeplabv-resnet101         
+  - 추가 개념 
 
-    링크 - https://shangom-developer.tistory.com/4
+        1. SOTA Browser 
+      
+            SOTA Model 
 
-    링크 - https://github.com/jfzhang95/pytorch-deeplab-xception
+        2. Kaggle 
+
+            Dataset Archive 
+          
+        3. torchvision - deeplabv3
+
+            Semantic Segmentation model provided by Pytorch
+            
+              - 현재 UltraSound에서 사용하는 모델 : deeplabv-resnet50 , deeplabv-resnet101         
+
+        4. contigous 
+        
+            데이터 읽어 들이는 순서에 관한 함수
+          
+        5. permute vs view
+          
+            view    : 데이터 읽어들이는 순서 변경 (shape는 사실 변하지 않는다.)
+            permute : Dimension Index 순서 변경
+              
+               permute를 사용할 경우 contigous와 같이 사용하는 경우가 많다.
+          
+        6. SubsetRandomSampler
+
+            전체 dataset에서 Train dataset과 Test dataset을 각각 부분 집합으로 만들어 dataloader에 넣어주는 방법 
 
 ---
 
 #### 2주차
 
-  - 기본적인 Segmentation 구현
 
-        1. 관련 논문 몇 가지 정리 
-        2. 가장 잘 사용되는 모델과 특징 분석 및 모델 선택
-        3. Clone Coding도 좋고, 직접 구현도 좋지만 근본적으로 모델 Flow 이해하는 것에 Focusing      
-             - API를 쓰지 않을 수 있다면 최대한 numpy로 구현해보기 
+  - 기본적인 Segmentation 구현 with Kaggle BUSI Dataset 
+
+        1. FCN, SegNet, U-Net 이해 및 정리 
+        2. 간단한 Segmentation 모델 구현 with BUSI 
+
+  - pytorch deeplabv3 
+   
+        1. deeplabv3 model 이해 및 정리 
+        2. deeplabv3와 BUSI를 이용한 Segmentation 구현 
+
+- 링크 
+
+https://shangom-developer.tistory.com/4<br>
+https://github.com/jfzhang95/pytorch-deeplab-xception
 
 ---
 
