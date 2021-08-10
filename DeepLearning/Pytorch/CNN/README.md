@@ -42,11 +42,11 @@ CNN은 이미지 처리에 특화된 신경망이다.
 
 이미지는 (높이 x 넓이 x 채널)의 3차원 Tensor이다. 
 
-Image      = Height x Width x Channel 
+    Image      = Height x Width x Channel 
 
-GrayImage  = Height x Width x 1 channel
+    GrayImage  = Height x Width x 1 channel
 
-ColorImage = Height x Width x 3 channel (R G B)
+    ColorImage = Height x Width x 3 channel (R G B)
 
 ---
 
