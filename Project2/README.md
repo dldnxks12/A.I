@@ -26,7 +26,7 @@
 
         1. Segmentation 이란?
 
-  - Python Code Analysis
+  - Code Review
 
         * code review ( segtrain.py ) - ok
         
