@@ -37,9 +37,7 @@
   - 추가 개념 
 
         1. SOTA Browser 
-      
-            SOTA Model 
-
+        
         2. Kaggle 
 
             Dataset Archive 
@@ -50,18 +48,18 @@
             
               - 현재 UltraSound에서 사용하는 모델 : deeplabv-resnet50 , deeplabv-resnet101         
 
-        4. contigous 
+        4. contigous - ok
         
             데이터 읽어 들이는 순서에 관한 함수
           
-        5. permute vs view
+        5. permute VS view - ok 
           
             view    : 데이터 읽어들이는 순서 변경 (shape는 사실 변하지 않는다.)
             permute : Dimension Index 순서 변경
               
                permute를 사용할 경우 contigous와 같이 사용하는 경우가 많다.
           
-        6. SubsetRandomSampler
+        6. SubsetRandomSampler - ok
 
             전체 dataset에서 Train dataset과 Test dataset을 각각 부분 집합으로 만들어 dataloader에 넣어주는 방법 
 
