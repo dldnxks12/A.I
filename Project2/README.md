@@ -20,7 +20,7 @@
         2. Logistic Regression - ok
         3. Softmax Regression  - ok
         4. MLP/ANN             - ok
-        5. CNN
+        5. CNN                 - ok
 
   - Segmentation ?
 
@@ -28,7 +28,7 @@
 
   - Python Code Analysis
 
-        * segtrain.py - ok
+        * code review ( segtrain.py ) - ok
         
         1. argparse - ok 
         2. torch - dataloader - ok
