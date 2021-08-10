@@ -82,6 +82,7 @@ Channel 수가 같으므로 Convolution 연산을 Channel 마다 수행한다. �
 
 ![image](https://user-images.githubusercontent.com/59076451/128827116-f5fd50ab-959d-49ab-b0ca-110afe9784d1.png)
 
+---
     
 #### Feature map, Stride, Padding 
 
@@ -105,6 +106,7 @@ Padding
      
 ![image](https://user-images.githubusercontent.com/59076451/128824593-c1ade2b7-5905-4240-873c-fc7d9c4fa204.png)
 
+---
 
 #### Weight, Bais in CNN
 
@@ -122,6 +124,7 @@ Weight
     
 ![image](https://user-images.githubusercontent.com/59076451/128825264-df42aa70-5861-4370-a25a-0f08dd2481ce.png)
     
+---    
     
 #### Pooling 
 
