@@ -68,11 +68,11 @@
 #### 2주차
 
   - Paper & Notation 
-    
-      1. FCN - ok
-      2. SegNet
-      3. Deconvolution - ok
-      4. deeplabv3
+
+        1. FCN - ok
+        2. SegNet
+        3. Deconvolution - ok
+        4. deeplabv3
   
 
   - 기본적인 Segmentation 구현 with Kaggle BUSI Dataset 
