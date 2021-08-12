@@ -73,7 +73,7 @@
         2. SegNet
         3. Deconvolution - ok
         4. AE  (Auto Encoder) - ok
-        5. CAE (Convolutional Auto Encoder)
+        5. CAE (Convolutional Auto Encoder) - ok
         6. deeplabv3
         7. 평가 지표 - ok
   
@@ -88,8 +88,9 @@
 
 - 링크 
 
-https://shangom-developer.tistory.com/4<br>
-https://github.com/jfzhang95/pytorch-deeplab-xception
+[Deconvolution-CAE](https://wjddyd66.github.io/pytorch/Pytorch-AutoEncoder/)<br>
+[deeplabv3](https://shangom-developer.tistory.com/4)<br>
+[deeplabv3](https://github.com/jfzhang95/pytorch-deeplab-xception)
 
 ---
 
