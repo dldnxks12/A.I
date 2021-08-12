@@ -54,6 +54,26 @@ class AE(nn.Module):
         out = out.view(batch_size, 1, 28 , 28) # 이미지의 형태로 reconstruct        
         return out
 
+''' layer 2배로 
+class AE(nn.Module):
+    def __init__(self):
+        super(AE,self).__init__() # initialize super class init function
+        self.encoder = nn.Linear(28*28, 100) # 28 x 28 vector -> 20 vector (latent space vector)
+        self.encoder2 = nn.Linear(100, 10) # 28 x 28 vector -> 20 vector (latent space vector)        
+        
+        self.decoder = nn.Linear(10, 100) # 20 -> 28 x 28 (reconstruct image feature from latent space vector)
+        self.decoder2 = nn.Linear(100, 28*28) # 20 -> 28 x 28 (reconstruct image feature from latent space vector)
+        
+    def forward(self, x): # x : 100 x 1 x 28 x 28 
+        x = x.view(batch_size, -1) # (batch_size , channel, height , width ) -> (batch_size, channel x height x width)
+        z = self.encoder(x)
+        z = self.encoder2(z)
+        out = self.decoder(z)     # (batch_size, channel x height x width) -> (batch_size, channel, height , width )  
+        out = self.decoder2(out)
+        out = out.view(batch_size, 1, 28 , 28) # 이미지의 형태로 reconstruct        
+        return out
+'''
+    
 # model 생성 , optimizer, cost function 
 
 model = AE().to(device)
