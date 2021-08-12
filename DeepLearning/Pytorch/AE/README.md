@@ -1,4 +1,13 @@
-### AE vs CAE
+#### Deconvolution 이해를 위한 CAE
+
+  - Additional Notatation
+
+        1. Model 저장하기
+        2. Model 불러오기
+        3. Parameter 같이 학습시키기
+
+
+#### AE vs CAE
 
 - AE (ANN Base)
 
