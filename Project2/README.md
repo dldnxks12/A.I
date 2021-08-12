@@ -73,15 +73,16 @@
         2. SegNet
         3. Deconvolution - ok
         4. deeplabv3
+        5. 평가 지표 - ok
   
 
   - 기본적인 Segmentation 구현 with Kaggle BUSI Dataset 
 
-        1. 간단한 Segmentation 모델 구현 with BUSI 
+        1. Segmentation 구현 with FCN, BUSI
 
   - pytorch deeplabv3 
    
-        1. deeplabv3와 BUSI를 이용한 Segmentation 구현 
+        1. Segmentation 구현 with deeplabv3, BUSI
 
 - 링크 
 
