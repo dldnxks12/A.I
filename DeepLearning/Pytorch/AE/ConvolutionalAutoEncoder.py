@@ -137,8 +137,12 @@ for epoch in range(training_epochs):
     print(loss)
                
 
-
-
+# Input - Output 이미지 비교 확인
+plt.subplot(1,2,1)
+plt.imshow(torch.squeeze(out.data[1]).numpy() , cmap = 'gray')
+plt.subplot(1,2,2)
+plt.imshow(torch.squeeze(x.data[1]).numpy(), cmap = 'gray')
+plt.show()
 
 # 참고 링크 https://wjddyd66.github.io/pytorch/Pytorch-AutoEncoder/
 
