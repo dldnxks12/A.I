@@ -72,8 +72,10 @@
         1. FCN - ok
         2. SegNet
         3. Deconvolution - ok
-        4. deeplabv3
-        5. 평가 지표 - ok
+        4. AE  (Auto Encoder) - ok
+        5. CAE (Convolutional Auto Encoder)
+        6. deeplabv3
+        7. 평가 지표 - ok
   
 
   - 기본적인 Segmentation 구현 with Kaggle BUSI Dataset 
