@@ -76,11 +76,12 @@
         5. CAE (Convolutional Auto Encoder) - ok
         6. deeplabv3
         7. 평가 지표 - ok
+        8. ResNet - ok
   
 
   - 기본적인 Segmentation 구현 with Kaggle BUSI Dataset 
 
-        1. Segmentation 구현 with FCN, BUSI
+        1. Segmentation 구현 with FCN, BUSI - ing..
 
   - pytorch deeplabv3 
    
