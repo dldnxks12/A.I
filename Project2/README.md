@@ -79,9 +79,37 @@
         8. ResNet - ok
   
 
-  - 기본적인 Segmentation 구현 with Kaggle BUSI Dataset 
+  - 기본적인 Segmentation 구현 with Kaggle BUSI Dataset  - 80 %
 
-        1. Segmentation 구현 with FCN, BUSI - ing..
+        1. Segmentation 구현 with FCN, BUSI 
+
+            BUSI Dataset 중 feature가 확실한 benign dataset을 이용
+            
+            Lower layer : VGG-16
+            Upper layer : FCN-8s 
+            
+            * 문제 *
+            
+              데이터 전처리 부분에서 model을 모두 같은 사이즈로 만드는 과정에서 불필요한 여백이 생김
+              
+              이 부분을 감안하고 학습을 시켰고, 결과적으로 성능이 그다지 좋지 않았다.
+              
+              해당 여백이 문제인 것인지는 아직 잘 모르지만, 우선 해결하는 것이 좋아보임 
+              
+              (사이즈 상관없이 넣어주어도 되는 것으로 아는데, 적어도 데이터셋의 크기를 통일시켜야하나?)
+                
+
+<div align="center">
+
+Preprocessed Image
+
+![image](https://user-images.githubusercontent.com/59076451/129719376-b565ed94-8529-4560-9ea5-adc88ea6366a.png)
+  
+test data Result 
+
+![image](https://user-images.githubusercontent.com/59076451/129719503-2b607d43-57e1-448c-b975-b961629a7132.png)
+
+</div>
 
   - pytorch deeplabv3 
    
