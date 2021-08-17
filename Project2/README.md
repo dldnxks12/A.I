@@ -113,6 +113,11 @@ test result
 
 ![image](https://user-images.githubusercontent.com/59076451/129725036-cdc0b1ee-f10d-4abb-a55b-aafcbcecd1fe.png)
 
+test result 2
+  
+![image](https://user-images.githubusercontent.com/59076451/129725644-3292973f-c2aa-4d7e-ab21-1a52326e3a5b.png)
+
+
 </div>
 
   - pytorch deeplabv3 
