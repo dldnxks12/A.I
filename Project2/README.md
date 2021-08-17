@@ -101,13 +101,17 @@
 
 <div align="center">
 
-Preprocessed Image
-
-![image](https://user-images.githubusercontent.com/59076451/129719376-b565ed94-8529-4560-9ea5-adc88ea6366a.png)
+preprocessed test data
   
-test data Result 
+![image](https://user-images.githubusercontent.com/59076451/129725196-72cc0b4d-50bb-4f8e-8dbd-c18cfd8e7c93.png)
+  
+test label 
+  
+![image](https://user-images.githubusercontent.com/59076451/129725093-f61ebf10-a38d-4cd2-815c-53e6548d4575.png)
+  
+test result
 
-![image](https://user-images.githubusercontent.com/59076451/129719503-2b607d43-57e1-448c-b975-b961629a7132.png)
+![image](https://user-images.githubusercontent.com/59076451/129725036-cdc0b1ee-f10d-4abb-a55b-aafcbcecd1fe.png)
 
 </div>
 
