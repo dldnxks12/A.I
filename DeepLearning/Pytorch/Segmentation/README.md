@@ -5,3 +5,14 @@
     3. U-Net
     4. deeplabv3 in torchvision
 
+
+#### model.eval() ?
+
+    .eval()은 'out'이라는 1개의 key를 가지고 있다. 따라서 해당 model의 출력을 얻으려면 'out' key값을 통해 얻어내야한다.
+    
+        
+        ex) test_model = model.eval()
+        
+            result = test_model(x)['out']
+    
+    
