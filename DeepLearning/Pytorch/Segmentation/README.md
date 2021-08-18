@@ -20,4 +20,9 @@
 
     torch.argmax()는 입력 배열의 최대값이 위치한 'index'를 반환한다!
     
-    
+#### wget으로 데이터 다운로드 
+
+    url = "imageURL"
+    wget.download(url)
+
+   
