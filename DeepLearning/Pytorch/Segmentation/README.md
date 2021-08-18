@@ -14,5 +14,10 @@
         ex) test_model = model.eval()
         
             result = test_model(x)['out']
+            
+            
+#### torch.argmax(input) -> LongTensor
+
+    torch.argmax()는 입력 배열의 최대값이 위치한 'index'를 반환한다!
     
     
