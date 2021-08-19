@@ -147,6 +147,10 @@ result
 
 - Segmenatation Customization 
 
+    - Paper
+    
+          SegNet Review
+
     - 기존 모델 향상 
 
           1. FCN -> SegNet + BUSI / Human Parsing dataset with Softmax
