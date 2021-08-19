@@ -119,6 +119,12 @@ test result 2
 ![image](https://user-images.githubusercontent.com/59076451/129725644-3292973f-c2aa-4d7e-ab21-1a52326e3a5b.png)
 
 
+with human parsiong dataset 
+  
+result 
+  
+![image](https://user-images.githubusercontent.com/59076451/130016299-604180d0-9926-4f7a-9e82-65d6dd49225d.png)  
+  
 </div>
 
   - pytorch deeplabv3 
