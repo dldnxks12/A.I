@@ -1,7 +1,7 @@
 '''
 
-해당 HW를 진행하며, Weight를 저장하고 로드하는 방법을 이해
-또한 Data가 적을 경우 Data augumentation을 진행하는 방식에 대해 이해하게 
+1. Data가 적을 경우 Data augumentation
+2. Weight를 저장하고 로드하는 방법
 
 '''
 
