@@ -78,6 +78,7 @@
         7. 평가 지표 - ok
         8. ResNet - ok
   
+  [Deconvolution](https://zzsza.github.io/data/2018/06/25/upsampling-with-transposed-convolution/)
 
   - 기본적인 Segmentation 구현 with Kaggle BUSI Dataset  - 80 %
 
