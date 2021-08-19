@@ -8,10 +8,10 @@
 - Modern CNN
 
       LeNet
-      AlexNet
-      VGG Nets
-      GoogLeNet
-      ResNet
+      AlexNet 
+      VGG Nets   - ok
+      GoogLeNet 
+      ResNet     - ok
 
 - Image Detection
 
@@ -25,7 +25,7 @@
 
 - Semantic Segmentation
 
-      FCN
+      FCN       - ok
       SegNet
       U-Net
       DeepLab v1, v2
