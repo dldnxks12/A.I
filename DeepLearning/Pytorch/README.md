@@ -1,5 +1,14 @@
 #### Pytorch
 
+- Linear Regression 
+
+      Linear Regression - ok
+
+- Classification
+
+      Logistic Regression(Binary Classification) - ok
+      Softmax Regression(MultiClass Classification) - ok
+
 - Auto Encoder
 
       AE  - ok
