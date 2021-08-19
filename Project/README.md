@@ -1,9 +1,11 @@
 #### 2021 Spring KW Univ. deep learning final Project 
 
-     Segmentation with U Net 
+     1. U Net (Segmentation)
      
-     Style transfer with AdaIn
----
+     2. AdaIn (Style transfer)
+     
+<div align=center>     
+     
 Input data
 
 ![01](https://user-images.githubusercontent.com/59076451/125172536-46714e80-e1f5-11eb-8a67-adf9601f0a5f.jpg)
@@ -17,3 +19,5 @@ Output data 1
 Output data 2
 
 ![sss](https://user-images.githubusercontent.com/59076451/125172533-45402180-e1f5-11eb-8bd3-feb1c750ebce.PNG)
+
+</div>     
