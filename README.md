@@ -6,7 +6,7 @@
 
 ---
 
-**Until now **
+**진행상황**
     
 #### Machine Learning
 
