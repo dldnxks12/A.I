@@ -147,6 +147,11 @@ result
 
 - Segmenatation Customization 
 
+    - 기존 모델 향상 
+
+          1. FCN -> SegNet + BUSI / Human Parsing dataset with Softmax
+          2. FCN -> SegNet + BUSI / Human Parsing dataset with Sigmoid 
+
     - 사용할 형태로 모델 구현 (필요한 기능이 있다면 추가 구현)  
 
           1. 입력 데이터 Segmentation
