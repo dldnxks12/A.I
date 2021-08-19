@@ -80,34 +80,25 @@ model = AE().to(device)
 optimizer = optim.SGD(model.parameters(), lr = learning_rate)
 loss_fun = nn.MSELoss() # Mean Squared Error 사용 (원래 이미지와 출력 이미지 간의 loss 단순 계산)
 
-
 # training 
-for i in range(training_epochs):
-  
+for i in range(training_epochs):  
     loss = 0
     for x, y in Train_loader:
         
-        checkIn  = x
-        checkout = out
-        
         x = x.to(device)
-        y = y.to(device) 
-        
+        y = y.to(device)         
         optimizer.zero_grad() # 초기화
         
         # Inference
-        out = model(x)  # out --- (batch_size, channel, height , width )  의 reconstruct된 data
-        
+        out = model(x)  # out --- (batch_size, channel, height , width )  의 reconstruct된 data        
         cost = loss_fun(out,x)
         
         cost.backward() # 가중치 계산
         optimizer.step()
         
-        loss = cost
-            
+        loss = cost            
     print(loss)
-        
-        
+                
 # Test Input - Output
 
 # out.cpu() --- GPU에서 Tensor를 가져올 떄 사용, CPU로 학습을 진행했다면 cpu() 사용안해도 상관 x
