@@ -1,9 +1,9 @@
 #### Pytorch
 
+- Auto Encoder
 
-
-[Model Code Example](https://github.com/weiaicunzai/pytorch-cifar100/blob/master/models/resnet.py)
-
+      AE  - ok
+      CAE - ok
 
 - Modern CNN
 
@@ -30,4 +30,5 @@
       U-Net
       DeepLab v1, v2
       
-      
+
+[Model Code Example](https://github.com/weiaicunzai/pytorch-cifar100/blob/master/models/resnet.py)
