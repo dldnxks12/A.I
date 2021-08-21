@@ -28,18 +28,16 @@ train_data = torchvision.datasets.ImageFolder(root='./origin/', transform = tf)
 # Image Load and save  - origin folder 안에 x label folder 만 있음 
 for idx, value in enumerate(train_data):
     
-    data, label = value
-    
-    print(f"value{data}, label{label}")
-    data.save("tensor_x/%d.png" % idx)    
+    data, label = value      
+    data = np.array(data) # numpy type으로 바꿔서 저장
+    np.save("./numpy_x/" , data)    
 
 # Image Load and save  - origin folder 안에 y label folder 만 있음 
 for idx, value in enumerate(train_data):
     
-    data, label = value
-    
-    print(f"value{data}, label{label}")
-    data.save("tensor_y/%d.png" % idx)
+    data, label = value   
+    data = np.array(data) # numpy type으로 바꿔서 저장
+    np.save("./numpy_y/" , data)    
     
 
-# tensor_x, tensor_y folder는 os module을 사용해서     
+# numpy_x, numpy_y folder는 os module을 사용해서 미리 만들어두자
