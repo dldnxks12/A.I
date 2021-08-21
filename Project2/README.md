@@ -147,9 +147,10 @@ result
 
 - Segmenatation Customization 
 
-    - Paper
+    - Model study
         
-          SegNet Review
+          1. SegNet Review
+          2. U-Net Review
 
     - 추가 구현 
 
@@ -170,6 +171,8 @@ result
           1. FCN -> SegNet + BUSI / Human Parsing dataset with Softmax
           2. FCN -> SegNet + BUSI / Human Parsing dataset with Sigmoid 
           3. with VOC Dataset 
+          4. Initialize Code 추가 
+          5. BCE Loss or MSE Loss
 
     - 사용할 형태로 모델 구현 (필요한 기능이 있다면 추가 구현)  
 
