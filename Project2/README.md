@@ -148,10 +148,24 @@ result
 - Segmenatation Customization 
 
     - Paper
-    
+        
           SegNet Review
 
-    - 기존 모델 향상 
+    - 추가 구현 
+
+          VGG  - ok
+          GoogLeNet 
+          InceptionNet 
+          ResNet - ok
+
+    - Data Preprocessing
+
+          기존의 여백을 만드는 방식 to Resizing 
+    
+          1. torchvision.datasets.ImageFolder 이용 - ok
+          2. dataloader class __init__에서 전처리 
+
+    - 기존 모델 향상   
 
           1. FCN -> SegNet + BUSI / Human Parsing dataset with Softmax
           2. FCN -> SegNet + BUSI / Human Parsing dataset with Sigmoid 
