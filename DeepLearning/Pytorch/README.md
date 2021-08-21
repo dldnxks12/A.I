@@ -16,4 +16,20 @@
 
 #### Model Class Weight Initialize Method
 
-    initialize Code 참고 
+    
+- nn layers
+
+        linear1 = torch.nn.Linear(784, 256, bias=True)
+        linear2 = torch.nn.Linear(256, 256, bias=True)
+        linear3 = torch.nn.Linear(256, 10, bias=True)
+        relu = torch.nn.ReLU()
+
+- xavier initialization
+
+        torch.nn.init.xavier_uniform_(linear1.weight)
+        torch.nn.init.xavier_uniform_(linear2.weight)
+        torch.nn.init.xavier_uniform_(linear3.weight)
+
+[full Code](https://github.com/deeplearningzerotoall/PyTorch/blob/master/lab-09_3_mnist_nn_xavier.ipynb)
+
+
