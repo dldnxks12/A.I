@@ -70,7 +70,7 @@
   - Paper & Notation 
 
         1. FCN - ok
-        2. SegNet
+        2. SegNet - ok
         3. Deconvolution - ok
         4. AE  (Auto Encoder) - ok
         5. CAE (Convolutional Auto Encoder) - ok
