@@ -149,7 +149,7 @@ result
 
     - Model study
         
-          1. SegNet Review
+          1. SegNet Review - ok
           2. U-Net Review
 
     - 추가 구현 
