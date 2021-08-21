@@ -23,8 +23,7 @@
       LeNet
       AlexNet 
       VGG Nets     - ok
-      GoogLeNet 
-      InceptionNet
+      GoogLeNet    - ok
       ResNet       - ok
 
 - Image Detection
