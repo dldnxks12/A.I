@@ -1,4 +1,11 @@
-  
+'''
+
+ImageFolder를 이용해서 resize된 BUSI 이미지 사용 
+
+Output Channel : 2 
+
+'''
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -13,6 +20,14 @@ from torchvision.models.vgg import VGG # Pretrained VGG Model
 from torchvision import models
 import numpy as np
 
+# GPU setting 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print("Device : ", device)
+
+torch.manual_seed(777)
+if device == 'cuda':
+    torch.cuda.manual_seed_all(777)    
+    
 class VGGNet(VGG):
     def __init__(self, pretrained=True, model='vgg16', requires_grad=True, remove_fc=True, show_params=False):
         super().__init__(make_layers(cfg[model]))
@@ -34,13 +49,14 @@ class VGGNet(VGG):
 
     def forward(self, x):
         output = {}
+        # get the output of each maxpooling layer (5 maxpool in VGG net)
         for idx in range(len(self.ranges)):
             for layer in range(self.ranges[idx][0], self.ranges[idx][1]):
                 x = self.features[layer](x)
             output["x%d"%(idx+1)] = x
 
         return output
-      
+        
 def make_layers(cfg, batch_norm=False):
     layers = []
     in_channels = 3
@@ -55,7 +71,6 @@ def make_layers(cfg, batch_norm=False):
                 layers += [conv2d, nn.ReLU(inplace=True)]
             in_channels = v
     return nn.Sequential(*layers)           
-  
 
 class FCNs(nn.Module):
 
@@ -95,28 +110,31 @@ class FCNs(nn.Module):
         score = self.bn5(self.relu(self.deconv5(score)))  # size=(N, 32, x.H, x.W)
         score = self.classifier(score)                    # size=(N, n_class, x.H/1, x.W/1)
 
-        return score  # size=(N, n_class, x.H/1, x.W/1)  
-      
+        return score  # size=(N, n_class, x.H/1, x.W/1)
+        
 ranges = {'vgg16': ((0, 5), (5, 10), (10, 17), (17, 24), (24, 31))}
-cfg = {'vgg16': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']}
+cfg = {'vgg16': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 'M', 512, 512, 512, 'M']}  
 
+
+# training --- 
 vgg_model = VGGNet(requires_grad = True)
 fcn = FCNs(pretrained_net = vgg_model, n_class = 2)
 
 optimizer = optim.SGD(fcn.parameters(), lr = 0.01, momentum = 0.7)
 criterion = nn.BCELoss()
 
+# data load
+x_train = np.load('./numpy_x.npy')
+y_train = np.load('./numpy_y.npy')
 
-
-x_train = np.load('./saved_x.npy')
-y_train = np.load('./saved_y.npy')
-
+# transpose dimension
 x_train = np.transpose(x_train, (0, 3, 1, 2))
 y_train = np.transpose(y_train, (0, 3, 1, 2))
 
-# 2 channel image로 바꾸기 
+# to 2 channel image 
 y_train = y_train[:, :2, : ,:]
 
+# BUSI label threshold 
 thresh_np1 = np.zeros_like(y_train[:, 0, : ,:])
 thresh_np2 = np.zeros_like(y_train[:, 1, : ,:])
 
@@ -126,31 +144,28 @@ thresh_np2[ y_train[:, 1, : ,:] > 10] = 1
 y_train[:, 0, : ,:] = thresh_np1
 y_train[:, 1, : ,:] = thresh_np2
 
+# Numpy to Tensor
 x_train = torch.Tensor(x_train)
 y_train = torch.Tensor(y_train)
 
-train_data  = x_train[:436]
-train_label = y_train[:436]
+# Split one test data
+train_data  = x_train[1:]
+train_label = y_train[1:]
 
-test_data  = x_train[-1]
-test_label = y_train[-1]
+test_data  = x_train[0]
+test_label = y_train[0]
 
-test_data2  = x_train[-2]
-test_label2 = y_train[-2]
-
+# add Dimension 
 test_data =test_data.unsqueeze(0)
 test_label =test_label.unsqueeze(0)
-
-test_data2 =test_data2.unsqueeze(0)
-test_label2 =test_label2.unsqueeze(0)
 
 # DataLoader에 넣어줄 dataset type 생성
 train_dataset = TensorDataset(train_data, train_label)
 
-# DataLoader 
+# DataLoader
 train_loader = DataLoader( dataset = train_dataset, batch_size = 40, shuffle = True, drop_last = True )
 
-# train
+# trainining
 avg_cost = 0
 
 for epoch in range(1):    
@@ -160,14 +175,37 @@ for epoch in range(1):
         optimizer.zero_grad()
         
         output = fcn(x)
-        output = F.sigmoid(output)
+        output = F.sigmoid(output) # sigmoid로 0 ~ 1 사이로 mapping 
         
+        print("output.shape",output.shape)
+        print("y.shape",y.shape)
+        print(output[0])
+        print(y[0])
         cost = criterion(output , y)
         
         cost.backward()        
         optimizer.step()
         
         avg_cost += cost / batch_length        
-        print("Loop cost : ", cost)
+        print(cost)
         
-    print("Avg_cost: ", avg_cost)        
+    print(avg_cost)        
+    
+# Visualize output with Colored Img    
+def decode_segmap(image, nc=2):
+  
+    label_colors = np.array([(255, 255, 255), (0, 0, 0)])
+
+    r = np.zeros_like(image).astype(np.uint8)
+    g = np.zeros_like(image).astype(np.uint8)
+    b = np.zeros_like(image).astype(np.uint8)
+
+    for l in range(0, nc):
+    idx = image == l
+    r[idx] = label_colors[l, 0]
+    g[idx] = label_colors[l, 1]
+    b[idx] = label_colors[l, 2]
+
+    rgb = np.stack([r, g, b], axis=2)
+    return rgb        
+        
