@@ -24,20 +24,27 @@ tf = transforms.Compose([
 
 train_data = torchvision.datasets.ImageFolder(root='./origin/', transform = tf)
 
-
+x_data = []
+y_data = []
 # Image Load and save  - origin folder 안에 x label folder 만 있음 
 for idx, value in enumerate(train_data):
     
     data, label = value      
     data = np.array(data) # numpy type으로 바꿔서 저장
-    np.save("./numpy_x/" , data)    
+
+    x_data.append(data)    
 
 # Image Load and save  - origin folder 안에 y label folder 만 있음 
 for idx, value in enumerate(train_data):
     
     data, label = value   
     data = np.array(data) # numpy type으로 바꿔서 저장
-    np.save("./numpy_y/" , data)    
+
+    y_data.append(data)
+        
+        
+np.save("./numpy_x/" , x_data)            
+np.save("./numpy_y/" , y_data)    
     
 
 # numpy_x, numpy_y folder는 os module을 사용해서 미리 만들어두자
