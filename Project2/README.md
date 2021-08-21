@@ -181,8 +181,20 @@ result
       
     
   
-            
-        
+  
+#### 진행 결과 
+
+
+- FCN + BUSI + Resizing(224x224) + BCELoss
+
+<div align=center>
+  
+![image](https://user-images.githubusercontent.com/59076451/130317090-6d769014-2c5a-413b-9f7e-06fe4929a766.png)
+  
+<div>
+
+  
+  
   
   
   
