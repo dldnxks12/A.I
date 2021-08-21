@@ -15,8 +15,8 @@
     1. softmax 
     2. sigmoid 
 
-[참고 링크](https://eremo2002.tistory.com/122)<br>
-[참고 링크](https://stackoverflow.com/questions/50534515/how-to-do-softmax-for-pixelwise-classification)
+[Sigmoid? Softmax?](https://eremo2002.tistory.com/122)<br>
+[Use Softmax - StackOverFlow](https://stackoverflow.com/questions/50534515/how-to-do-softmax-for-pixelwise-classification)
 
 
 
