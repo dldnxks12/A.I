@@ -155,8 +155,7 @@ result
     - 추가 구현 
 
           VGG  - ok
-          GoogLeNet 
-          InceptionNet 
+          GoogLeNet - ok
           ResNet - ok
 
     - Data Preprocessing
