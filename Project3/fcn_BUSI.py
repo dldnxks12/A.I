@@ -118,32 +118,45 @@ cfg = {'vgg16': [64, 64, 'M', 128, 128, 'M', 256, 256, 256, 'M', 512, 512, 512, 
 
 
 # training --- 
-
 vgg_model = VGGNet(requires_grad = True)
-fcn = FCNs(pretrained_net = vgg_model, n_class = 3)
+fcn = FCNs(pretrained_net = vgg_model, n_class = 2)
 
 optimizer = optim.SGD(fcn.parameters(), lr = 0.01, momentum = 0.7)
 criterion = nn.BCELoss()
 
 # data load
-x_train = np.load('./saved_x.npy')
-y_train = np.load('./saved_y.npy')
+x_train = np.load('./numpy_x.npy')
+y_train = np.load('./numpy_y.npy')
 
 # transpose dimension
 x_train = np.transpose(x_train, (0, 3, 1, 2))
 y_train = np.transpose(y_train, (0, 3, 1, 2))
 
+# to 2 channel image 
+y_train = y_train[:, :2, : ,:]
+
+# BUSI label threshold 
+thresh_np1 = np.zeros_like(y_train[:, 0, : ,:])
+thresh_np2 = np.zeros_like(y_train[:, 1, : ,:])
+
+thresh_np1[ y_train[:, 0, : ,:] < 10] = 1
+thresh_np2[ y_train[:, 1, : ,:] > 10] = 1
+
+y_train[:, 0, : ,:] = thresh_np1
+y_train[:, 1, : ,:] = thresh_np2
+
 # Numpy to Tensor
 x_train = torch.Tensor(x_train)
 y_train = torch.Tensor(y_train)
 
-# Split data
-train_data  = x_train[:436]
-train_label = y_train[:436]
+# Split one test data
+train_data  = x_train[1:]
+train_label = y_train[1:]
 
-test_data  = x_train[-1]
-test_label = y_train[-1]
+test_data  = x_train[0]
+test_label = y_train[0]
 
+# add Dimension 
 test_data =test_data.unsqueeze(0)
 test_label =test_label.unsqueeze(0)
 
@@ -179,4 +192,21 @@ for epoch in range(1):
         
     print(avg_cost)        
     
+# Visualize output with Colored Img    
+def decode_segmap(image, nc=2):
+  
+    label_colors = np.array([(255, 255, 255), (0, 0, 0)])
+
+    r = np.zeros_like(image).astype(np.uint8)
+    g = np.zeros_like(image).astype(np.uint8)
+    b = np.zeros_like(image).astype(np.uint8)
+
+    for l in range(0, nc):
+    idx = image == l
+    r[idx] = label_colors[l, 0]
+    g[idx] = label_colors[l, 1]
+    b[idx] = label_colors[l, 2]
+
+    rgb = np.stack([r, g, b], axis=2)
+    return rgb        
         
