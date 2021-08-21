@@ -12,3 +12,8 @@
 
     new_net = CNN.to(device) # 같은 형태로 
     new_net.load_stat_dict(torch.load("path"))
+
+
+#### Model Class Weight Initialize Method
+
+    initialize Code 참고 
