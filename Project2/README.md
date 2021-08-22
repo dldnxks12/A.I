@@ -184,7 +184,7 @@ result
 #### 진행 결과 
 
 
-- FCN + BUSI + Resizing(224x224) + BCELoss
+- FCN + BUSI + Resizing(224x224) + BCELoss + Sigmoid
 
 <div align=center>
   
@@ -192,7 +192,13 @@ result
   
 <div>
 
+- FCN + BUSI + Resizing(224x224) + MSELoss + Softmax
   
+<div align=center>
+  
+![image](https://user-images.githubusercontent.com/59076451/130358077-dcd75094-4ef1-46b6-b32e-da79b28e380e.png)
+  
+<div>  
   
   
   
