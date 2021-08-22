@@ -12,8 +12,8 @@
 
 #### Pixel Wise classification
 
-    1. softmax 
-    2. sigmoid 
+    1. softmax + MSELoss --- MultiClass Segmentation
+    2. sigmoid + BCELOSS --- Binary Segmenetation Only 
 
 [Sigmoid? Softmax?](https://eremo2002.tistory.com/122)<br>
 [Use Softmax - StackOverFlow](https://stackoverflow.com/questions/50534515/how-to-do-softmax-for-pixelwise-classification)
