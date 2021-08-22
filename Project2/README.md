@@ -192,6 +192,7 @@ result
   
 <div>
 
+  
 - FCN + BUSI + Resizing(224x224) + MSELoss + Softmax
   
 <div align=center>
