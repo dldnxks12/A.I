@@ -164,14 +164,15 @@ result
     
           1. torchvision.datasets.ImageFolder 이용 - ok
           2. dataloader class __init__에서 전처리 
+          3. data augmentation - ok 
 
     - 기존 모델 향상   
 
           1. FCN -> SegNet + BUSI / Human Parsing dataset with Softmax
           2. FCN -> SegNet + BUSI / Human Parsing dataset with Sigmoid 
-          3. with VOC Dataset 
-          4. Initialize Code 추가 
-          5. BCE Loss or MSE Loss
+          3. Initialize Code 추가 
+          4. BCE Loss or MSE Loss - ok
+          5. data augmentation - ok
 
     - 사용할 형태로 모델 구현 (필요한 기능이 있다면 추가 구현)  
 
