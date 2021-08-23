@@ -1,6 +1,5 @@
 #### SegNet for Semantic Segmentation
 
-
 - FCN vs SegNet
 
       UpSampling(strided Img) vs UnPooling(Pooled Img)
@@ -13,6 +12,8 @@
       
 
 **자세한 내용은 Paper review 참고**
+
+[추가 참고 Code ](https://github.com/say4n/pytorch-segnet)
 
 
  
