@@ -150,9 +150,10 @@ result
     - Model 
         
           1. SegNet Review - ok
-          2. SegNet 구현 - 80%
-          3. U-Net Review
-          4. U-Net 구현 
+          2. SegNet 구현 - ok 
+          3. DeConvNet - ok 
+          4. U-Net Review
+          5. U-Net 구현 
 
     - 추가 구현 
 
@@ -168,12 +169,12 @@ result
 
     - 기존 모델 향상   
 
-          1. FCN -> SegNet + BUSI + Softmax
-          2. FCN -> SegNet + BUSI + Sigmoid  
+          1. BCE + sigmoid / MSE + softmax - ok 
+          2. FCN -> SegNet + Carvana + Sigmoid  - ok
           3. FCN -> U-Net + BUSI + Softmax
           4. FCN -> U-Net + BUSI + Sigmoid
           5. Weight Initialize 
-          6. BCE + sigmoid / MSE + softmax - ok
+          
                 
   
   
@@ -192,6 +193,12 @@ FCN - BUSI + MSELoss + 2ch-Softmax
 FCN - BUSI + MSELoss + 1ch-Sigmoid  
   
 ![image](https://user-images.githubusercontent.com/59076451/130567067-2b951db7-d418-4dec-b2f8-2b3e06ecb536.png)
+  
+SegNet - Carvana + BCELOSS + 1ch-Sigmoid  (5000개 데이터셋으로 batchsize 100 크기로 1회 학습한 결과 - GPU 사용해서 학습 더 많이 시키면 훨씬 좋은 성능 낼 것)
+  
+![image](https://user-images.githubusercontent.com/59076451/130656027-00d92940-80ef-4223-8afe-7f04b0ec9e87.png)
+
+  
   
 <div>  
   
