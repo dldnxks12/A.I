@@ -147,10 +147,12 @@ result
 
 - Segmenatation Customization 
 
-    - Model study
+    - Model 
         
           1. SegNet Review - ok
-          2. U-Net Review
+          2. SegNet 구현 - 80%
+          3. U-Net Review
+          4. U-Net 구현 
 
     - 추가 구현 
 
@@ -159,8 +161,6 @@ result
           ResNet - ok
 
     - Data Preprocessing
-
-          기존의 여백을 만드는 방식 to Resizing 
     
           1. torchvision.datasets.ImageFolder 이용 - ok
           2. dataloader class __init__에서 전처리 
@@ -168,18 +168,13 @@ result
 
     - 기존 모델 향상   
 
-          1. FCN -> SegNet + BUSI / Human Parsing dataset with Softmax
-          2. FCN -> SegNet + BUSI / Human Parsing dataset with Sigmoid 
-          3. Initialize Code 추가 
-          4. BCE Loss or MSE Loss - ok
-          5. data augmentation - ok
-
-    - 사용할 형태로 모델 구현 (필요한 기능이 있다면 추가 구현)  
-
-          1. 입력 데이터 Segmentation
-          2. 출력 데이터 Classification
-      
-    
+          1. FCN -> SegNet + BUSI + Softmax
+          2. FCN -> SegNet + BUSI + Sigmoid  
+          3. FCN -> U-Net + BUSI + Softmax
+          4. FCN -> U-Net + BUSI + Sigmoid
+          5. Weight Initialize 
+          6. BCE + sigmoid / MSE + softmax - ok
+                
   
   
 #### 진행 결과 
