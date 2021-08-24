@@ -9,7 +9,12 @@
 ![image](https://user-images.githubusercontent.com/59076451/130321477-cfe94faa-f43a-475b-8f35-c9fc0fc2f459.png)
   
 </div>  
+
+#### SegNet.py
+
+kaggle Carvana dataset 사용 
       
+
 
 **자세한 내용은 Paper review 참고**
 
