@@ -186,17 +186,17 @@ result
 
 <div align=center>
 
-FCN + BUSI + Resizing(224x224) + BCELoss + Sigmoid  
+FCN + BUSI + BCELoss + 2ch-Sigmoid  
   
-![image](https://user-images.githubusercontent.com/59076451/130317090-6d769014-2c5a-413b-9f7e-06fe4929a766.png)
+![image](https://user-images.githubusercontent.com/59076451/130317090-6d769014-2c5a-413b-9f7e-06fe4929a766.png) 
   
-<div>
-
-<div align=center>
-  
-FCN + BUSI + Resizing(224x224) + MSELoss + Softmax  
+FCN - BUSI + MSELoss + 2ch-Softmax  
   
 ![image](https://user-images.githubusercontent.com/59076451/130358077-dcd75094-4ef1-46b6-b32e-da79b28e380e.png)
+  
+FCN - BUSI + MSELoss + 1ch-Sigmoid  
+  
+![image](https://user-images.githubusercontent.com/59076451/130567067-2b951db7-d418-4dec-b2f8-2b3e06ecb536.png)
   
 <div>  
   
