@@ -13,8 +13,9 @@ BUSI Dataset - 2ch softmax
     
 ![image](https://user-images.githubusercontent.com/59076451/130358077-dcd75094-4ef1-46b6-b32e-da79b28e380e.png)
     
-BUSI Dataset - 1ch sigmoid
+BUSI Dataset - 1ch sigmoid with GPU batch_size 30 , epoch 15
     
-![image](https://user-images.githubusercontent.com/59076451/130566612-aa41c3dc-8cff-4396-b385-5ff9492467a0.png)
+![image](https://user-images.githubusercontent.com/59076451/130675604-a6bcd3b5-93db-4e96-bea2-61b4f9b4e75d.png)
+
     
 </div>    
