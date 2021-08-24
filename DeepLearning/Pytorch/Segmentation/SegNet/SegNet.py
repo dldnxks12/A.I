@@ -49,7 +49,7 @@ class SegNet(nn.Module):
         in_height  = 224
         in_width   = 224
         
-        num_class  = 2
+        num_class  = 1
         
         self.encoder = nn.Sequential(
             nn.Conv2d(in_channel, 16, kernel_size = 3,  stride = 1, padding = 1),
@@ -112,86 +112,76 @@ class SegNet(nn.Module):
         out = self.encoder(x)
         out = self.decoder(out)
         
-        out = F.softmax(out, dim = 1) # channel에 대해 softmax 진행  - pixel wise classification
-        
         return out
     
 model = SegNet()
-optimizer = optim.SGD(model.parameters(), lr = 0.01, momentum = 0.7)
-criterion = nn.MSELoss()
 
-train_x = np.load("argu_x.npy")
-train_y = np.load("argu_y.npy")
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
-train_x = np.transpose(train_x, (0,3,1,2))
-train_y = np.transpose(train_y, (0,3,1,2))
+x_data = np.load('./cavana_x.npy')
+y_data = np.load('./cavana_y.npy')
 
-train_y = train_y[:, :2, :, :]
+x_data = torch.tensor(x_data).float()
+y_data = torch.tensor(y_data).float()
+y_data = y_data.unsqueeze(1)
 
-# BUSI label threshold 
-thresh_np1 = np.zeros_like(train_y[:, 0, : ,:])
-thresh_np2 = np.zeros_like(train_y[:, 1, : ,:])
+x_test = x_data[0]
+y_test = y_data[0]
+x_test2 = x_data[1]
+y_test2 = y_data[1]
+x_test3 = x_data[2]
+y_test3 = y_data[2]
 
-thresh_np1[ train_y[:, 0, : ,:] < 10] = 1
-thresh_np2[ train_y[:, 1, : ,:] > 10] = 1
+x_test = x_test.unsqueeze(0)
+y_test = y_test.unsqueeze(0)
+x_test2 = x_test2.unsqueeze(0)
+y_test2 = y_test2.unsqueeze(0)
+x_test3 = x_test3.unsqueeze(0)
+y_test3 = y_test3.unsqueeze(0)
 
-train_y[:, 0, : ,:] = thresh_np1
-train_y[:, 1, : ,:] = thresh_np2
 
-train_x = torch.Tensor(train_x)
-train_y = torch.Tensor(train_y)
+print(x_test.shape)
+print(y_test.shape)
 
-print(train_x.shape)
-print(train_y.shape)
-print(type(train_x))
+x_data = x_data[3:]
+y_data = y_data[3:]
 
-test_x = train_x[0]
-test_y = train_y[0]
-test_x2 = train_x[1]
-test_y2 = train_y[1]
-
-train_x = train_x[1:]
-train_y = train_y[1:]
-
-test_x = test_x.unsqueeze(0)
-test_y = test_y.unsqueeze(0)
-test_x2 = test_x2.unsqueeze(0)
-test_y2 = test_y2.unsqueeze(0)
-
-print(test_x.shape)
-print(test_y.shape)
-print(test_x2.shape)
-print(test_y2.shape)
-
-train_dataset = TensorDataset(train_x, train_y)
+train_dataset = TensorDataset(x_data, y_data)
 
 # DataLoader 
-train_loader = DataLoader( dataset = train_dataset, batch_size = 50, shuffle = True, drop_last = True )
+train_loader = DataLoader( dataset = train_dataset, batch_size = 100, shuffle = True, drop_last = True )
 
 # train
 for epoch in range(1):    
     avg_cost = 0
+    correct = 0
     batch_length = len(train_loader)
     for x, y in train_loader:
         optimizer.zero_grad()
         
-        output = model(x)                
-        cost = criterion(output , y)        
+        pred = model(x)                
+        cost = criterion(pred , y)        
         cost.backward()        
         optimizer.step()
+
+        pred = (pred > 0.5).float()
+        correct += (pred == y).sum()
+        num_pixel = torch.numel(pred)
+        
         avg_cost += cost / batch_length        
-        print("epoch & Loop cost : ", epoch, cost)
+        print(f"epoch {epoch} Loop cost {cost} Correct{correct/num_pixel}")       
     print("Avg_cost: ", avg_cost)        
     
 def color_map(image, nc = 1):
     
-    label_colors = np.array([(255, 255, 255), (0, 0, 0)]) 
+    label_colors = np.array([(0, 0, 0), (255, 255, 255)]) 
     
     r = np.zeros_like(image).astype(np.uint8)
     g = np.zeros_like(image).astype(np.uint8)
     b = np.zeros_like(image).astype(np.uint8)
     
-    for I in range(0, nc):
+    for I in range(0, nc + 1):
         idx = image == 1
         
         r[idx] = label_colors[I, 0]
@@ -200,21 +190,25 @@ def color_map(image, nc = 1):
     
     rgb = np.stack([r, g, b], axis = 2)
     
-    return rgb    
-  
-  
+    return rgb
+
 with torch.no_grad():
-    prediction = model(test_x)
-    prediction = prediction.squeeze()
+    prediction = model(x_test3)
+    prediction = torch.sigmoid(prediction)
+    prediction = prediction.squeeze()    
     
-    pred = torch.argmax(prediction, dim = 0).detach().numpy()
-    
-rgb_pred = color_map(pred)
-print(rgb_pred.shape)  
+prediction[prediction > 0.5 ]   = 1
+prediction[prediction <= 0.5 ]  = 0
+
+print(prediction)
+print(prediction.shape)
+
+rgb_pred = color_map(prediction)
+print(rgb_pred.shape)
 
 import matplotlib.pyplot as plt
 
 plt.subplot(1,2,1)
-plt.imshow(pred)
+plt.imshow(prediction)
 plt.subplot(1,2,2)
-plt.imshow(test_y[0][0])
+plt.imshow(y_test3[0][0])
