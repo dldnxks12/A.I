@@ -194,7 +194,11 @@ FCN - BUSI + MSELoss + 1ch-Sigmoid
   
 ![image](https://user-images.githubusercontent.com/59076451/130567067-2b951db7-d418-4dec-b2f8-2b3e06ecb536.png)
   
-SegNet - Carvana + BCELOSS + 1ch-Sigmoid  (5000개 데이터셋으로 batchsize 100 크기로 1회 학습한 결과 - GPU 사용해서 학습 더 많이 시키면 훨씬 좋은 성능 낼 것)
+BUSI Dataset - 1ch sigmoid with GPU batch_size 30 , epoch 15
+    
+![image](https://user-images.githubusercontent.com/59076451/130675604-a6bcd3b5-93db-4e96-bea2-61b4f9b4e75d.png)  
+  
+SegNet - Carvana + BCELOSS + 1ch-Sigmoid  GPU bathsize 100, epoch 1
   
 ![image](https://user-images.githubusercontent.com/59076451/130656027-00d92940-80ef-4223-8afe-7f04b0ec9e87.png)
 
