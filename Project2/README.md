@@ -165,7 +165,7 @@ result
     
           1. torchvision.datasets.ImageFolder - ok
           2. dataloader class __init__에서 전처리 
-          3. data augmentation - ok 
+          3. data augmentation - ok (364 -> 1940) 
 
     - 기존 모델 향상   
 
