@@ -170,8 +170,9 @@ result
     - 기존 모델 향상   
 
           Loss_fn : MSE or BCE
+          channel : 1 channel or 2 channel
           activation_fn : Sigmoid or Softmax
-
+          
           1. FCN with BCE + sigmoid / MSE + softmax - ok 
           2. FCN -> SegNet / BCE + Sigmoid  - ok
           3. FCN -> U-Net + BUSI + Softmax
