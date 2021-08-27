@@ -178,6 +178,9 @@ result
           3. FCN -> U-Net + BUSI + Softmax
           4. FCN -> U-Net + BUSI + Sigmoid
           5. Weight Initialize 
+
+
+     - GPU Setting - ok
           
               
   
