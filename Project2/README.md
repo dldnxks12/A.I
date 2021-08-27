@@ -150,9 +150,9 @@ result
     - Model 
         
           1. SegNet Review - ok
-          2. SegNet 구현 - ok 
-          3. DeConvNet - ok 
-          4. U-Net Review
+          2. U-Net Review - ok 
+          3. DeConvNet Review - ok 
+          4. SegNet 구현 - ok
           5. U-Net 구현 
 
     - 추가 구현 
@@ -163,20 +163,22 @@ result
 
     - Data Preprocessing
     
-          1. torchvision.datasets.ImageFolder 이용 - ok
+          1. torchvision.datasets.ImageFolder - ok
           2. dataloader class __init__에서 전처리 
           3. data augmentation - ok 
 
     - 기존 모델 향상   
 
-          1. BCE + sigmoid / MSE + softmax - ok 
-          2. FCN -> SegNet + Carvana + Sigmoid  - ok
+          Loss_fn : MSE or BCE
+          activation_fn : Sigmoid or Softmax
+
+          1. FCN with BCE + sigmoid / MSE + softmax - ok 
+          2. FCN -> SegNet / BCE + Sigmoid  - ok
           3. FCN -> U-Net + BUSI + Softmax
           4. FCN -> U-Net + BUSI + Sigmoid
           5. Weight Initialize 
           
-                
-  
+              
   
 #### 진행 결과 
 
@@ -186,7 +188,7 @@ FCN + BUSI + BCELoss + 2ch-Sigmoid
   
 ![image](https://user-images.githubusercontent.com/59076451/130317090-6d769014-2c5a-413b-9f7e-06fe4929a766.png) 
   
-FCN - BUSI + MSELoss + 2ch-Softmax  
+FCN - BUSI + MSELoss + 2ch-Sigmoid  
   
 ![image](https://user-images.githubusercontent.com/59076451/130358077-dcd75094-4ef1-46b6-b32e-da79b28e380e.png)
   
@@ -194,7 +196,7 @@ FCN - BUSI + MSELoss + 1ch-Sigmoid
   
 ![image](https://user-images.githubusercontent.com/59076451/130567067-2b951db7-d418-4dec-b2f8-2b3e06ecb536.png)
   
-BUSI Dataset - 1ch sigmoid with GPU batch_size 30 , epoch 15
+FCN - BUSI + MSELoss + 1ch-Sigmoid with GPU (batch_size 30 , epoch 15)
     
 ![image](https://user-images.githubusercontent.com/59076451/130675604-a6bcd3b5-93db-4e96-bea2-61b4f9b4e75d.png)  
   
@@ -202,7 +204,6 @@ SegNet - Carvana + BCELOSS + 1ch-Sigmoid  GPU bathsize 100, epoch 1
   
 ![image](https://user-images.githubusercontent.com/59076451/130656027-00d92940-80ef-4223-8afe-7f04b0ec9e87.png)
 
-  
   
 <div>  
   
