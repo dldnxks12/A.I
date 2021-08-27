@@ -189,7 +189,7 @@ FCN + BUSI + BCELoss + 2ch-Sigmoid
   
 ![image](https://user-images.githubusercontent.com/59076451/130317090-6d769014-2c5a-413b-9f7e-06fe4929a766.png) 
   
-FCN - BUSI + MSELoss + 2ch-Sigmoid  
+FCN - BUSI + MSELoss + 2ch-Softmax  
   
 ![image](https://user-images.githubusercontent.com/59076451/130358077-dcd75094-4ef1-46b6-b32e-da79b28e380e.png)
   
