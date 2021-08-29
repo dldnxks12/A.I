@@ -153,7 +153,7 @@ result
           2. U-Net Review - ok 
           3. DeConvNet Review - ok 
           4. SegNet 구현 - ok
-          5. U-Net 구현 
+          5. U-Net 구현 - ok
 
     - 추가 구현 
 
@@ -177,7 +177,8 @@ result
           2. FCN -> SegNet / BCE + Sigmoid  - ok
           3. FCN -> U-Net + BUSI + Softmax
           4. FCN -> U-Net + BUSI + Sigmoid
-          5. Weight Initialize 
+          5. FCN -> U-Net + Carvana + Sigmoid - ok
+          6. Weight Initialize 
 
 
      - GPU Setting - ok
