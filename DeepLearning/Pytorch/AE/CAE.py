@@ -1,7 +1,7 @@
 # 참고 링크 https://wjddyd66.github.io/pytorch/Pytorch-AutoEncoder/
 # Convolutional Auto Encoder --- for Understanding FCN Architecture  *** Deconvolution에 대해 이해하기 위함 
 
-# ANN구조의 AE -> CNN 구조의 CAE
+# ANN구조의 AE -> Modern-CNN 구조의 CAE
 # Decoder : Deconvolution 연산을 통해 data reconstruction !
 # Deconvolution with torch.nn.ConvTranspose2d
 

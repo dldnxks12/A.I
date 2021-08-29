@@ -29,7 +29,7 @@ mnist_test = dsets.MNIST(root = 'MNIST_DATA/', train = False, transform = transf
 # dataset to DataLoader
 train_loader = DataLoader(mnist_train, batch_size = batch_size, shuffle = True, drop_last = True )
 
-# CNN Model Class 선언
+# Modern-CNN Model Class 선언
 
 class CNN(nn.Module):
 
