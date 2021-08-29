@@ -35,7 +35,7 @@
 
 - Modern CNN
 
-      LeNet
+      LeNet        - ok
       AlexNet 
       VGG Nets     - ok
       GoogLeNet    - ok
