@@ -135,10 +135,9 @@ result
 
 - 링크 
 
-[Deconvolution-CAE](https://wjddyd66.github.io/pytorch/Pytorch-AutoEncoder/)<br>
-[deeplabv3](https://shangom-developer.tistory.com/4)<br>
-[deeplabv3](https://github.com/jfzhang95/pytorch-deeplab-xception)
-
+[Deconvolution-CAE](https://wjddyd66.github.io/pytorch/Pytorch-AutoEncoder/) <br>
+[deeplabv3](https://shangom-developer.tistory.com/4) <br>
+[deeplabv3](https://github.com/jfzhang95/pytorch-deeplab-xception) <br>
 [Reference Code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-Segmentation-torchvision)
 
 ---
@@ -176,15 +175,14 @@ result
           1. FCN with BCE + sigmoid / MSE + softmax - ok 
           2. FCN -> SegNet / BCE + Sigmoid  - ok
           3. FCN -> U-Net + BUSI + Softmax
-          4. FCN -> U-Net + BUSI + Sigmoid
+          4. FCN -> U-Net + BUSI + Sigmoid  - ok
           5. FCN -> U-Net + Carvana + Sigmoid - ok
           6. Weight Initialize 
+    
+    - GPU Setting - ok
 
+---
 
-     - GPU Setting - ok
-          
-              
-  
 #### 진행 결과 
 
 <div align=center>
@@ -215,11 +213,13 @@ U-Net - Carvana + BCELOSS + 1ch-Sigmoid
   
 U-Net - BUSI + BCELOSS + 1ch-Sigmoid (적은 데이터와 적은 학습에도 객체를 잘 찾는다.)
 
-![img_2.png](img_2.png)
+![img.png](img.png)
 
-작은 객체는 비교적 잘 찾지 못하는 모습을 보여준다 (data augmentation + learning을 더 하는 것이 필요해 보임)
+하지만 작은 객체는 비교적 잘 찾지 못하는 모습을 보여주었음 
 
-![img_1.png](img_1.png)
+(data augmentation + learning을 더 하는 것이 필요해 보임)
+
+
 
 <div>  
   
