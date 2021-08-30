@@ -15,7 +15,7 @@ model.load_state_dict(state["state_dict"])
 # make sample test img
 tf = transform.Compose([transform.ToTensor(), transform.Resize((224, 224))])
 tf2 = transform.Compose([transform.ToTensor(), transform.Resize((224, 224))])
-image = np.array(Image.open("./test.png").convert("RGB"))
+image = np.array(Image.open("BUSI2/Sample/test.png").convert("RGB"))
 image = tf(image)
 image = image.unsqueeze(0).to(device = DEVICE)
 
@@ -29,8 +29,8 @@ prediction = torch.sigmoid(prediction)
 prediction[prediction > 0.5 ] = 1
 prediction[prediction <= 0.5] = 0
 
-im = Image.open("./test.png")
-im2 = Image.open("./test_mask.png")
+im = Image.open("BUSI2/Sample/test.png")
+im2 = Image.open("BUSI2/Sample/test_mask.png")
 # visualize
 prediction = prediction.cpu().detach().numpy()
 plt.subplot(1,3,1)
