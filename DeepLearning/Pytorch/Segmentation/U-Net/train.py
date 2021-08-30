@@ -11,7 +11,7 @@ from UNET import UNET
 LEARNING_RATE = 1e-4
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 BATCH_SIZE = 16
-NUM_EPOCHS = 3
+NUM_EPOCHS = 5
 TRAIN_IMG_DIR = "C:/Users/USER/Desktop/Carvana/train/"
 TRAIN_MASK_DIR = "C:/Users/USER/Desktop/Carvana/train_mask/"
 VAL_IMG_DIR = "C:/Users/USER/Desktop/Carvana/val/"
@@ -32,9 +32,11 @@ def main():
     train_loader =  DataLoader(dataset = train_dataset, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
     val_loader =  DataLoader(dataset = val_dataset, batch_size= BATCH_SIZE, shuffle=True, drop_last=True)
 
+    model.train()
+    print("#--------- train Start ------ #")
 
     for epoch in range(NUM_EPOCHS):
-        avg_loss = 0
+        avg_loss = 0.0
         batch_length = len(train_loader)
         for data, targets in train_loader:
             data = data.to(device=DEVICE)
@@ -48,9 +50,9 @@ def main():
             loss.backward()
             optimizer.step()
 
-            avg_loss += loss / batch_length
+            avg_loss += loss.item() / batch_length
 
-            print("loss : ", loss)
+            print("loss : ", loss.item())
         print("Average Loss : ", avg_loss)
 
     print("#--------- train finished ------ #")
@@ -82,16 +84,15 @@ def check_acc(val_loader, model, device = 'cude'):
             x = x.to(device = DEVICE)
             y = y.to(device = DEVICE).unsqueeze(1)
 
-            preds = model(x)
-            preds = torch.sigmoid(preds)
+            preds = torch.sigmoid(model(x)) # get hypothesis and do activation function
 
-            preds = ( preds > 0.5 ).float()
-            num_correct += (preds == y).sum()
-            num_pixels += torch.numel(preds)
+            preds = ( preds > 0.5 ).float() # 0.5 이상인 Pixel == True or 1
+            num_correct += (preds == y).sum() # True == 1 , False == 0
+            num_pixels  += torch.numel(preds) # torch.numel : number of element
 
-            dice_score += (2 * (preds * y).sum()) / ( (preds + y).sum() + 1e-8 )
+            dice_score += (2 * (preds * y).sum()) / ( (preds + y).sum() + 1e-8 ) # IoU Score
 
-    print(f"ACC : {num_correct/num_pixels}")
+    print(f" Got {num_correct} / {num_pixels} with ACC {num_correct/num_pixels*100:.2f}")
     print(f"Dice Score : {dice_score/len(val_loader)}")
 
 

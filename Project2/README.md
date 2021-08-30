@@ -164,7 +164,7 @@ result
     - Data Preprocessing
     
           1. torchvision.datasets.ImageFolder - ok
-          2. dataloader class __init__에서 전처리 
+          2. dataloader class __init__에서 전처리 - ok
           3. data augmentation - ok (364 -> 1940) 
 
     - 기존 모델 향상   
@@ -213,6 +213,14 @@ U-Net - Carvana + BCELOSS + 1ch-Sigmoid
 
 ![image](https://user-images.githubusercontent.com/59076451/131260464-5af6a99b-d607-48ff-9341-7a95169f8d73.png)  
   
+U-Net - BUSI + BCELOSS + 1ch-Sigmoid (적은 데이터와 적은 학습에도 객체를 잘 찾는다.)
+
+![img_2.png](img_2.png)
+
+작은 객체는 비교적 잘 찾지 못하는 모습을 보여준다 (data augmentation + learning을 더 하는 것이 필요해 보임)
+
+![img_1.png](img_1.png)
+
 <div>  
   
   

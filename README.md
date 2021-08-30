@@ -54,9 +54,9 @@
 - Semantic Segmentation
 
       FCN       - ok
-      DeConvNet 
+      DeConvNet - ok
       SegNet    - ok     
-      U-Net
+      U-Net     - ok
       DeepLab v1, v2
       
 

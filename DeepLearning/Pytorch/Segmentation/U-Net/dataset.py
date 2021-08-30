@@ -10,9 +10,6 @@ class CarvanaDataset(Dataset):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
         self.transform = transform.Compose([transform.ToTensor(),
-                                            transform.Normalize( mean = [0.0, 0.0, 0.0],
-                                                                 std = [1.0, 1.0, 1.0],
-                                                                 max_pixel_value = 255.0),
                                             transform.Resize((160, 240))])
 
         self.images = os.listdir(image_dir) # image_dir 경로에 있는 모든 file의 이름을 가져온다. (path X file name O)
