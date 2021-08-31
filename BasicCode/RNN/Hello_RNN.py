@@ -71,7 +71,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.1) # Define gradient updat
 
 # Train the model
 for epoch in range(100):
-    optimizer.zero_grad() # Gradient initialize 
+    optimizer.zero_grad() # Gradient Initialize
     loss = 0
     hidden = model.init_hidden() # Tensor Variable 선언 
 

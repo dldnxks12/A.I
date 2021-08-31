@@ -43,7 +43,7 @@ print("사용 Device : ", device)
 
 class AE(nn.Module):
     def __init__(self):
-        super(AE,self).__init__() # initialize super class init function
+        super(AE,self).__init__() # Initialize super class init function
         self.encoder = nn.Linear(28*28, 20) # 28 x 28 vector -> 20 vector (latent space vector)
         self.decoder = nn.Linear(20, 28*28) # 20 -> 28 x 28 (reconstruct image feature from latent space vector)
         
@@ -57,7 +57,7 @@ class AE(nn.Module):
 ''' layer 2배로 
 class AutoEncoder(nn.Module):
     def __init__(self):
-        super(AutoEncoder,self).__init__() # initialize super class init function
+        super(AutoEncoder,self).__init__() # Initialize super class init function
         self.encoder = nn.Linear(28*28, 100) # 28 x 28 vector -> 20 vector (latent space vector)
         self.encoder2 = nn.Linear(100, 10) # 28 x 28 vector -> 20 vector (latent space vector)        
         

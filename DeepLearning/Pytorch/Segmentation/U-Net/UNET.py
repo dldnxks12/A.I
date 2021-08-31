@@ -4,6 +4,7 @@
 import torch
 import torch.nn as nn
 import torchvision.transforms.functional as TF
+import numpy as np
 
 class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -77,6 +78,22 @@ def test():
     print(x.shape)     # torch.Size([3, 1, 160, 160])
 
     assert preds.shape == x.shape
+
+def segmap(image, nc=1):
+    label_colors = np.array([(0, 0, 0), (255, 255, 255)])
+
+    r = np.zeros_like(image).astype(np.uint8)
+    g = np.zeros_like(image).astype(np.uint8)
+    b = np.zeros_like(image).astype(np.uint8)
+
+    for l in range(0, nc + 1):
+        idx = image == l
+        r[idx] = label_colors[l, 0]
+        g[idx] = label_colors[l, 1]
+        b[idx] = label_colors[l, 2]
+
+    rgb = np.stack([r, g, b], axis=2)
+    return rgb
 
 if __name__ == "__main__":
     test()

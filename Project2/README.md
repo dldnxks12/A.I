@@ -180,6 +180,7 @@ result
           7. Tensorboard - ok
           8. Progressbar with tqdm - ok
           9. Color map - ok
+          10. Initialize Weight, Bias - ok 
   
     
 - GPU Setting - ok

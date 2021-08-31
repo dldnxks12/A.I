@@ -4,6 +4,7 @@ from UNET import UNET
 from PIL import Image
 import torchvision.transforms as transform
 import numpy as np
+from UNET import segmap
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 model = UNET(in_channels= 3, out_channels= 1).to(device = DEVICE)
@@ -30,8 +31,11 @@ prediction[prediction > 0.5 ] = 1
 prediction[prediction <= 0.5] = 0
 
 im = Image.open("./test.jpg")
+
 # visualize
 prediction = prediction.cpu().detach().numpy()
+prediction = segmap(prediction)
+
 plt.subplot(1,2,1)
 plt.imshow(prediction)
 plt.subplot(1,2,2)
