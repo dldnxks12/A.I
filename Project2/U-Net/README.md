@@ -2,6 +2,6 @@
 
 - 추가할 내용
 
-      1. Progress Bar
-      2. Tensor board
-      3. Color map 
+      1. Progress Bar - ok
+      2. Tensor board - ok
+      3. Color map - ok

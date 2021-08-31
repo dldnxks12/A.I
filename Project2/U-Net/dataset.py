@@ -40,13 +40,13 @@ class CarvanaDataset(Dataset):
         elif self.TFtype == 3: # Vertical Flip
             image = TF.vflip(image)
             mask = TF.vflip(mask)
-
+        '''
         elif self.TFtype == 4: # Horizontal + Vertical Flip
             image = TF.hflip(image)
             image = TF.vflip(image)
             mask = TF.hflip(mask)
             mask = TF.vflip(mask)
-
+        '''
         # 0.0 ~ 255.0
         mask[mask == 255.0] = 1.0 # Sigmoid 를 마지막 Activation function으로 사용할 것이기 때문에 1의 값으로 맞추어주자.
 

@@ -4,14 +4,15 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from dataset import CarvanaDataset
 from UNET import UNET
-
+from tqdm import tqdm
+from tensorboardX import SummaryWriter
 
 # hyperparameters
 
-LEARNING_RATE = 1e-3
+LEARNING_RATE = 1e-5
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-BATCH_SIZE = 16
-NUM_EPOCHS = 3
+BATCH_SIZE = 20
+NUM_EPOCHS = 5
 TRAIN_IMG_DIR = "C:/Users/USER/PycharmProjects/A.I/Project2/U-Net/BUSI2/train/"
 TRAIN_MASK_DIR = "C:/Users/USER/PycharmProjects/A.I/Project2/U-Net/BUSI2/train-mask/"
 VAL_IMG_DIR = "C:/Users/USER/PycharmProjects/A.I/Project2/U-Net/BUSI2/test/"
@@ -46,37 +47,56 @@ def main():
     T_loader.append(train_loader3)
     T_loader.append(train_loader4)
 
+    writer = SummaryWriter(logdir = "scalar/UNET")
+
     model.train()
-    print("#--------- train Start ------ #")
+    step = 0
 
     for epoch in range(NUM_EPOCHS):
-        idx = 0
-        avg_loss = 0.0
-        batch_length = len(train_loader)
+        losses = []  # total loss
+        accuracies = []  # total acc
         for loader_idx, loader in enumerate(T_loader):
-            for data, targets in loader:
-                idx += 1
+            print(f" Loader {loader_idx} Epoch {epoch}")
+            num_correct = 0  # correct pixels
+            num_pixels = 0   # number of pixels
+            loop = tqdm(loader) # leave = True
+            for idx, (data, targets) in enumerate(loop):
                 data = data.to(device=DEVICE)
                 targets = targets.float().to(device=DEVICE)  # channel dimension 처리
 
                 predictions = model(data)
                 loss = loss_fn(predictions, targets)
+                losses.append(loss.item())
 
                 # backward
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
 
-                avg_loss += loss.item() / batch_length
+                # Calculate ACC
+                predictions = (predictions > 0.5).float()  # 0.5 이상인 Pixel == True or 1
+                num_correct += (predictions == targets).sum()  # True == 1 , False == 0
+                num_pixels += torch.numel(predictions)
 
-                if idx % 10 == 0:
-                    print("loss : ", loss.item())
-            print(f" Loader {loader_idx} Epoch {epoch} Average Loss {avg_loss} ")
+                running_train_acc = float(num_correct) / float(num_pixels)
+                accuracies.append(running_train_acc)
+
+                # Write on Tensorboard
+                writer.add_scalar('Training_loss', loss, global_step=step)
+                writer.add_scalar('Training_ACC', running_train_acc, global_step=step)
+                step += 1
+
+                # Write on tqdm
+                loop.set_description(f"Epoch[{epoch}/{NUM_EPOCHS}]")
+                loop.set_postfix(loss = loss.item(), acc = running_train_acc)
+
+        print(f"total epoch loss {sum(losses) / len(losses)} total epoch acc {sum(accuracies)/len(accuracies)}")
+
+    writer.close()
 
     print("#--------- train finished ------ #")
 
     print("save Model")
-
     state = {
         "state_dict" : model.state_dict(),
         "optimizer" : optimizer.state_dict()
@@ -85,9 +105,7 @@ def main():
     torch.save(state, "model.pth.tar")
 
     print("#--------- Valid Start ------ #")
-
     check_acc(val_loader, model)
-
     print("#--------- Valid finished ------ #")
 
 def check_acc(val_loader, model, device = 'cude'):
@@ -101,19 +119,14 @@ def check_acc(val_loader, model, device = 'cude'):
         print("length of Val_loader : ", len(val_loader))
         for x, y in val_loader:
             x = x.to(device = DEVICE)
-            y = y.to(device = DEVICE).unsqueeze(1)
+            y = y.to(device = DEVICE)
 
-            print("x.shape", x.shape)
-            print("y.shape", y.shape)
             preds = torch.sigmoid(model(x)) # get hypothesis and do activation function
-            print("pred.shape", preds)
 
             preds = ( preds > 0.5 ).float() # 0.5 이상인 Pixel == True or 1
 
             num_correct += (preds == y).sum() # True == 1 , False == 0
             num_pixels  += torch.numel(preds) # torch.numel : number of element
-            print("num_correct", num_correct)
-            print("num_pixels", num_pixels)
 
             dice_score += (2 * (preds * y).sum()) / ( (preds + y).sum() + 1e-8 ) # IoU Score
 

@@ -55,9 +55,9 @@ class AE(nn.Module):
         return out
 
 ''' layer 2배로 
-class AE(nn.Module):
+class AutoEncoder(nn.Module):
     def __init__(self):
-        super(AE,self).__init__() # initialize super class init function
+        super(AutoEncoder,self).__init__() # initialize super class init function
         self.encoder = nn.Linear(28*28, 100) # 28 x 28 vector -> 20 vector (latent space vector)
         self.encoder2 = nn.Linear(100, 10) # 28 x 28 vector -> 20 vector (latent space vector)        
         

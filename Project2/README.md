@@ -144,9 +144,8 @@ result
 
 #### 3주차
 
-- Segmenatation Customization 
 
-    - Model 
+- Model 
         
           1. SegNet Review - ok
           2. U-Net Review - ok 
@@ -154,34 +153,38 @@ result
           4. SegNet 구현 - ok
           5. U-Net 구현 - ok
 
-    - 추가 구현 
+- 추가 구현 
 
           VGG  - ok
           GoogLeNet - ok
           ResNet - ok
 
-    - Data Preprocessing
+- Data Preprocessing
     
           1. torchvision.datasets.ImageFolder - ok
           2. dataloader class __init__에서 전처리 - ok
-          3. data augmentation - ok (364 -> 1940) 
+          3. data augmentation - ok (720 -> 2160) 
 
-    - 기존 모델 향상   
+- 기존 모델 향상   
 
-          Loss_fn : MSE or BCE
-          channel : 1 channel or 2 channel
-          activation_fn : Sigmoid or Softmax
+          Loss_fn : MSE or BCE - BCE
+          channel : 1 channel or 2 channel - 1 channel 
+          activation_fn : Sigmoid or Softmax - Sigmoid 
           
           1. FCN with BCE + sigmoid / MSE + softmax - ok 
           2. FCN -> SegNet / BCE + Sigmoid  - ok
           3. FCN -> U-Net + BUSI + Softmax
           4. FCN -> U-Net + BUSI + Sigmoid  - ok
           5. FCN -> U-Net + Carvana + Sigmoid - ok
-          6. Weight Initialize 
+          6. Weight Initialize
+          7. Tensorboard - ok
+          8. Progressbar with tqdm - ok
+          9. Color map - ok
+  
     
-    - GPU Setting - ok
+- GPU Setting - ok
 
-    <br>
+<br>
 
 ---
 
@@ -220,8 +223,6 @@ U-Net - BUSI + BCELOSS + 1ch-Sigmoid (적은 데이터와 적은 학습에도 �
 하지만 작은 객체는 비교적 잘 찾지 못하는 모습을 보여주었음 
 
 (data augmentation + learning을 더 하는 것이 필요해 보임)
-
-
 
 <div>  
   
