@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader
 
 # for visualization
 import matplotlib.pyplot as plt
-%matplotlib inline # 출력 값이 Jupyter Notebook 상에서 보이도록 
+# %matplotlib inline # 출력 값이 Jupyter Notebook 상에서 보이도록
 
 
 tf = transforms.Compose([
