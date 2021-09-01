@@ -15,9 +15,14 @@ Naive Bayes 분류는 지도학습의 일종이며, Feature와 Label를 Bayes �
 <div align=center>
      
 ![image](https://user-images.githubusercontent.com/59076451/131623447-531f3418-8345-410a-82d1-f4385b350449.png)
+          
+위의 수식을 계산하기 위해 아래의 베이즈 정리를 사용한다!
+          
+![image](https://user-images.githubusercontent.com/59076451/131623628-0c05ee86-3809-4ccc-aabc-d88de61a9df7.png)          
 
 </div>          
 
+[Python numpy 구현 링크](https://ichi.pro/ko/guhyeon-eul-tonghan-hagseub-gaussian-naive-bayes-69330388386226)
 
 [참고 링크](https://bkshin.tistory.com/entry/%EB%A8%B8%EC%8B%A0%EB%9F%AC%EB%8B%9D-1%EB%82%98%EC%9D%B4%EB%B8%8C-%EB%B2%A0%EC%9D%B4%EC%A6%88-%EB%B6%84%EB%A5%98-Naive-Bayes-Classification)          
 
