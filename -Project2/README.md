@@ -1,9 +1,15 @@
 #### Image Segmentation 
 
-    1. FCN + BUSI Dataset
-    2. FCN + Baidu Human Parsing Dataset
+- Model : FCN, SegNet, UNET
+- Dataset : Human Parsing dataset, BUSI dataset , Carvana dataset 
+
+---
+
+<br>
 
 <div align=Center>
+
+**FCN**
     
 Human Parsing - 2ch sigmoid
     
@@ -16,6 +22,19 @@ BUSI Dataset - 2ch softmax
 BUSI Dataset - 1ch sigmoid with GPU batch_size 30 , epoch 15
     
 ![image](https://user-images.githubusercontent.com/59076451/130675604-a6bcd3b5-93db-4e96-bea2-61b4f9b4e75d.png)
+
+
+**SegNet**
+
+SegNet - Carvana + BCELOSS + 1ch-Sigmoid  GPU bathsize 100, epoch 1
+  
+![image](https://user-images.githubusercontent.com/59076451/130656027-00d92940-80ef-4223-8afe-7f04b0ec9e87.png)
+
+**UNET**
+
+U-Net - Carvana + BCELOSS + 1ch-Sigmoid
+
+![image](https://user-images.githubusercontent.com/59076451/131260464-5af6a99b-d607-48ff-9341-7a95169f8d73.png)  
 
     
 </div>    

@@ -6,7 +6,7 @@
 
 - Classification
 
-      Logistic Regression(Binary Classification) - ok
+      Logistic Regression(Binary Classification)    - ok
       Softmax Regression(MultiClass Classification) - ok
 
 - Auto Encoder
@@ -34,9 +34,9 @@
 
 - Semantic Segmentation
 
-      FCN       - ok
-      DeConvNet - ok
-      SegNet    - ok     
-      U-Net     - ok
+      FCN             - ok
+      DeConvNet       - ok
+      SegNet          - ok     
+      U-Net           - ok
       DeepLab v1, v2
       

@@ -13,6 +13,7 @@ from torch.utils.data import TensorDataset
 from torchvision.models.vgg import VGG # Pretrained VGG Model
 from torchvision import models
 import numpy as np
+import matplotlib.pyplot as plt
 
 class VGGNet(VGG):
     def __init__(self, pretrained=True, model='vgg16', requires_grad=True, remove_fc=True, show_params=False):
@@ -157,12 +158,12 @@ def decode_segmap(image, nc=2):
     b = np.zeros_like(image).astype(np.uint8)
 
     for l in range(0, nc):
-    idx = image == l
-    r[idx] = label_colors[l, 0]
-    g[idx] = label_colors[l, 1]
-    b[idx] = label_colors[l, 2]
+        idx = image == l
+        r[idx] = label_colors[l, 0]
+        g[idx] = label_colors[l, 1]
+        b[idx] = label_colors[l, 2]
 
-    rgb = np.stack([r, g, b], axis=2)
+        rgb = np.stack([r, g, b], axis=2)
     return rgb    
   
 # test .... 

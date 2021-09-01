@@ -1,7 +1,7 @@
 
 '''
 U-Net을 이용한 Segmentaion을 진행 
-Data Resize and Save as npy file
+Data-process Resize and Save as npy file
 '''
 
 

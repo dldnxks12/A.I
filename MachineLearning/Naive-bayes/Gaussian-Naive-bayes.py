@@ -36,13 +36,13 @@ class NaiveBayes():
 
         for c in range(self.num_classes):
             prior = self.classes_prior[str(c)]
-            probs_c = self.density_function(X, self.classes_mean[str(c)], self.classes_variance[str(c)])
+            probs_c = self.likelihood(X, self.classes_mean[str(c)], self.classes_variance[str(c)])
 
             probs[:, c] = probs_c + np.log(prior) # log를 이용해서 곱셈을 더하기로 바꿈 --- 사전확률x우도 알지?
 
         return np.argmax(probs, 1) # 가장 높은 확률을 가진 class를 return
 
-    def density_function(self, x, mean, sigma):
+    def likelihood(self, x, mean, sigma):
         # Calculate probability from Gaussian Density Function for Likelihood
         # 아래 수식은 잘 이해가 안되지만 차차 이해할 수 있게 하자.
         # 우선 Gaussian Naive Bayes에서는 우도는 정규분포로 바꿔서 구하는데, 그런 과정을 더 나이스하게 바꾼 Form을 사용한 것이다.

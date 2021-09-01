@@ -7,6 +7,8 @@
         what to do? 
         
         가공된 데이터를 넣어 질병의 유무를 Classification 해줄 Segmentation 모델을 만들 것
+
+        BUSI dataset + (FCN / SegNet / UNET / DeepLab v1 / DeepLab v2)
         
 ---               
                 
@@ -24,15 +26,15 @@
 
   - Segmentation ?
 
-        1. Segmentation 이란?
+        1. Segmentation 이란? - ok
 
   - Code Review
 
         * code review ( segtrain.py ) - ok
         
-        1. argparse - ok 
+        1. argparse           - ok 
         2. torch - dataloader - ok
-        3. torchvision - ok 
+        3. torchvision        - ok 
 
   - 추가 개념 
 
@@ -69,14 +71,14 @@
 
   - Paper & Notation 
 
-        1. FCN - ok
-        2. SegNet - ok
-        3. Deconvolution - ok
+        1. FCN                - ok
+        2. SegNet             - ok
+        3. Deconvolution      - ok
         4. AE  (Auto Encoder) - ok
-        5. CAE (Convolutional Auto Encoder) - ok
-        6. deeplabv3
-        7. 평가 지표 - ok
-        8. ResNet - ok
+        5. CAE                - ok
+        6. deeplab v2    ~ing 
+        7. 평가 지표           - ok
+        8. ResNet             - ok
   
   [Deconvolution](https://zzsza.github.io/data/2018/06/25/upsampling-with-transposed-convolution/)
 
@@ -99,14 +101,19 @@
               
               (사이즈 상관없이 넣어주어도 되는 것으로 아는데, 적어도 데이터셋의 크기를 통일시켜야하나?)
                 
+<br>
 
 <div align="center">
+
+**2주차 진행결과** 
+
+**FCN**
 
 preprocessed test data
   
 ![image](https://user-images.githubusercontent.com/59076451/129725196-72cc0b4d-50bb-4f8e-8dbd-c18cfd8e7c93.png)
   
-test label 
+test mask
   
 ![image](https://user-images.githubusercontent.com/59076451/129725093-f61ebf10-a38d-4cd2-815c-53e6548d4575.png)
   
@@ -114,56 +121,34 @@ test result
 
 ![image](https://user-images.githubusercontent.com/59076451/129725036-cdc0b1ee-f10d-4abb-a55b-aafcbcecd1fe.png)
 
-test result 2
-  
-![image](https://user-images.githubusercontent.com/59076451/129725644-3292973f-c2aa-4d7e-ab21-1a52326e3a5b.png)
 
-
-with human parsiong dataset 
-  
-result 
-  
-![image](https://user-images.githubusercontent.com/59076451/130016299-604180d0-9926-4f7a-9e82-65d6dd49225d.png)  
-  
 </div>
 
-  - pytorch deeplabv3 
-   
-        1. Segmentation 구현 with deeplabv3, BUSI
-
-
-
-- 링크 
-
-[Deconvolution-CAE](https://wjddyd66.github.io/pytorch/Pytorch-AutoEncoder/) <br>
-[deeplabv3](https://shangom-developer.tistory.com/4) <br>
-[deeplabv3](https://github.com/jfzhang95/pytorch-deeplab-xception) <br>
-[Reference Code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-Segmentation-torchvision)
-
 ---
+<br>
 
 #### 3주차
 
 
 - Model 
         
-          1. SegNet Review - ok
-          2. U-Net Review - ok 
+          1. SegNet Review    - ok
+          2. U-Net Review     - ok 
           3. DeConvNet Review - ok 
-          4. SegNet 구현 - ok
-          5. U-Net 구현 - ok
+          4. SegNet 구현       - ok
+          5. U-Net 구현        - ok
 
 - 추가 구현 
 
-          VGG  - ok
-          GoogLeNet - ok
-          ResNet - ok
+          VGG        - ok
+          GoogLeNet  - ok
+          ResNet     - ok
 
 - Data Preprocessing
     
-          1. torchvision.datasets.ImageFolder - ok
+          1. torchvision.datasets.ImageFolder    - ok
           2. dataloader class __init__에서 전처리 - ok
-          3. data augmentation - ok (720 -> 2160) 
+          3. data augmentation (720 -> 2160)     - ok  
 
 - 기존 모델 향상   
 
@@ -172,34 +157,29 @@ result
           activation_fn : Sigmoid or Softmax - Sigmoid 
           
           1. FCN with BCE + sigmoid / MSE + softmax - ok 
-          2. FCN -> SegNet / BCE + Sigmoid  - ok
+          2. FCN -> SegNet / BCE + Sigmoid          - ok
           3. FCN -> U-Net + BUSI + Softmax
-          4. FCN -> U-Net + BUSI + Sigmoid  - ok
-          5. FCN -> U-Net + Carvana + Sigmoid - ok
-          6. Weight Initialize
-          7. Tensorboard - ok
-          8. Progressbar with tqdm - ok
-          9. Color map - ok
-          10. Initialize Weight, Bias - ok 
-  
-    
-- GPU Setting - ok
-
-<br>
+          4. FCN -> U-Net + BUSI + Sigmoid          - ok
+          5. FCN -> U-Net + Carvana + Sigmoid       - ok
+          6. Weight Initialize                      - ok
+          7. Tensorboard                            - ok
+          8. Progressbar with tqdm                  - ok
+          9. Color map                              - ok
+          10. GPU Setting                           - ok 
 
 ---
+<br>
 
-#### 진행 결과 
 
 <div align=center>
 
+**3주차 진행 결과** 
+
+**FCN**
+
 FCN + BUSI + BCELoss + 2ch-Sigmoid  
   
-![image](https://user-images.githubusercontent.com/59076451/130317090-6d769014-2c5a-413b-9f7e-06fe4929a766.png) 
-  
-FCN - BUSI + MSELoss + 2ch-Sigmoid  
-  
-![image](https://user-images.githubusercontent.com/59076451/130358077-dcd75094-4ef1-46b6-b32e-da79b28e380e.png)
+![image](https://user-images.githubusercontent.com/59076451/130317090-6d769014-2c5a-413b-9f7e-06fe4929a766.png)
   
 FCN - BUSI + MSELoss + 1ch-Sigmoid  
   
@@ -209,9 +189,13 @@ FCN - BUSI + MSELoss + 1ch-Sigmoid with GPU (batch_size 30 , epoch 15)
     
 ![image](https://user-images.githubusercontent.com/59076451/130675604-a6bcd3b5-93db-4e96-bea2-61b4f9b4e75d.png)  
   
+**SegNet**
+
 SegNet - Carvana + BCELOSS + 1ch-Sigmoid  GPU bathsize 100, epoch 1
   
 ![image](https://user-images.githubusercontent.com/59076451/130656027-00d92940-80ef-4223-8afe-7f04b0ec9e87.png)
+
+**UNET**
 
 U-Net - Carvana + BCELOSS + 1ch-Sigmoid
 
@@ -223,12 +207,16 @@ U-Net - BUSI + BCELOSS + 1ch-Sigmoid (적은 데이터와 적은 학습에도 �
 
 하지만 작은 객체는 비교적 잘 찾지 못하는 모습을 보여주었음 
 
-(data augmentation + learning을 더 하는 것이 필요해 보임)
+</div>  
+  
+  
+  
+  
+  
+  
+- 링크 
 
-<div>  
-  
-  
-  
-  
-  
-  
+[Deconvolution-CAE](https://wjddyd66.github.io/pytorch/Pytorch-AutoEncoder/) <br>
+[deeplabv3](https://shangom-developer.tistory.com/4) <br>
+[deeplabv3](https://github.com/jfzhang95/pytorch-deeplab-xception) <br>
+[Reference Code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-Segmentation-torchvision)
