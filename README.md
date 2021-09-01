@@ -1,19 +1,15 @@
-## A.I
+## Study Progress
 
-    Deep Learning Records  ...
-    Machine Learning Records ...
-    Reinforcement Learning Records...
-
----
-
-**진행상황**
-    
 #### Machine Learning
 
-- Perceptron
 
-        Single Layer Perceptron - ok
-        Multi Layer Perceptron  - ok
+      1. K-nearest neighborhood
+      2. K-means clustering
+      3. Naive Bayes
+      4. SVM
+      5. Perceptron - ok      
+             1. SLP - ok
+             2. MLP - ok
 
 ---
 
