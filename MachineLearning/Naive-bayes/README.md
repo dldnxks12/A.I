@@ -75,7 +75,7 @@ Naive Bayes의 Flow는 다음의 2가지로 생각할 수 있다.
 
 <br>
 
-#### Naive Bayes in Python
+#### Naive Bayes in Python - 평활화 , 로그 우도 
 
 바로 위에서 쓴 수식을 다시 써보자.
 
@@ -138,3 +138,35 @@ Python으로 구현할 때에, i 번 째 feature가 해당 범주에 속하지 �
 Exponential과 지수에 있는 Log는 서로 상쇄되므로 양 변은 같은 식이다.  
 
 </div>
+
+
+---
+
+<br>
+
+#### Gaussain Naive Bayes
+
+**연속적인 값의 데이터를 처리할 때, 각 클래스의 값들이 가우스 분포를 따른다고 가정한다.**
+
+예를 들어보자. 
+
+        Training data는 연속적인 속성 x에 대한 데이터이다.
+        
+        먼저 클래스에 따라 데이터를 나누고, 각 클래스에 속하는 x들의 평균과 분산을 계산한다.
+
+
+        클래스 C와 관련된 x의 평균을 mean_c, 분산을 sigma^2_c 라고 하면
+        
+        주어진 클래스의 x 값들의 확률 분포가 정규분포로 표현된다.
+ 
+
+<div align=center>
+
+![img_1.png](img_1.png)
+
+여기서 x = v는 x가 여러 feature 중 v에 해당할 때를 이야기 하는 것이다.
+
+**즉, 범주 C에 해당할 때, 해당 범주에 feature v가 존재할 확률을 확률 분포로써 나타낸 것을 의미한다.** 
+
+</div>
+
