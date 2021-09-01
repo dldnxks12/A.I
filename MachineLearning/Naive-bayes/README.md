@@ -10,6 +10,14 @@ Naive Bayes 분류는 지도학습의 일종이며, Feature와 Label를 Bayes �
           
           즉, P(C|X)에 따라 가장 높은 확률을 갖는 클래스 C로 X를 분류하는 것이다. 
           
+<br>          
+          
+<div align=center>
+     
+![image](https://user-images.githubusercontent.com/59076451/131623447-531f3418-8345-410a-82d1-f4385b350449.png)
+
+</div>          
+
 
 [참고 링크](https://bkshin.tistory.com/entry/%EB%A8%B8%EC%8B%A0%EB%9F%AC%EB%8B%9D-1%EB%82%98%EC%9D%B4%EB%B8%8C-%EB%B2%A0%EC%9D%B4%EC%A6%88-%EB%B6%84%EB%A5%98-Naive-Bayes-Classification)          
 
