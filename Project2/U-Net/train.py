@@ -9,10 +9,10 @@ from tensorboardX import SummaryWriter
 
 # hyperparameters
 
-LEARNING_RATE = 1e-5
+LEARNING_RATE = 1e-6
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 BATCH_SIZE = 20
-NUM_EPOCHS = 10
+NUM_EPOCHS = 30
 TRAIN_IMG_DIR = "C:/Users/USER/PycharmProjects/A.I/Project2/U-Net/BUSI2/train/"
 TRAIN_MASK_DIR = "C:/Users/USER/PycharmProjects/A.I/Project2/U-Net/BUSI2/train-mask/"
 VAL_IMG_DIR = "C:/Users/USER/PycharmProjects/A.I/Project2/U-Net/BUSI2/test/"

@@ -5,4 +5,4 @@
       2. K-means clustering
       3. Naive Bayes
       4. SVM
-      5. ANN - ok
+      5. Perceptron - ok
