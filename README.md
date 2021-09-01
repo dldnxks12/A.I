@@ -5,11 +5,11 @@
 
       1. K-nearest neighborhood
       2. K-means clustering
-      3. Naive Bayes
+      3. Naive Bayes          - ok
       4. SVM
-      5. Perceptron - ok      
-             1. SLP - ok
-             2. MLP - ok
+      5. Perceptron           - ok      
+             1. SLP           - ok
+             2. MLP           - ok
 
 ---
 
@@ -21,7 +21,7 @@
 
 - Classification
 
-      Logistic Regression(Binary Classification) - ok
+      Logistic Regression(Binary Classification)    - ok
       Softmax Regression(MultiClass Classification) - ok
 
 - Auto Encoder
@@ -49,10 +49,10 @@
 
 - Semantic Segmentation
 
-      FCN       - ok
-      DeConvNet - ok
-      SegNet    - ok     
-      U-Net     - ok
+      FCN               - ok
+      DeConvNet         - ok
+      SegNet            - ok     
+      U-Net             - ok
       DeepLab v1, v2
       
 
