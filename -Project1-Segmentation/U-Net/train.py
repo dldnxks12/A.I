@@ -12,11 +12,11 @@ from tensorboardX import SummaryWriter
 LEARNING_RATE = 1e-6
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 BATCH_SIZE = 20
-NUM_EPOCHS = 30
-TRAIN_IMG_DIR = "/-Project1-Segmentation/U-Net/BUSI2/train/"
-TRAIN_MASK_DIR = "/-Project1-Segmentation/U-Net/BUSI2/train-mask/"
-VAL_IMG_DIR = "/-Project1-Segmentation/U-Net/BUSI2/test/"
-VAL_MASK_DIR = "/-Project1-Segmentation/U-Net/BUSI2/test-mask/"
+NUM_EPOCHS = 10
+TRAIN_IMG_DIR = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/train/"
+TRAIN_MASK_DIR = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/train-mask/"
+VAL_IMG_DIR = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/test/"
+VAL_MASK_DIR = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/test-mask/"
 
 
 def main():
@@ -31,10 +31,16 @@ def main():
     train_dataset = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 1)
     train_dataset2 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 2)
     train_dataset3 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 3)
+    train_dataset4 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 4)
+    train_dataset5 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 5)
+    train_dataset6 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 6)
 
     train_loader =  DataLoader(dataset = train_dataset, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
     train_loader2 =  DataLoader(dataset = train_dataset2, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
     train_loader3 =  DataLoader(dataset = train_dataset3, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
+    train_loader4 =  DataLoader(dataset = train_dataset4, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
+    train_loader5 =  DataLoader(dataset = train_dataset5, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
+    train_loader6 =  DataLoader(dataset = train_dataset6, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
 
     val_dataset = CarvanaDataset(VAL_IMG_DIR, VAL_MASK_DIR, TFtype = 1)
     val_loader =  DataLoader(dataset = val_dataset, batch_size= 3, shuffle=True, drop_last=True)
@@ -43,6 +49,9 @@ def main():
     T_loader.append(train_loader)
     T_loader.append(train_loader2)
     T_loader.append(train_loader3)
+    T_loader.append(train_loader4)
+    T_loader.append(train_loader5)
+    T_loader.append(train_loader6)
 
     writer = SummaryWriter(logdir = "scalar/UNET")
 

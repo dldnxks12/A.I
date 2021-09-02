@@ -26,27 +26,53 @@ class CarvanaDataset(Dataset):
         image = np.array(Image.open(img_path).convert("RGB")) # 확실히 하기 위해 RGB Image로 열도록 명시
         mask = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)  # L : gray Scale
 
+        image2 = image*1.03
+        image2 = image2.astype(np.uint8)
+        image2 = self.transform(image2) # Image with noise
+
         image = self.transform(image)
         mask = self.transform(mask)
 
-        if self.TFtype == 1: # No augumentation
+        # ---- data augumentation ---- #
+        # No augumentation
+        if self.TFtype == 1:
             image = image
             mask = mask
-
-        elif self.TFtype == 2: # Horizontal Flip
+        # Horizontal Flip
+        elif self.TFtype == 2:
             image = TF.hflip(image)
             mask = TF.hflip(mask)
-
-        elif self.TFtype == 3: # Vertical Flip
+        # Vertical Flip
+        elif self.TFtype == 3:
             image = TF.vflip(image)
             mask = TF.vflip(mask)
+        # noise data
+        elif self.TFtype == 4:
+            image = image2
+            mask = mask
+        # noise data + Horizontal Flip
+        elif self.TFtype == 5:
+            image = TF.hflip(image2)
+            mask = TF.hflip(mask)
+        # noise data + Vertical Flip
+        elif self.TFtype == 6:
+            image = TF.vflip(image2)
+            mask = TF.vflip(mask)
+
         '''
-        elif self.TFtype == 4: # Horizontal + Vertical Flip
+        elif self.TFtype == 7: # Horizontal + Vertical Flip
             image = TF.hflip(image)
             image = TF.vflip(image)
             mask = TF.hflip(mask)
             mask = TF.vflip(mask)
+                    
+        elif self.TFtype == 8: # Horizontal + Vertical Flip + Noise
+            image = TF.hflip(image2)
+            image = TF.vflip(image)
+            mask = TF.hflip(mask)
+            mask = TF.vflip(mask)                                
         '''
+
         # 0.0 ~ 255.0
         mask[mask == 255.0] = 1.0 # Sigmoid 를 마지막 Activation function으로 사용할 것이기 때문에 1의 값으로 맞추어주자.
 
