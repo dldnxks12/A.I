@@ -40,7 +40,7 @@ for img, msk in zip(sample_data,sample_mask):
     mask  = cv2.imread('./sample_mask/'+ msk, cv2.IMREAD_COLOR)
     
     x = np.zeros((width, height, 3), dtype = np.uint8) # 3 channle input 
-    y = np.zeros((width, height, 3), dtype = np.uint8) # Segmentation map 1 또는 0으로 mapping할 것 
+    y = np.zeros((width, height, 3), dtype = np.uint8) # Segmentation-Semantic map 1 또는 0으로 mapping할 것
     
     if image.shape[0] >= image.shape[1]: # height > width
         scale = image.shape[0] / height

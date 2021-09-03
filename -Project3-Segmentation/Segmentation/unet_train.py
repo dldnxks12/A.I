@@ -1,6 +1,6 @@
 '''
 
-U Net을 이용한 Segmentation 
+U Net을 이용한 Segmentation-Semantic
 
 '''
 

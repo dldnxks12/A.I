@@ -25,7 +25,7 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
 
 **BUSI Data**
 
-![img.png](img.png)
+![img.png](Report/img.png)
 
 <br>
 
@@ -199,23 +199,23 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
     
        직접 구현한 모델은 학습량, 데이터량, 그리고 전이 학습을 진행하지 않았음에도 객체의 경계를 상당히 잘 잡아주는 것을 알 수 있다.
 
-  - UNET
+- UNET
 
-         UNET은 FCN과 동일하게 Conv에 의해 작아진 부분을 Upsampling한다.
+       UNET은 FCN과 동일하게 Conv에 의해 작아진 부분을 Upsampling한다.
     
-         또한 SegNet에서와 같이 1x1 Conv를 통해 feature를 dense하게 만든다.
+       또한 SegNet에서와 같이 1x1 Conv를 통해 feature를 dense하게 만든다.
     
-         추가적으로 FCN의 Skip Connection도 사용한다. 
+       추가적으로 FCN의 Skip Connection도 사용한다. 
     
-         FCN, SegNet, 그리고 DeconvNet의 특징을 모두 모아서 만든 모델이라고 생각된다.
+       FCN, SegNet, 그리고 DeconvNet의 특징을 모두 모아서 만든 모델이라고 생각된다.
 
-              * DeconvNet의 특징 : Bottle Neck layer            
+            * DeconvNet의 특징 : Bottle Neck layer            
     
-         결과를 보면 FCN, SegNet의 특징을 모두 갖고 있는 것이 확인가능하다.
+       결과를 보면 FCN, SegNet의 특징을 모두 갖고 있는 것이 확인가능하다.
     
-              하지만 구현한 모델은 큰 객체는 비교적 잘 잡아내는 반면 작은 객체는 잘 잡아내지 못하는 결과를 보여주었다.
+            하지만 구현한 모델은 큰 객체는 비교적 잘 잡아내는 반면 작은 객체는 잘 잡아내지 못하는 결과를 보여주었다.
     
-              Carvana 데이터셋을 이용한 경우에는 매우 잘 잡아냈던 걸 보면, 아마 BUSI 데이터셋을 더 세밀하게 처리하면 좋은 결과를 얻을 수 있을 것 같다. 
+            Carvana 데이터셋을 이용한 경우에는 매우 잘 잡아냈던 걸 보면, 아마 BUSI 데이터셋을 더 세밀하게 처리하면 좋은 결과를 얻을 수 있을 것 같다. 
 
 
  

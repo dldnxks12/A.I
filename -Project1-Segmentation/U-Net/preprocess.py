@@ -6,16 +6,16 @@ import shutil
 #os.mkdir("./train-mask")
 
 # read file names in source folder
-datafiles = os.listdir("/-Project1-Segmentation/U-Net/BUSI2/data/")
-maskfiles = os.listdir("/-Project1-Segmentation/U-Net/BUSI2/mask/")
+datafiles = os.listdir("/-Project1-Segmentation-Semantic/U-Net/BUSI2/data/")
+maskfiles = os.listdir("/-Project1-Segmentation-Semantic/U-Net/BUSI2/mask/")
 
 # from
-datasrc = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/data/"
-masksrc = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/mask/"
+datasrc = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation-Semantic/U-Net/BUSI2/data/"
+masksrc = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation-Semantic/U-Net/BUSI2/mask/"
 
 # to
-datadst = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/train/"
-maskdst = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/train-mask/"
+datadst = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation-Semantic/U-Net/BUSI2/train/"
+maskdst = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation-Semantic/U-Net/BUSI2/train-mask/"
 
 
 # image rename and move to new folder
