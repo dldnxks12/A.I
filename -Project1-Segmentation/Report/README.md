@@ -120,6 +120,17 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
 
 <br>
 
+
+#### train ACC, Loss
+
+<div align=center>
+     
+**UNET**
+           
+![image](https://user-images.githubusercontent.com/59076451/131957296-8e79291d-2916-459f-a1c5-6b3bd5c95fc2.png)           
+           
+</div>           
+
 #### 구현 결과
 
 <div align="center">
