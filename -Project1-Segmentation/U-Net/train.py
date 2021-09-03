@@ -11,8 +11,8 @@ from tensorboardX import SummaryWriter
 
 LEARNING_RATE = 1e-6
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-BATCH_SIZE = 20
-NUM_EPOCHS = 10
+BATCH_SIZE = 30
+NUM_EPOCHS = 1
 TRAIN_IMG_DIR = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/train/"
 TRAIN_MASK_DIR = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/train-mask/"
 VAL_IMG_DIR = "C:/Users/USER/PycharmProjects/A.I/-Project1-Segmentation/U-Net/BUSI2/test/"

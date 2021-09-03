@@ -11,7 +11,7 @@ class CarvanaDataset(Dataset):
         self.image_dir = image_dir
         self.mask_dir = mask_dir
         self.transform = transform.Compose([transform.ToTensor(),
-                                            transform.Resize((224, 224))])
+                                            transform.Resize((160, 160))])
         self.TFtype = TFtype  # augumentation type
         self.images = os.listdir(image_dir) # image_dir 경로에 있는 모든 file의 이름을 가져온다. (path X file name O)
 
