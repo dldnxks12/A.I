@@ -103,7 +103,7 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
               vertical flip
               # horizontal flip + vertical flip -- 선택
 
-          720개 -> 4320개로 증폭 (+ 1440개)
+          720개 -> 6480개로 증폭 (+ 1440개)
 
 <div align="center">
 
