@@ -70,7 +70,11 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
       1. SegNet, UNET 구현 및 튜닝, 성능 비교 
       2. 데이터 증폭 
       3. 모델 정리 (Tensorboard, tqdm, color map, ..)
-      4. DeepLab V2 개념   ~ing
+      4. DeepLab V2 개념  
+                  - dilated Convolution
+                  - Naive Bayes
+                  - Hidden Markov Model ~ing
+                  - CRF ~ing
 
 ---
 
@@ -99,7 +103,7 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
               vertical flip
               # horizontal flip + vertical flip -- 선택
 
-          720개 -> 4320개로 증폭 (+ 1440개)
+          720개 -> 6480개로 증폭 (+ 1440개)
 
 <div align="center">
 
