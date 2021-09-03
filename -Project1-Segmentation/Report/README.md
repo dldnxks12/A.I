@@ -144,7 +144,8 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
 
 **UNET - BUSI**
 
-
+![1](https://user-images.githubusercontent.com/59076451/131953369-4e9ec18d-d1b8-453d-ab40-08dcdb43835a.PNG)
+           
 </div>
 
 
