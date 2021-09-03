@@ -73,8 +73,8 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
       4. DeepLab V2 개념  
                   - dilated Convolution
                   - Naive Bayes
-                  - Hidden Markov Model
-                  - CRF
+                  - Hidden Markov Model ~ing
+                  - CRF ~ing
 
 ---
 
