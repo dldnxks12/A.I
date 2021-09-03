@@ -1,13 +1,4 @@
-## Project Report
-
-           1. Result 
-           2. Loss , ACC with Tensorboar
-           3. Dataset & dataset preprocessing 
-           4. problem and solving
-
----
-
-### 프로젝트  
+## 프로젝트  
 
 BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용하여 질병의 유무를 판단   
 
