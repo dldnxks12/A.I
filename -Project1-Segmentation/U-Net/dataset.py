@@ -30,6 +30,10 @@ class CarvanaDataset(Dataset):
         image2 = image2.astype(np.uint8)
         image2 = self.transform(image2) # Image with noise
 
+        image3 = image*0.97
+        image3 = image3.astype(np.uint8)
+        image3 = self.transform(image3) # Image with noise
+
         image = self.transform(image)
         mask = self.transform(mask)
 
@@ -58,15 +62,28 @@ class CarvanaDataset(Dataset):
         elif self.TFtype == 6:
             image = TF.vflip(image2)
             mask = TF.vflip(mask)
+        # noise2 data
+        elif self.TFtype == 7:
+            image = image3
+            mask = mask
+        # noise data2 + Horizontal Flip
+        elif self.TFtype == 8:
+            image = TF.hflip(image3)
+            mask = TF.hflip(mask)
+        # noise data2 + Vertical Flip
+        elif self.TFtype == 9:
+            image = TF.vflip(image3)
+            mask = TF.vflip(mask)
+
 
         '''
-        elif self.TFtype == 7: # Horizontal + Vertical Flip
+        elif self.TFtype == 10: # Horizontal + Vertical Flip
             image = TF.hflip(image)
             image = TF.vflip(image)
             mask = TF.hflip(mask)
             mask = TF.vflip(mask)
                     
-        elif self.TFtype == 8: # Horizontal + Vertical Flip + Noise
+        elif self.TFtype == 11: # Horizontal + Vertical Flip + Noise
             image = TF.hflip(image2)
             image = TF.vflip(image)
             mask = TF.hflip(mask)

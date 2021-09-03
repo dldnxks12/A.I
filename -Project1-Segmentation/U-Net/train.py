@@ -34,6 +34,9 @@ def main():
     train_dataset4 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 4)
     train_dataset5 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 5)
     train_dataset6 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 6)
+    train_dataset7 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 7)
+    train_dataset8 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 8)
+    train_dataset9 = CarvanaDataset(TRAIN_IMG_DIR, TRAIN_MASK_DIR, TFtype = 9)
 
     train_loader =  DataLoader(dataset = train_dataset, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
     train_loader2 =  DataLoader(dataset = train_dataset2, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
@@ -41,9 +44,11 @@ def main():
     train_loader4 =  DataLoader(dataset = train_dataset4, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
     train_loader5 =  DataLoader(dataset = train_dataset5, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
     train_loader6 =  DataLoader(dataset = train_dataset6, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
+    train_loader7 =  DataLoader(dataset = train_dataset8, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
+    train_loader8 =  DataLoader(dataset = train_dataset9, batch_size= BATCH_SIZE, shuffle= True, drop_last= True)
 
     val_dataset = CarvanaDataset(VAL_IMG_DIR, VAL_MASK_DIR, TFtype = 1)
-    val_loader =  DataLoader(dataset = val_dataset, batch_size= 3, shuffle=True, drop_last=True)
+    val_loader =  DataLoader(dataset = train_dataset7, batch_size= BATCH_SIZE, shuffle=True, drop_last=True)
 
     T_loader = []
     T_loader.append(train_loader)
@@ -52,6 +57,8 @@ def main():
     T_loader.append(train_loader4)
     T_loader.append(train_loader5)
     T_loader.append(train_loader6)
+    T_loader.append(train_loader7)
+    T_loader.append(train_loader8)
 
     writer = SummaryWriter(logdir = "scalar/UNET")
 
