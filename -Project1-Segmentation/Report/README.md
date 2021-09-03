@@ -115,9 +115,11 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
 #### train ACC, Loss
 
 <div align=center>
-     
+                 
 **UNET**
            
+![image](https://user-images.githubusercontent.com/59076451/131964888-51e7e4a3-2327-4743-a9ee-82be50d1c030.png)
+      
 ![image](https://user-images.githubusercontent.com/59076451/131957296-8e79291d-2916-459f-a1c5-6b3bd5c95fc2.png)           
            
 </div>           
@@ -147,6 +149,14 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
 **UNET - BUSI**
 
 ![1](https://user-images.githubusercontent.com/59076451/131953369-4e9ec18d-d1b8-453d-ab40-08dcdb43835a.PNG)
+      
+![image](https://user-images.githubusercontent.com/59076451/131965260-7e070d64-1d41-41eb-a286-c5378cfdc388.png)
+            
+![image](https://user-images.githubusercontent.com/59076451/131965381-c4400800-9af6-4ed3-bd9a-62d6055753ce.png)
+      
+상대적으로 작은 객체에 대해서는 제대로 분할을 못하는 모습을 보여준다.      
+
+      
            
 </div>
 
