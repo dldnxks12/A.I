@@ -25,7 +25,7 @@ BUSI(Breast Ultra-Sound Image) 데이터셋과 이미지 분할 모델을 이용
 
 **BUSI Data**
 
-![img.png](Report/img.png)
+![img.png](img.png)
 
 <br>
 
