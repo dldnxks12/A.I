@@ -53,7 +53,7 @@
       DeConvNet         - ok
       SegNet            - ok     
       U-Net             - ok
-      DeepLab v1, v2
+      DeepLab v1, v2    - ok
       
 
 
