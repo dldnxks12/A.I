@@ -4,11 +4,12 @@
 
 
       1. K-nearest neighborhood - ok
-      2. K-means clustering
+      2. K-means clustering     - ok
       3. Naive Bayes            - ok
       4. SVM
-      5. Decision tree
-      6. Perceptron             - ok      
+      5. PCA
+      6. Decision tree
+      7. Perceptron             - ok      
              1. SLP             - ok
              2. MLP             - ok
 
