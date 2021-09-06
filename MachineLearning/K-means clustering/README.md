@@ -1,6 +1,6 @@
 ## `K-means Clustering`
 
-      K-평균 군집화 알고리즘은 일정량의 데이터를 받아 이를 그룹으로 묶어주는 비지도 `학습 알고리즘`이다. 
+      K-평균 군집화 알고리즘은 일정량의 데이터를 받아 이를 그룹으로 묶어주는 '비지도 학습 알고리즘' 이다. 
 
 <br>
 
@@ -15,7 +15,7 @@
 </div>  
 
     K-means clustering은 Vector 형태로 표현된 N개의 데이터 X = {x1, x2, ... , xN}에 대해서 
-    데이터가 속한 군집(Cluster)의 중심과 데이터 간의 거리의 차이가 최소가 되도록 데이터들을 K개의 군집 S = {s1, s2, ... , sK}에 할당한다.
+    데이터가 속한 군집의 중심과 데이터 간의 거리의 차이가 최소가 되도록 데이터들을 K개의 군집 S = {s1, s2, ... , sK}에 할당한다.
     
     여기서 군집의 개수 K는 일반적으로 데이터를 분석하고자 하는 사람이 직접 설정한다.
     
@@ -40,9 +40,12 @@
 
 
             해당하는 군집의 중심과의 거리를 계산한 후 argmin 함수에 따라 가장 작은 군집으로 포함된다.
+
+<br>
   
-  
-K-means Clustering을 수행한다는 것은 주어진 데이터 X에 대해 r_nk과 c_k 값을 설정하는 것과 같다.  
+      1. K-means Clustering을 수행한다는 것은 주어진 데이터 X에 대해 r_nk과 c_k 값을 설정하는 것과 같다.  
+
+      2. 최적화를 수행한다는 것은 위의 수식을 통해 최적의 Center를 찾는 것이다. (모든 데이터에 Fit하게 가장 잘 군집화하는 것이다.)
   
 </div>  
 
@@ -78,7 +81,7 @@ K-means Clustering을 수행한다는 것은 주어진 데이터 X에 대해 r_n
 
       데이터와 Cluster와의 거리는 해당 데이터와 Cluster의 중심 C_k의 벡터 거리로 계산한다.
 
-      이 과정을 통해 r_nk 변수에 값을 설정한다.
+      이 과정을 통해 r_nk 변수에 값을 설정한다. (각 data에 군집을 할당한다.)
 
 <div align=center>
   
@@ -93,18 +96,25 @@ K-means Clustering을 수행한다는 것은 주어진 데이터 X에 대해 r_n
         모든 data에 대해서 가장 가까운 군집(cluster)가 선택되면 이를 바탕으로 C_k를 수정한다.
     
         이 단계에서 C_k는 k번째 Cluster S_k에 할당된 모든 데이터들의 평균으로 갱신한다!
+        
+<div align=center>        
+      
+![image](https://user-images.githubusercontent.com/59076451/132256850-00af7491-aaf8-4c51-8ff4-05bf8ba55ed5.png)
+      
+</div>      
+        
                        
 <br>    
 
 
-`K-means Clustering`은 주로 1. i 번 만큼 반복하거나, Cluster의 Center의 변화가 없을 때까지 assignment와 Update를 반복한다.
+`K-means Clustering`은 주로 i 번 만큼 반복하거나, Cluster의 Center의 변화가 없을 때까지 assignment와 Update를 반복한다.
 
     주의할 것은 Lloyd 알고리즘은 식 (1)을 전역 최적화가 아닌 지역 최적화 시키는 알고리즘이기 때문에 C_k의 초기화가 매우 중요하다.
     
         C_k의 초기화를 어떻게 하느냐에 따라 매번 결과가 달라진다. 
         
         K 값 또한 마찬가지이다!
-        
+                
 
 <div align=center>
 
