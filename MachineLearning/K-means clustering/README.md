@@ -24,9 +24,9 @@
 
 #### How it works?
 
-    군집의 개수 K를 설정하였다면, 다음과 같은 최적화 문제로 K-means Clustring을 수행한다.
+    군집의 개수 K를 설정하였다면, 다음과 같은 최적화 문제로 K-means Clustring을 수행한다.       
     
-<div align=center>    
+<div align=center>                
   
 ![image](https://user-images.githubusercontent.com/59076451/132254762-a64d1483-f805-4f25-87d2-961dce99abd1.png)  
   
