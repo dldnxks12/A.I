@@ -109,6 +109,14 @@ K-means Clustering을 수행한다는 것은 주어진 데이터 X에 대해 r_n
         
         K 값 또한 마찬가지이다!
         
+
+<div align=center>
+
+![image](https://user-images.githubusercontent.com/59076451/132256006-170cee0c-f4d3-4208-ac5f-deb25ecaf71a.png)
+      
+            Random하게 선택된 Cluster의 Center Point들이 Iterative한 방법으로 점점 올바른 Center로 찾아들어가는 모습을 볼 수 있다.      
+        
+</div>      
         
 <br>        
 
