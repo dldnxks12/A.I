@@ -22,6 +22,7 @@ class KMeansClustering():
 
         # Centroid Initialize
         self.centroids = np.zeros((self.K, self.num_features))
+        self.Initialize()
 
     # --- C_k Value 초기화 --- #
     # Random 초기화 방법도 있지만, 걍 Example 중에서 임의로 3개 잡아서 Centroid로 만들자
@@ -66,28 +67,25 @@ class KMeansClustering():
 
         S = self.Assignment()
         Clustering = [[] for _ in range(self.K)] # 1 x 3 list 생성
-        for i in S:
+        for idx, i in enumerate(S):
             if i == 0:
-                Clustering[0].append(self.X[i])
+                Clustering[0].append(self.X[idx])
             elif i == 1:
-                Clustering[1].append(self.X[i])
+                Clustering[1].append(self.X[idx])
             elif i == 2:
-                Clustering[2].append(self.X[i])
+                Clustering[2].append(self.X[idx])
 
         return Clustering
 
     def Update(self):
         Clustered_set = self.Set_Assignment()
         for i in range(self.K):
-            new_centroid = np.sum(Clustered_set[i], axis = 0) / ( len(Clustered_set[i]) + 1e-6 )
+            new_centroid = np.mean(Clustered_set[i], axis = 0)
             self.centroids[i] = new_centroid
 
         return self.centroids
 
     def loop(self, count):
-
-        self.Initialize()
-
         for i in range(count):
             # do Assignment - Set_Assignment - Update x count times
             output = self.Update()
