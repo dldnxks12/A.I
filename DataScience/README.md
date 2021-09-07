@@ -1,9 +1,20 @@
-#### Data Science
+## Data Science
+
+- Data Science Process 
+
+       1. Probrom Define
+       2. Data Collection
+       3. Analysis and data cleaning & transformation
+       4. Train model
+       5. Evaluate model
+       6. Deploy
+
+<br>
 
 - Todo 
 
     
-    Data Basic 
+    Data Science Basic 
 
         Basic math
             - probability
