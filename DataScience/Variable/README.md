@@ -70,3 +70,18 @@
   
 </div>  
 
+
+`7. '==' and 'is'
+
+<div align=center>
+
+
+`==` : Object의 값이 같은 가?
+
+`is` : Object가 같은 가?
+
+![image](https://user-images.githubusercontent.com/59076451/132628145-82f617bf-a32b-4cdd-8a80-19aeb9e73d5a.png)
+
+</div>
+
+
