@@ -11,10 +11,7 @@
 
 <br>
 
-- Todo 
-
-    
-    Data Science Basic 
+- Data Science Basic 
 
         Basic math
             - probability
@@ -36,3 +33,6 @@
             - data cleaning
             - data transform 
         
+        
+<br>
+
