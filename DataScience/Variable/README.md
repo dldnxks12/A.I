@@ -71,7 +71,7 @@
 </div>  
 
 
-`7. '==' and 'is'
+`7. '==' and 'is'`
 
 <div align=center>
 
