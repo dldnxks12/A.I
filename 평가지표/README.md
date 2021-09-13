@@ -1,4 +1,4 @@
-### 평가지표 
+ ### 평가지표 
 
 - 평가지표로 사용되는 용어들
     
@@ -16,10 +16,14 @@
         
         ...
 
+<br>
+
 Object Detecting의 평가는 보통 PR curve 와 AP 로 평가한다.
 
     - 이에 대한 이해를 위해 먼저 Precision과 Recall에 대해 알아야함
-    
+
+<br>
+
 ![11111](https://user-images.githubusercontent.com/59076451/128000690-15e802cc-034a-42ee-9ddc-b14bf44aded2.PNG)
 
         TP(True Positive)  : 실제 Positive - 검출 Positive
@@ -34,11 +38,19 @@ Object Detecting의 평가는 보통 PR curve 와 AP 로 평가한다.
         FN(False Negative) : 실제 Positive - 검출 Negative
             - 검출해야 되는 것을 검출 안함 (Bad)
 
+
+`일반적인 경우에 FN이 더 심각한 문제이다.`
+
+<br>
+
+
 - Accuracy
 
     정확도는 검출해야하는 것을 검출한 경우. 그리고 검출하지 말아야 할 것을 검출 하지 않는 경우를 이야기한다.
     
         - (TP + TN) / (TP+FP+TN+FN)
+
+<br>
 
 - Precision
 
@@ -48,6 +60,8 @@ Object Detecting의 평가는 보통 PR curve 와 AP 로 평가한다.
 
         - ex) 만일 알고리즘이 물체를 5개 검출해냈을 때, 이 중 4개가 잘 검출해낸 것이라면 ? Precision = 4/5 
 
+<br>
+
 - Recall
 
     검출해 내야 하는 것 중에 제대로 검출된 것의 비율 - 정답 관점에서 평가
@@ -55,7 +69,9 @@ Object Detecting의 평가는 보통 PR curve 와 AP 로 평가한다.
         - TP / (TP + FN) --- 알고리즘이 마땅히 검출해야하는 것들 중에서 제대로 검출해낸 것의 비율 
         
         - (검출해야하는 것 검출) / {(검출해야하는 것 검출) + (검출해야하는 것을 검출 안함)}
-               
+    
+<br>    
+    
 ---
 
 - IOU (Intersection of Union)
