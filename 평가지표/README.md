@@ -30,10 +30,10 @@ Object Detecting의 평가는 보통 PR curve 와 AP 로 평가한다.
             - 옳은 검출 (Good)
             
         TN(True Negative)  : 실제 Negative - 검출 Negative
-            - 검출하면 안되는 것을 검출 안함 (Good)
+            - 검출될 것이 없는 것을 검출 안함 (Good)
             
         FP(False Positive) : 실제 Negative - 검출 Positive
-            - 검출하면 안되는 것을 검출함 (Bad)
+            - 검출될 것이 없는 것을 검출함 (Bad)
         
         FN(False Negative) : 실제 Positive - 검출 Negative
             - 검출해야 되는 것을 검출 안함 (Bad)
