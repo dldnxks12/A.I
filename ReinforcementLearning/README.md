@@ -1,8 +1,5 @@
 #### 강화학습 
 
-- Todo
-
- 
       1. Mathematical Background 
           - Probability 
           - Random Variable
