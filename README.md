@@ -39,7 +39,7 @@
       GoogLeNet    - ok
       ResNet       - ok
 
-- Image Detection
+- Object Detection
 
       RCNN
       Fast RCNN
