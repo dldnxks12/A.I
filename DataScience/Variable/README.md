@@ -1,4 +1,10 @@
-#### Python Variable 
+### Basic Notion
+
+<br>          
+
+<br>        
+
+#### `Basic Notion`
 
 `1. Basic Variable`
 
@@ -85,3 +91,56 @@
 </div>
 
 
+<br>          
+
+<br>          
+
+#### `Function`
+
+- `__main__`
+
+`if __name__ == "__main__"` 
+
+    main 함수는 해당 .py에서 실행할 경우 실행되며, 해당 .py 파일을 Import 해서 사용할 경우 실행되지 않는다.
+
+<br>          
+
+<br>          
+
+#### `Class`
+
+    class: 붕어빵을 만들기 위한 기본 틀과 같은 개념 (혹은 운전면허등을 만들기 위한 기본 틀)
+    instance: 이 틀로 만들어지는 각각의 붕어빵들 (각각의 개인 정보를 넣어 여러 면허증을 만들어 냄)
+    self 변수: class 와 instance 를 연결해주는 역할
+    _init_() 함수 : class 에서 사용할 변수를 정의, 매개변수의 첫번째는 항상 self
+    _str_() 함수 : instance 자체를 print 로 출력하면 나오는 값
+
+- `Class 상속`
+
+`Class 상속에서 Super의 의미는 상속한 Class의 __init__ 내의 선언을 따를 것인지의 여부이다.`
+
+```python
+# advanced issue (inheritance)
+# super(): parent class
+
+class Parent:
+    def __init__(self, p1, p2):
+        '''super()를 사용하지 않으면 overriding 됩니다.'''
+        self.p1 = p1
+        self.p2 = p2
+    p3 = "Dummy"
+        
+class Child_1(Parent):
+    def __init__(self, c1, **kwargs): # Super의 미사용으로 __init__()을 Overriding 함         
+        self.c1 = c1
+        self.c2 = "This is Child's c2"
+        self.c3 = "This is Child's c3"
+
+class Child_2(Parent):
+    def __init__(self, c1, **kwargs): # Super의 사용으로 __init__()을 그대로 받아 
+        super(Child_2, self).__init__(**kwargs)
+        self.c1 = c1
+        self.c2 = "This is Child's c2"
+        self.c3 = "This is Child's c3"
+        # print(kwargs)
+```
