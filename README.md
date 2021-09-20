@@ -1,6 +1,6 @@
 ## Study Progress
 
-#### Machine Learning
+#### `Machine Learning`
 
 
       1. K-nearest neighborhood - ok
@@ -15,7 +15,7 @@
 
 ---
 
-#### Deep Learning 
+#### `Deep Learning `
 
 - Linear Regression 
 
