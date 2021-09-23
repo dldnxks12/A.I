@@ -15,8 +15,8 @@ from torch.utils.data import DataLoader
 
 # for visualization
 import matplotlib.pyplot as plt
-%matplotlib inline 
-# 출력 값이 Jupyter Notebook 상에서 보이도록 
+import numpy as np
+
 
 tf = transforms.Compose([        
         transforms.Resize((224,224)),

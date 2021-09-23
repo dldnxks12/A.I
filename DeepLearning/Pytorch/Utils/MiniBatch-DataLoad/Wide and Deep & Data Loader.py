@@ -15,7 +15,7 @@ class DiabetesDataset(Dataset):
         self.x_train = torch.from_numpy(x_train)  # type : numpy -> tensor
         self.y_train = torch.from_numpy(y_train)
         
-        self.length = x_train.shape[0] # Data-process 759 x 8 , shape[0] = 759
+        self.length = x_train.shape[0] # utils 759 x 8 , shape[0] = 759
         
     def __getitem__(self, idx):
         return self.x_train[idx], self.y_train[idx]

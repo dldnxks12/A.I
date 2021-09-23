@@ -1,7 +1,7 @@
 
 '''
 U-Net을 이용한 Segmentaion을 진행 
-Data-process Resize and Save as npy file
+utils Resize and Save as npy file
 '''
 
 
@@ -14,7 +14,7 @@ import glob, os # glob -> 특정 file만 추출하기
 img = cv2.imread('/content/drive/MyDrive/Colab Notebooks/human_segmentation/imgs/03.jpg', cv2.IMREAD_COLOR)
 label_img = cv2.imread('/content/drive/MyDrive/Colab Notebooks/human_segmentation/imgs/03.jpg', cv2.IMREAD_GRAYSCALE)
 
-BASE_PATH = '../segmentation/'
+BASE_PATH = '/'
 IMG_WIDTH, IMG_HEIGHT = 256, 256
 N_CLASSES = 2 
 

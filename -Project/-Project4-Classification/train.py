@@ -1,6 +1,6 @@
 '''
 
-1. Data가 적을 경우 Data-process augumentation
+1. Data가 적을 경우 utils augumentation
 2. Weight를 저장하고 로드하는 방법
 
 '''
