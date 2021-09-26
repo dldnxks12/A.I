@@ -1,4 +1,8 @@
-1. 6차원 벡터 600개로 이루어진 이미지를 생성해서 CNN 구조로 추론해보기
-2. 해당 구조로 적당한 ACC가 나온다면 앙상블 구조 차용해보기
+### AI Hackerton 
 
-9.20 VGG base CNN 구조 training ACC : 76
+- Check list 
+
+      앙상블 모델
+      Log loss 
+      dataset -> train set + validation set
+      data augumentation 
