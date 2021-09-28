@@ -1,4 +1,5 @@
 # scraping from https://indeed.com -> title, company, location and reviews of all pages
+# start from this url https://kr.indeed.com/?from=gnav-homepage
 
 import requests # internet에서 file을 가져오는 라이브러리
 from bs4 import BeautifulSoup
