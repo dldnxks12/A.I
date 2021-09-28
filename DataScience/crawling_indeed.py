@@ -2,8 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 
 # get company info - Recruit subject, Name, Location
-import requests
-from bs4 import BeautifulSoup
 
 pages = [
 'https://kr.indeed.com/data-scientist%EC%A7%81-%EC%B7%A8%EC%97%85-%EC%84%9C%EC%9A%B8%ED%8A%B9%EB%B3%84%EC%8B%9C-%EC%A7%80%EC%97%AD',
