@@ -5,7 +5,7 @@
        1. Mathematical Background 
             - Probability                - ok
             - Random Variable            - ok
-            - Random Process
+            - Random Process             - ok
 
         2. Basic RL Algorithm
             - Bellman Eqn.
