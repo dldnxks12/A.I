@@ -71,7 +71,7 @@ Sample Space의 관측치를 이산적인 실수로 매칭시키는 R.V
 <br>
 
 - Conditional PMF, 평균, 분산
-- 
+
 <div align="center">
 
 ![img_5.png](img_5.png)
@@ -201,9 +201,7 @@ R.V가 Vector (x, y)로 값을 매칭
 
 ![img_18.png](img_18.png)
 
-<br>
 
-![img_19.png](img_19.png)
 
 <br>
 
