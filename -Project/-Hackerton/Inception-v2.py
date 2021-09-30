@@ -22,6 +22,7 @@ print("Device", device)
 train_data = pd.read_csv("C:/Users/USER/Desktop/Hackerton/train_features.csv")
 train_label = pd.read_csv("C:/Users/USER/Desktop/Hackerton/train_labels.csv")
 test_data = pd.read_csv("C:/Users/USER/Desktop/Hackerton/test_features.csv")
+submission = pd.read_csv('C:/Users/USER/Desktop/Hackerton/sample_submission.csv')
 
 out_list = []
 for i in range(3125):
@@ -30,7 +31,6 @@ for i in range(3125):
 
 out_list = np.expand_dims(np.array(out_list), axis=1)
 data = torch.from_numpy(out_list)
-
 
 # test data processing
 out_list = []
@@ -53,7 +53,6 @@ print(data.shape)
 print(label.shape)
 print(test_data.shape)
 
-
 class Inception(nn.Module):
   def __init__(self, in_channel):
     super().__init__()
@@ -70,7 +69,6 @@ class Inception(nn.Module):
     self.branch_pool = nn.Conv2d(in_channel, 32, kernel_size=3, stride=1, padding=1)
 
   def forward(self, x):
-    # print("Input shape : ", np.shape(x)) # torch.Size([100, 8, 301, 4])
 
     branch1x1 = self.branch1_1(x)
     branch1x1 = self.branch1_2(branch1x1)
@@ -89,12 +87,12 @@ class Inception(nn.Module):
     '''
 
     # 3개의 output들을 1개의 list로
-    outputs = [branch1x1, branch3x3, branch_pool]  # np.shape(outputs)) (3,)
+    outputs = [branch1x1, branch3x3, branch_pool]
 
     # torch.cat (concatenate)
-    cat = torch.cat(outputs, 1)  # outputs list의 tensor들을 dim = 1로 이어준다.
+    # outputs list의 tensor들을 dim = 1로 이어준다.
+    cat = torch.cat(outputs, 1)
 
-    #cat.shape : torch.Size([300, 32, 301, 4])
     return cat
 
 
@@ -136,8 +134,8 @@ class Classification(nn.Module):
 model = Classification().to(device)
 
 batch_size = 100
-learning_rate = 0.001
-num_epochs = 100  # 87
+learning_rate = 0.01
+num_epochs = 50  # 87
 
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 loss = nn.CrossEntropyLoss()
@@ -167,20 +165,18 @@ for epoch in range(num_epochs + 1):
     avg_cost += cost / batch_length
     acc = num_correct / batch_length
 
-  print("Accuracy", acc)
+  print(f"Epoch : {epoch}")
   print("Average Cost", avg_cost)
 
 with torch.no_grad():  # Gradient 학습 x
 
   test_data = test_data.float().to(device)
 
-  prediction = model(test)
+  prediction = model(test_data)
+  prediction = F.softmax(prediction)
   print(prediction.shape)
-  correct_prediction = torch.argmax(prediction, 1)
-  accuracy = correct_prediction.float().mean()
-  print('Accuracy:', accuracy.item())
 
-submission = pd.read_csv('C:/Users/USER/Desktop/Hackerton/sample_submission.csv')
+prediction = prediction.detach().cpu().numpy()
 
-print("check 1", test_label[:50])
-print("check 2", torch.argmax(prediction, 1)[:50])
+submission.iloc[:, 1:] =prediction
+submission.to_csv('js_submission2.csv', index=False)
