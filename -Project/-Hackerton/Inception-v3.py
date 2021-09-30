@@ -25,12 +25,45 @@ test_data = pd.read_csv("C:/Users/USER/Desktop/Hackerton/test_features.csv")
 
 out_list = []
 for i in range(3125):
-  id = train_data.loc[(train_data['id'] == i)].values[:, 2:]
+  id = train_data.loc[(train_data['id'] == i)].values[:,2:]
   out_list.append(id)
 
-out_list = np.expand_dims(np.array(out_list), axis=1)
-data = torch.from_numpy(out_list)
+out_list = np.expand_dims(np.array(out_list), axis = 1)
+data =  out_list
 
+# Scaling
+
+act_list=train_data.iloc[:,2:].columns
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+train_data[act_list]= scaler.fit_transform(train_data[act_list])
+
+out_list = []
+for i in range(3125):
+  id = train_data.loc[(train_data['id'] == i)].values[:,2:]
+  out_list.append(id)
+
+temp_data = np.expand_dims(np.array(out_list), axis = 1)
+
+li = [temp_data, data]
+data = np.concatenate(li, axis = 0)
+data = torch.from_numpy(data)
+
+
+out_list = []
+for i in range(3125):
+  label = train_label.loc[(train_label['id'] == i)].values[0,1]
+  out_list.append(label)
+
+out_list = np.array(out_list)
+
+li = [out_list, out_list]
+label = np.concatenate(li, axis = 0)
+label = torch.from_numpy(label)
+
+data, valid_data = data[:5000], data[5000:]
+label, valid_label = label[:5000], label[5000:]
 
 # test data processing
 out_list = []
@@ -41,19 +74,6 @@ for i in range(782):
 out_list = np.expand_dims(np.array(out_list), axis = 1)
 test_data = torch.from_numpy(out_list)
 
-out_list = []
-for i in range(3125):
-  label = train_label.loc[(train_label['id'] == i)].values[0, 1]
-  out_list.append(label)
-
-out_list = np.array(out_list)
-label = torch.from_numpy(out_list)
-
-print(data.shape)
-print(label.shape)
-print(test_data.shape)
-
-exit(0)
 
 class Inception(nn.Module):
   def __init__(self, in_channel):
@@ -82,12 +102,6 @@ class Inception(nn.Module):
 
     branch_pool = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
     branch_pool = self.branch_pool(branch_pool)
-
-    '''
-            branch1x1   : torch.Size([100, 32, 301, 4])
-            branch3x3   : torch.Size([100, 32, 301, 4])
-            branch_pool : torch.Size([100, 32, 301, 4])
-    '''
 
     # 3개의 output들을 1개의 list로
     outputs = [branch1x1, branch3x3, branch_pool]  # np.shape(outputs)) (3,)
@@ -137,14 +151,16 @@ class Classification(nn.Module):
 model = Classification().to(device)
 
 batch_size = 100
-learning_rate = 0.001
-num_epochs = 100  # 87
+learning_rate = 0.01
+num_epochs = 30  # 87
 
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 loss = nn.CrossEntropyLoss()
 
 from torch.utils.data import TensorDataset
 
+print(data.shape)
+print(label.shape)
 train_dataset = TensorDataset(data, label)
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
 
@@ -173,15 +189,14 @@ for epoch in range(num_epochs + 1):
 
 with torch.no_grad():  # Gradient 학습 x
 
-  test_data = test_data.float().to(device)
+  valid_data = valid_data.float().to(device)
+  valid_label = valid_label.long().to(device)
 
-  prediction = model(test)
+  prediction = model(valid_data)
   print(prediction.shape)
-  correct_prediction = torch.argmax(prediction, 1)
+  correct_prediction = torch.argmax(prediction, 1) == valid_label
   accuracy = correct_prediction.float().mean()
   print('Accuracy:', accuracy.item())
 
-submission = pd.read_csv('C:/Users/USER/Desktop/Hackerton/sample_submission.csv')
-
-print("check 1", test_label[:50])
-print("check 2", torch.argmax(prediction, 1)[:50])
+print("check 1", valid_label[:30])
+print("check 2", torch.argmax(prediction, 1)[:30])
