@@ -117,9 +117,10 @@ class VGG_ORG(nn.Module):
 
 model = VGG_ORG(in_channel=1).to(device)
 
-batch_size = 100
-learning_rate = 0.001
-num_epochs = 120  # 87
+batch_size = 50
+learning_rate = 0.003
+
+num_epochs = 200  # 87
 
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 loss = nn.CrossEntropyLoss()
@@ -181,4 +182,4 @@ prediction = prediction.detach().cpu().numpy()
 submission = pd.read_csv('C:/Users/USER/Desktop/Hackerton/sample_submission.csv')
 
 submission.iloc[:, 1:] = prediction
-submission.to_csv('js_submission3.csv', index=False)
+submission.to_csv('js_submission10_01_3.csv', index=False)

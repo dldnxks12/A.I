@@ -149,11 +149,11 @@ class Classification(nn.Module):
 
 model = Classification().to(device)
 
-batch_size = 100
+batch_size = 200
 learning_rate = 0.005
 num_epochs = 200  # 87
 
-optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum = 0.4)
+optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 loss = nn.CrossEntropyLoss()
 
 from torch.utils.data import TensorDataset
@@ -185,6 +185,7 @@ for epoch in range(num_epochs + 1):
   print(f"Correct {num_correct}/{batch_length}")
   print("Average Cost", avg_cost)
 
+'''
 with torch.no_grad():  # Gradient 학습 x
 
   valid_data = valid_data.float().to(device)
@@ -197,7 +198,6 @@ with torch.no_grad():  # Gradient 학습 x
 
 print("check 1", valid_label[:30])
 print("check 2", torch.argmax(prediction, 1)[:30])
-
 '''
 
 submission = pd.read_csv('C:/Users/USER/Desktop/Hackerton/sample_submission.csv')
@@ -212,6 +212,5 @@ with torch.no_grad():  # Gradient 학습 x
 
 prediction = prediction.detach().cpu().numpy()
 submission.iloc[:, 1:] = prediction
-submission.to_csv('js_submission3.csv', index=False)
+submission.to_csv('js_submission_1.csv', index=False)
 
-'''
