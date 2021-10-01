@@ -126,8 +126,6 @@ loss = nn.CrossEntropyLoss()
 
 from torch.utils.data import TensorDataset
 
-print(data.shape)
-print(label.shape)
 train_dataset = TensorDataset(data, label)
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
 
@@ -152,6 +150,7 @@ for epoch in range(num_epochs + 1):
     acc = num_correct / batch_length
 
   print(f"Epoch : {epoch}")
+  print(f"Correct {num_correct}/{batch_length}")
   print("Average Cost", avg_cost)
 
 '''

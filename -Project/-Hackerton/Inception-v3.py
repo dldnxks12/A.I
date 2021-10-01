@@ -50,7 +50,6 @@ li = [temp_data, data]
 data = np.concatenate(li, axis = 0)
 data = torch.from_numpy(data)
 
-
 out_list = []
 for i in range(3125):
   label = train_label.loc[(train_label['id'] == i)].values[0,1]
@@ -151,16 +150,14 @@ class Classification(nn.Module):
 model = Classification().to(device)
 
 batch_size = 100
-learning_rate = 0.01
-num_epochs = 30  # 87
+learning_rate = 0.005
+num_epochs = 200  # 87
 
-optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum = 0.4)
 loss = nn.CrossEntropyLoss()
 
 from torch.utils.data import TensorDataset
 
-print(data.shape)
-print(label.shape)
 train_dataset = TensorDataset(data, label)
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
 
@@ -184,7 +181,8 @@ for epoch in range(num_epochs + 1):
     avg_cost += cost / batch_length
     acc = num_correct / batch_length
 
-  print("Accuracy", acc)
+  print(f"Epoch : {epoch}")
+  print(f"Correct {num_correct}/{batch_length}")
   print("Average Cost", avg_cost)
 
 with torch.no_grad():  # Gradient 학습 x
@@ -193,10 +191,27 @@ with torch.no_grad():  # Gradient 학습 x
   valid_label = valid_label.long().to(device)
 
   prediction = model(valid_data)
-  print(prediction.shape)
   correct_prediction = torch.argmax(prediction, 1) == valid_label
   accuracy = correct_prediction.float().mean()
   print('Accuracy:', accuracy.item())
 
 print("check 1", valid_label[:30])
 print("check 2", torch.argmax(prediction, 1)[:30])
+
+'''
+
+submission = pd.read_csv('C:/Users/USER/Desktop/Hackerton/sample_submission.csv')
+
+with torch.no_grad():  # Gradient 학습 x
+
+  test_data = test_data.float().to(device)
+
+  prediction = model(test_data)
+  prediction = F.softmax(prediction)
+  print(prediction.shape)
+
+prediction = prediction.detach().cpu().numpy()
+submission.iloc[:, 1:] = prediction
+submission.to_csv('js_submission3.csv', index=False)
+
+'''
