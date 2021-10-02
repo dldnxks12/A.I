@@ -1,4 +1,4 @@
-gitimport requests
+import requests
 from bs4 import BeautifulSoup
 
 # get company info - Recruit subject, Name, Location
