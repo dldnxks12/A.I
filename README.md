@@ -8,8 +8,11 @@
             - Random Process             - ok
 
         2. Basic RL Algorithm
-            - Bellman Eqn.
-            - DP
+            - Markov Process                    
+            - Markov Reward Process
+            - Markov Decision Process
+            - Bellman Eqns.
+            - Dynamic Programming
             - Model free Approaches
 
         3. ML based R learning
