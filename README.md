@@ -8,8 +8,8 @@
             - Random Process             - ok
 
         2. Basic RL Algorithm
-            - Markov Process                    
-            - Markov Reward Process
+            - Markov Process             - ok             
+            - Markov Reward Process      - ok
             - Markov Decision Process
             - Bellman Eqns.
             - Dynamic Programming
