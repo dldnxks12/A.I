@@ -16,7 +16,7 @@
 
 <div align="center">
 
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 </div>
 
@@ -48,7 +48,7 @@ Markov Decision Process는 일반적으로 강화학습을 위한 환경을 묘�
 
 <div align="center">
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 MDP도 이 Markov 성질을 따르는데 현재의 값 X(t)에 과거 정보들이 다 담겨있다고 가정한다. 
 
@@ -63,7 +63,7 @@ MDP도 이 Markov 성질을 따르는데 현재의 값 X(t)에 과거 정보들�
 
 `MDP의 State 들은 모두 Markov 하다.`
 
-![img_2.png](img_2.png)
+![img_2.png](img/img_2.png)
 
 또한 P[St+1 | St]의 확률을 matrix형태로 만들어 쉽게 다룰 수 있다.  
 
@@ -83,7 +83,7 @@ Markov Chain이라고도 하며 Random State Sequence + State Transition matrix�
 
     EX) C1 -> C2 -> C3 -> Pass -> Sleep
 
-![img_3.png](img_3.png)
+![img_3.png](img/img_3.png)
 
 </div>
 
@@ -93,11 +93,11 @@ Markov Chain이라고도 하며 Random State Sequence + State Transition matrix�
 
 <div align="center">
 
-![img_4.png](img_4.png)
+![img_4.png](img/img_4.png)
 
 Markov Reward Process는 Markov Chain에 보상을 더한 모델이다.
 
-![img_5.png](img_5.png)
+![img_5.png](img/img_5.png)
 
 </div>
 
@@ -109,7 +109,7 @@ Markov Reward Process는 Markov Chain에 보상을 더한 모델이다.
 
 <div align="center">
 
-![img_6.png](img_6.png)
+![img_6.png](img/img_6.png)
 
     이 State Value function Set을 얻는데에는 Bellman Eqn이 필요하다.
 
@@ -121,21 +121,21 @@ Markov Reward Process는 Markov Chain에 보상을 더한 모델이다.
 
 <div align="center">
 
-![img_7.png](img_7.png)
+![img_7.png](img/img_7.png)
 
 Bellman Eqn을 이용해서 얻은 식을 조금 더 변형해보자.
 
-![img_8.png](img_8.png)
+![img_8.png](img/img_8.png)
 
 위 식을 이용해서 간단하게 Class3 state의 V(3)을 구해보자
 
     이 식들을 주목해보니 Matrix 형태로 만들 수 있다!
 
-![img_10.png](img_10.png)
+![img_10.png](img/img_10.png)
 
 <br>
 
-![img_9.png](img_9.png)
+![img_9.png](img/img_9.png)
 
 위 행렬 방정식을 이용해서 우리는 전체 모델의 state value function을 구할 수 있다.
 
