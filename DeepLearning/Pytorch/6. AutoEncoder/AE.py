@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.init as init            # for weight , bias initialization
 import torch.nn.functional as F
-import torchvision.datasets as dsets # for MNIST dataset 
+import torchvision.datasets as dsets # for 4. MNIST dataset
 import torchvision.transforms as transforms # for tensor transforms 
 
 from torch.utils.data import DataLoader # for batch learning
@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader # for batch learning
 import numpy as np
 import matplotlib.pyplot as plt
 
-# MNIST DATASET
+# 4. MNIST DATASET
 mnist_train = dsets.MNIST(root = "MNIST_DATA/", train = True, transform = transforms.ToTensor(), download = True)
 mnist_test = dsets.MNIST(root = "MNIST_DATA/", train = False, transform = transforms.ToTensor(), download = True)
 
@@ -55,14 +55,14 @@ class AE(nn.Module):
         return out
 
 ''' layer 2배로 
-class AutoEncoder(nn.Module):
+class 6. AutoEncoder(nn.Module):
     def __init__(self):
-        super(AutoEncoder,self).__init__() # Initialize super class init function
-        self.encoder = nn.Linear(28*28, 100) # 28 x 28 vector -> 20 vector (latent space vector)
-        self.encoder2 = nn.Linear(100, 10) # 28 x 28 vector -> 20 vector (latent space vector)        
+        super(6. AutoEncoder,self).__init__() # Initialize super class init function
+        self.encoder = nn.1. Linear Regression(28*28, 100) # 28 x 28 vector -> 20 vector (latent space vector)
+        self.encoder2 = nn.1. Linear Regression(100, 10) # 28 x 28 vector -> 20 vector (latent space vector)        
         
-        self.decoder = nn.Linear(10, 100) # 20 -> 28 x 28 (reconstruct image feature from latent space vector)
-        self.decoder2 = nn.Linear(100, 28*28) # 20 -> 28 x 28 (reconstruct image feature from latent space vector)
+        self.decoder = nn.1. Linear Regression(10, 100) # 20 -> 28 x 28 (reconstruct image feature from latent space vector)
+        self.decoder2 = nn.1. Linear Regression(100, 28*28) # 20 -> 28 x 28 (reconstruct image feature from latent space vector)
         
     def forward(self, x): # x : 100 x 1 x 28 x 28 
         x = x.view(batch_size, -1) # (batch_size , channel, height , width ) -> (batch_size, channel x height x width)

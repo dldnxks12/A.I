@@ -1,9 +1,9 @@
-# voc 2007 dataset의 ImageJPEG Folder에서 Segmentation-Semantic 으로 사용되는 이미지만 골라서 따로 옮기는 작업
+# voc 2007 dataset의 ImageJPEG Folder에서 7. Segmentation-Semantic 으로 사용되는 이미지만 골라서 따로 옮기는 작업
 
 import shutil
 
 file_list = []
-file_path = "./Segmentation-Semantic/ImageSets/Segmentation-Semantic/trainval.txt"
+file_path = "./7. Segmentation-Semantic/ImageSets/7. Segmentation-Semantic/trainval.txt"
 
 f = open(file_path, 'r')
 
@@ -24,5 +24,5 @@ root = "./"
 to_path = root + "SegImg"
 
 for filename in file_list:
-    from_path = root + 'Segmentation-Semantic/JPEGImages/' + filename + '.jpg'
+    from_path = root + '7. Segmentation-Semantic/JPEGImages/' + filename + '.jpg'
     shutil.copy2(from_path, to_path)

@@ -1,7 +1,7 @@
 # 참고 링크 https://wjddyd66.github.io/pytorch/Pytorch-AutoEncoder/
 # Convolutional Auto Encoder --- for Understanding FCN Architecture  *** Deconvolution에 대해 이해하기 위함 
 
-# ANN구조의 AutoEncoder -> Modern-CNN 구조의 CAE
+# ANN구조의 6. AutoEncoder -> 5. Modern CNN 구조의 CAE
 # Decoder : Deconvolution 연산을 통해 data reconstruction !
 # Deconvolution with torch.nn.ConvTranspose2d
 
@@ -10,14 +10,14 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.init as init            # for weight , bias initialization
 import torch.nn.functional as F
-import torchvision.datasets as dsets # for MNIST dataset 
+import torchvision.datasets as dsets # for 4. MNIST dataset
 import torchvision.transforms as transforms # for tensor transforms 
 from torch.utils.data import DataLoader # for batch learning
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-# MNIST dataset load
+# 4. MNIST dataset load
 mnist_train = dsets.MNIST("MNIST_DATA/", train = True, transform = transforms.ToTensor(), download = True)
 mnist_test = dsets.MNIST("MNIST_DATA/", train = False, transform = transforms.ToTensor(), download = True)
 

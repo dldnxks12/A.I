@@ -9,13 +9,13 @@ print(model)
      ...     
   (avgpool): AdaptiveAvgPool2d(output_size=(7, 7))
   (classifier): Sequential(
-    (0): Linear(in_features=25088, out_features=4096, bias=True)
+    (0): 1. Linear Regression(in_features=25088, out_features=4096, bias=True)
     (1): ReLU(inplace=True)
     (2): Dropout(p=0.5, inplace=False)
-    (3): Linear(in_features=4096, out_features=4096, bias=True)
+    (3): 1. Linear Regression(in_features=4096, out_features=4096, bias=True)
     (4): ReLU(inplace=True)
     (5): Dropout(p=0.5, inplace=False)
-    (6): Linear(in_features=4096, out_features=1000, bias=True)
+    (6): 1. Linear Regression(in_features=4096, out_features=1000, bias=True)
   )
 '''
 
@@ -34,7 +34,7 @@ model.classifier = nn.Linear(512, 10)
 '''
 print(model)
   (avgpool): Identity()
-  (classifier): Linear(in_features=512, out_features=10, bias=True)
+  (classifier): 1. Linear Regression(in_features=512, out_features=10, bias=True)
 '''
 
 # 주의할 점은 방금 우리가 가져온 layer와 tuning한 layer들은 pretrain되어 있지 않다는 것

@@ -11,7 +11,7 @@ from tensorboardX import SummaryWriter # To print Tensorboard !
 from torch.utils.data import DataLoader
 import torch.nn.init  # weight initialization을 위해 import (Xavier or HE  )
 
-# Modern-CNN Model Class 선언
+# 5. Modern CNN Model Class 선언
 class CNN(nn.Module):
     def __init__(self):
         super().__init__()  # nn.Module 초기값 설정
@@ -50,7 +50,7 @@ learning_rate = 0.001
 training_epochs = 5
 batch_size = 100
 
-# MNIST dataset
+# 4. MNIST dataset
 mnist_train = dsets.MNIST(root='MNIST_DATA/', train=True, transform=transforms.ToTensor(), download=True)
 mnist_test = dsets.MNIST(root='MNIST_DATA/', train=False, transform=transforms.ToTensor(), download=True)
 train_loader = DataLoader(mnist_train, batch_size=batch_size, shuffle=True, drop_last=True)
@@ -60,7 +60,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # Tensor board Writer
-writer = SummaryWriter(logdir="scalar/MNIST")
+writer = SummaryWriter(logdir="scalar/4. MNIST")
 
 total_batch = len(train_loader)
 step = 0

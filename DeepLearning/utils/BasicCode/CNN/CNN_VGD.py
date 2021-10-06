@@ -15,7 +15,7 @@ class Convet(tf.keras.Model)
 class ConvNet(tf.keras.Model):
     def __init__(self): 
         super(ConvNet, self).__init__()
-        self.sequence = list() # MNIST 28x28x16       
+        self.sequence = list() # 4. MNIST 28x28x16
         self.sequence.append(tf.keras.layers.Conv2D(16,(3,3), padding = 'same', activation = 'relu'))
         self.sequence.append(tf.keras.layers.Conv2D(16,(3,3), padding = 'same', activation = 'relu'))
         self.sequence.append(tf.keras.layers.MaxPool2D((2,2))) # 14x14x16

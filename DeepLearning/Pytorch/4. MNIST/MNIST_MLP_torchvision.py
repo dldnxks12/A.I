@@ -1,4 +1,4 @@
-# MLP를 이용한 MNIST 
+# MLP를 이용한 4. MNIST
 # torchvision의 dataset을 이용해서 구현
 # 앞선 MNIST_Classification은 Single Layer Perceptron으로 이해할 수 있다.
 
@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
 
-# dataset for MNIST dataset, transforms for data preprocessing 
+# dataset for 4. MNIST dataset, transforms for data preprocessing
 import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 
@@ -26,7 +26,7 @@ random.seed(777)
 if device == 'cuda':
   torch.cuda.manual_seed_all(777)
 
-# 2. MNIST dataset 불러오기
+# 2. 4. MNIST dataset 불러오기
 
 mnist_train = dsets.MNIST(root = 'MNIST_data/', train = True, transform = transforms.ToTensor(), download = True )
 mnist_test  = dsets.MNIST(root = 'MNIST_data/', train = False, transform = transforms.ToTensor(), download = True )

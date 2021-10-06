@@ -10,7 +10,7 @@ learning_rate = 0.1
 def sigmoid(x): # Sigmoid 
     return 1/(1 + np.exp(-x))
 
-def loss_f(x, y): # Loss 함수는 Linear regression에서 sigmoid 함수를 한 번 더 씌워준 것
+def loss_f(x, y): # Loss 함수는 1. Linear Regression regression에서 sigmoid 함수를 한 번 더 씌워준 것
     delta = 1e-3
     z=np.dot(x,w)
     y_pred=sigmoid(z)

@@ -5,7 +5,7 @@ class로 구현에 앞서 model은 다음과 같이 구현했었다.
 
 model = nn.Sequential(
 
-    nn.Linear(2,1),
+    nn.1. Linear Regression(2,1),
     nn.Sigmoid()
 
 )

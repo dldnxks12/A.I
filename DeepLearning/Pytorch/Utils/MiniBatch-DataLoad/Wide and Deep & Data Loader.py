@@ -98,7 +98,7 @@ for epoch in range(1001):
         
 x_test = torch.tensor(x_test)        # Tensor type 으로 변환
 y_test = torch.tensor(y_test)        # Tensor type 으로 변환
-prediction = predict( model(x_test) ) # wide and deep 하게 Layer를 통과하여 나온 값을 Sigmoid 함수를 통해 Binary Classification 
+prediction = predict( model(x_test) ) # wide and deep 하게 Layer를 통과하여 나온 값을 Sigmoid 함수를 통해 2. Binary Classification
 
 print("Accuracy: ", Accuracy(prediction, y_test) , "%" ) # (맞 개수 / 전체 개수)  * 100
 

@@ -4,7 +4,7 @@ import torch.optim as optim
 import torch.nn.functional as F # for softmax 
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-import torchvision.datasets as dsets # MNIST dataset
+import torchvision.datasets as dsets # 4. MNIST dataset
 
 class VGG_ORG(nn.Module):
     def __init__(self, in_channel): 

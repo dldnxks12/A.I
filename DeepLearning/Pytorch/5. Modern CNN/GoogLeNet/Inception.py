@@ -7,7 +7,7 @@ import torch.optim as optim
 import torch.nn.functional as F # for softmax 
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-import torchvision.datasets as dsets # MNIST dataset
+import torchvision.datasets as dsets # 4. MNIST dataset
 
 train_dataset = dsets.MNIST(root='./data', train=True, transform=transforms.ToTensor(), download=True)
 test_dataset = dsets.MNIST(root='./data', train=False, transform=transforms.ToTensor())
@@ -66,7 +66,7 @@ class InceptionA(nn.Module):
 class GoogleNet(nn.Module):
   def __init__(self):
     super(GoogleNet, self).__init__()
-    # Model의 앞 단은 그냥 Basic Conv layer로 구성
+    # Model의 앞 단은 그냥 Basic Code Conv layer로 구성
 
     self.conv1 = nn.Conv2d(1, 10, kernel_size = 5)
     self.conv2 = nn.Conv2d(88, 20, kernel_size = 5)

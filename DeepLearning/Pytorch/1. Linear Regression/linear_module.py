@@ -1,9 +1,9 @@
 '''
 
-Pytorch에서 선형 회귀 모델은 nn.Linear() 라는 함수로 구현되어있다.
+Pytorch에서 선형 회귀 모델은 nn.1. Linear Regression() 라는 함수로 구현되어있다.
 또한 MSE는 nn.functional.mse_loss() 함수로 되어있다. 
 
-model = nn.Linear(input_dim, output_dim)
+model = nn.1. Linear Regression(input_dim, output_dim)
 cost = F.mse_loss(prediction, y_train)
 
 '''

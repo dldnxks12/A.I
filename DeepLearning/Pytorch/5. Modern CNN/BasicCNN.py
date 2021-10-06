@@ -1,4 +1,4 @@
-# CNN으로 MNIST 분류 
+# CNN으로 4. MNIST 분류
 # 모델 구조 Conv Layer1 + Pooling 1 -> Conv_layer2 + Pooling2 -> FullyConnected layer -> Softmax -> output 
 
 import torch 

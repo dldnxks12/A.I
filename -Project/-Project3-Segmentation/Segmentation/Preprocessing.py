@@ -60,7 +60,7 @@ for i, train_path in enumerate(tqdm(train_list)):
         im[diff:diff + new_height, :, :] = img
         lim[diff:diff + new_height, :] = label_img
 
-    #label 이미지에 대한 Segmentation-Semantic map 생성
+    #label 이미지에 대한 7. Segmentation-Semantic map 생성
     seg_labels = np.zeros((IMG_HEIGHT, IMG_WIDTH, N_CLASSES), dtype=np.uint8)
 
     for c in range(N_CLASSES):

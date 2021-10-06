@@ -3,7 +3,7 @@ from torch.autograd import Variable
 
 # Tensor data
 x_data = Variable(torch.Tensor([[1.0],[2.0],[3.0],[4.0]])) 
-y_data = Variable(torch.Tensor([[0.],[0.],[1.],[1.]])) # Binary Classification 이기 때문에 0 또는 1을 Label 값으로 갖는다.
+y_data = Variable(torch.Tensor([[0.],[0.],[1.],[1.]])) # 2. Binary Classification 이기 때문에 0 또는 1을 Label 값으로 갖는다.
  
 # 1. 모델 디자인 with class
 ############################################################################################

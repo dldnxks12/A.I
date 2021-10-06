@@ -11,7 +11,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 import torch.nn.init  # weight initialization을 위해 import (Xavier or HE  )
 
-# Modern-CNN Model Class 선언
+# 5. Modern CNN Model Class 선언
 class CNN(nn.Module):
 
     def __init__(self):
@@ -37,7 +37,7 @@ class CNN(nn.Module):
         self.fc = nn.Linear(7 * 7 * 64, 10, bias=True)
 
         # fc layer에 대해서는 Weight initialization
-        nn.init.xavier_uniform_(self.fc.weight)  # Linear 객체에 대한 Weight 호출 ( linear.weight , linear.bias로 가능! )
+        nn.init.xavier_uniform_(self.fc.weight)  # 1. Linear Regression 객체에 대한 Weight 호출 ( linear.weight , linear.bias로 가능! )
 
     def forward(self, x):
         out = self.layer1(x)
@@ -61,7 +61,7 @@ learning_rate = 0.001
 training_epochs = 15
 batch_size = 100
 
-# MNIST dataset
+# 4. MNIST dataset
 mnist_train = dsets.MNIST(root='MNIST_DATA/', train=True, transform=transforms.ToTensor(), download=True)
 mnist_test = dsets.MNIST(root='MNIST_DATA/', train=False, transform=transforms.ToTensor(), download=True)
 

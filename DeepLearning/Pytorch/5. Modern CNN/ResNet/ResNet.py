@@ -1,6 +1,6 @@
 # 출처 및 참고 https://deep-learning-study.tistory.com/534
 
-# MNIST 대신 CIFAR100 Dataset으로 바꾸기
+# 4. MNIST 대신 CIFAR100 Dataset으로 바꾸기
 
 # model 
 import torch

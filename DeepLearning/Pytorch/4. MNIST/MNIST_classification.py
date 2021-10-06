@@ -29,7 +29,7 @@ if device == 'cuda':
 training_epochs = 15
 batch_size = 100
 
-# MNIST 데이터셋 불러오기
+# 4. MNIST 데이터셋 불러오기
 
 # root : data 다운로드 경로 , train = True : train dataset, transform : 데이터전처리 (Tensor로 가져올 것)
 mnist_train = dsets.MNIST(root = 'MNIST_data/', train = True, transform=transforms.ToTensor(), download = True)
@@ -83,7 +83,7 @@ with torch.no_grad(): # 이렇게 하면 gradient 계산을 수행하지 않는�
     accuracy = correct_prediction.float().mean() # 다 합해서 평균 
     # print(accuracy.item()) : 0.8883000016212463
     
-    # MNIST 테스트 데이터에서 하나 뽑아서 예측 해보자
+    # 4. MNIST 테스트 데이터에서 하나 뽑아서 예측 해보자
     r = random.randint(0, len(mnist_test)-1)
     X_single_data = mnist_test.test_data[r : r+1].view(-1,28*28).float().to(device)
     Y_single_data = mnist_test.test_labels[r : r+1].to(device)

@@ -1,4 +1,4 @@
-# Human Parsing dataset을 이용한 Segmentation-Semantic
+# Human Parsing dataset을 이용한 7. Segmentation-Semantic
 
 import torch
 import torch.nn as nn

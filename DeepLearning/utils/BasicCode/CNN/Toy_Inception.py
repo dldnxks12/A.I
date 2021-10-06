@@ -11,7 +11,7 @@ from torch.autograd import Variable
 batch_size = 64
 
 
-# MNIST Dataset 불러오기
+# 4. MNIST Dataset 불러오기
 # Train set , Test set 분리
 
 train_dataset = datasets.MNIST(root='./data', train=True, transform=transforms.ToTensor(), download=True)
