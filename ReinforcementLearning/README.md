@@ -1,15 +1,18 @@
-#### 강화학습 
+#### `Reinforcement Learning`
 
-      1. Mathematical Background 
-          - Probability 
-          - Random Variable
-          - Random Process
+       1. Mathematical Background 
+            - Probability                - ok
+            - Random Variable            - ok
+            - Random Process             - ok
 
-      2. Reinforcement Learning Basic
-          - Bellman Eqn.
-          - DP
-          - Model free Approaches
+        2. Basic RL Algorithm
+            - Markov Process             - ok             
+            - Markov Reward Process      - ok
+            - Markov Decision Process
+            - Bellman Eqns.
+            - Dynamic Programming
+            - Model free Approaches
 
-      3. ML based R learning
-      4. DL based R learning
+        3. ML based R learning
+        4. DL based R learning
 
