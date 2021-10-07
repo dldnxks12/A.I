@@ -9,32 +9,34 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 
+from models import *
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 torch.manual_seed(777)
 if device == 'cuda':
-  torch.cuda.manual_seed_all(777)
+    torch.cuda.manual_seed_all(777)
 
 print("Device", device)
 
-# 증강 데이터 load
 train_data = pd.read_csv("C:/Users/USER/PycharmProjects/A.I/-Project/-Hackerton/csv files/js_train_data.csv")
 train_label = pd.read_csv("C:/Users/USER/PycharmProjects/A.I/-Project/-Hackerton/csv files/js_train_label.csv")
 test_data = pd.read_csv("C:/Users/USER/Desktop/Hackerton/test_features.csv")
 
-print("Data load ok")
-# ------------------ 데이터 600 x 6 shape으로 -------------------- #
-# sensor data to tensor
 out_list = []
+out_list2 = []
 for i in range(15624):
     id = train_data.loc[(train_data['id'] == i)].values[:, 2:]
     out_list.append(id)
+    out_list2.append(id)
 
 out_list = np.expand_dims(np.array(out_list), axis=1)
 data = torch.from_numpy(out_list)
+out_list2 = np.array(out_list2).transpose((0,2,1))
+data2 = torch.from_numpy(out_list2)
 
 print("Data ok")
-print("data shape check", data.shape)
+print("data shape check", data.shape)  # [15624, 6, 600]
 
 # label data to tensor
 out_list = []
@@ -51,103 +53,75 @@ print("label shape check", label.shape)
 
 # test data processing
 out_list = []
+out_list2 = []
 for i in range(782):
-  id = test_data.loc[(test_data['id'] == i + 3125)].values[:,2:]
-  out_list.append(id)
+    id = test_data.loc[(test_data['id'] == i + 3125)].values[:, 2:]
+    out_list.append(id)
+    out_list2.append(id)
 
 out_list = np.expand_dims(np.array(out_list), axis = 1)
 test_data = torch.from_numpy(out_list)
+out_list2 = np.array(out_list2).transpose((0,2,1))
+test_data2 = torch.from_numpy(out_list2)
 
 print("test shape check", test_data.shape)
 
 # train - valid dataset split
-data, valid_data = data[:14000], data[14000:]
+data, data2, valid_data = data[:14000], data2[:14000], data[14000:]
 label, valid_label = label[:14000], label[14000:]
 
-# --------------------------------------- VGG model ------------------------- #
-class VGG_ORG(nn.Module):
-    def __init__(self, in_channel):
-        super().__init__()
-
-        self.layer1 = nn.Sequential(  # 1 x 600 x 6
-            nn.Conv2d(in_channel, 16, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
-
-        self.layer2 = nn.Sequential(  # 32 x 300 x 3
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=3, stride=1)
-        )
-
-        self.fc1 = nn.Linear(64 * 298, 100)  # 512 자리에 512 x width x heigth 넣어주기
-        self.fc2 = nn.Linear(100, 61)
-
-    def forward(self, x):
-        # Conv layer
-        out = self.layer1(x)  # out shape torch.Size([100, 32, 300, 3])
-        out = self.layer2(out)  # out shape torch.Size([100, 64, 298, 1])
-
-        # flatten
-        out = out.view(-1, 64 * 298)
-
-        # fc layer
-        out = F.relu(self.fc1(out))
-        out = F.relu(self.fc2(out))
-
-        return out
-
-# ----------------------- Model --------------------------- #
-model = VGG_ORG(in_channel=1).to(device)
+# Create model
+model_1 = model1().to(device)
+model_2 = model2().to(device)
+model_3 = model3().to(device)
 
 # model parameter
-batch_size = 64
-learning_rate = 0.01 # 다음엔 0.01 정도로
-num_epochs = 150     # 다음엔 100 정도로
+batch_size = 500
+learning_rate = 0.6  # 다음엔 0.01 정도로
+num_epochs = 200  # 다음엔 100 정도로
 
-optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+
+parameters = list(model_1.parameters()) + list(model_2.parameters()) + list(model_3.parameters())
+optimizer = optim.SGD(parameters, lr=learning_rate)
 loss = nn.CrossEntropyLoss()
 
-
 # define data loader
+print(data.shape)
+print(data2.shape)
+print(label.shape)
 train_dataset = TensorDataset(data, label)
-train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+train_dataset2 = TensorDataset(data2, label)
 
+train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+train_loader2 = DataLoader(dataset=train_dataset2, batch_size=batch_size, shuffle=True, drop_last=True)
 print(" --- Ok before training --- ")
 
 for epoch in range(num_epochs + 1):
-  avg_cost = 0
-  batch_length = len(train_loader)
-  for x, y in train_loader:
+    avg_cost = 0
+    batch_length = len(train_loader)
+    for (x, y), (x2, y2) in zip(train_loader, train_loader2):
+        y = y.long().to(device)
 
-    y = y.long().to(device)
+        result = torch.stack([model_1(x2.float().to(device)) , model_2(x.float().to(device)), model_3(x.float().to(device))], axis = 1)
+        result = F.softmax(result, dim = 1)
+        result, index = torch.max(result, dim = 1)
+        cost = loss(result, y)
 
-    pred = model(x.float().to(device))  # 100 x 61
+        optimizer.zero_grad()
+        cost.backward()
+        optimizer.step()
 
-    cost = loss(pred, y)
+        corr = torch.argmax(result)
+        num_correct = (corr == y).sum().item()
+        avg_cost += cost / batch_length
+        acc = num_correct / batch_length
+        batch_length = batch_length*3
 
-    optimizer.zero_grad()
-    cost.backward()
-    optimizer.step()
-
-    corr = torch.argmax(pred)
-    num_correct = (corr == y).sum().item()
-    avg_cost += cost / batch_length
-    acc = num_correct / batch_length
-
-  print(f"Epoch : {epoch} Correct {num_correct}/{batch_length} Avg Cost {avg_cost}")
+    print(f"Epoch : {epoch} Correct {num_correct}/{batch_length} Avg Cost {avg_cost}")
 
 print(" --- Train finished --- ")
 
+'''
 print(" --- Validate model --- ")
 with torch.no_grad():  # Gradient 학습 x
 
@@ -181,3 +155,4 @@ submission.to_csv('js_submission10_05_2.csv', index=False)
 
 print(" --- Save model --- ")
 torch.save(model.state_dict(), "csv files/saved_model.pt")
+'''

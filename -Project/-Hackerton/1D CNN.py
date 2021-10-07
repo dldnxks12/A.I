@@ -127,24 +127,19 @@ class SimpleCNN(nn.Module):
         x = self.layer1(x)
         x = self.bn1(x)
         x = self.activation(x)
-        #print(x.shape)
 
         x = self.layer2(x)
         x = self.bn2(x)
         x = self.activation(x)
-        #print(x.shape)
 
         x = self.layer3(x)
         x = self.activation(x)
         x = self.bn3(x)
-        #print(x.shape)
 
         x = x.view(-1, 30 * 75)
-        #print(x.shape)
         x = self.fc(x)
         x = self.bn4(x)
         x = self.activation(x)
-        #print(x.shape)
 
         return x
 
@@ -154,7 +149,7 @@ model = SimpleCNN().to(device)
 # model parameter
 batch_size = 64
 learning_rate = 0.01 # 다음엔 0.01 정도로
-num_epochs = 100     # 다음엔 100 정도로
+num_epochs = 150     # 다음엔 100 정도로
 
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 loss = nn.CrossEntropyLoss()
@@ -218,10 +213,10 @@ prediction = prediction.detach().cpu().numpy()
 submission = pd.read_csv('C:/Users/USER/Desktop/Hackerton/sample_submission.csv')
 
 submission.iloc[:, 1:] = prediction
-submission.to_csv('js_submission10_07_1.csv', index=False)
+submission.to_csv('js_submission10_07_2.csv', index=False)
 
 print(" --- Save model --- ")
-torch.save(model.state_dict(), "csv files/saved_model10_07.pt")
+torch.save(model.state_dict(), "csv files/saved_model10_07_2.pt")
 
 
 
