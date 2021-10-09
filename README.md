@@ -1,6 +1,6 @@
 ## Study Progress
 
-#### `Reinforcement Learning`
+- Reinforcement Learning
 
        1. Mathematical Background 
             - Probability                - ok
@@ -20,7 +20,7 @@
 
 ---
 
-#### `Machine Learning`
+- Machine Learning
 
 
       1. K-nearest neighborhood - ok
@@ -35,7 +35,7 @@
 
 ---
 
-#### `Deep Learning `
+- Deep Learning 
 
        1. Linear Regression      - ok
        
