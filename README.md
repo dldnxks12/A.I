@@ -51,7 +51,7 @@
       4. Modern CNN
 
              - LeNet        - ok
-             - AlexNet 
+             - AlexNet      - ok
              - VGG Nets     - ok
              - GoogLeNet    - ok
              - ResNet       - ok
