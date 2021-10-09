@@ -37,45 +37,44 @@
 
 #### `Deep Learning `
 
-- Linear Regression 
+       1. Linear Regression    - ok
+       2. Logistic Regression 
+           
+            - Logistic Regression(Binary Classification)    - ok
+            - Softmax Regression(MultiClass Classification) - ok
+           
+       3. Auto Encoder
+            
+             - AE           - ok
+             - CAE          - ok
 
-      Linear Regression - ok
+      4. Modern CNN
 
-- Classification
+             - LeNet        - ok
+             - AlexNet 
+             - VGG Nets     - ok
+             - GoogLeNet    - ok
+             - ResNet       - ok
 
-      Logistic Regression(Binary Classification)    - ok
-      Softmax Regression(MultiClass Classification) - ok
 
-- Auto Encoder
+       5. Semantic Segmentation
 
-      AE  - ok
-      CAE - ok
+             - FCN               - ok
+             - DeConvNet         - ok
+             - SegNet            - ok     
+             - U-Net             - ok
+             - DeepLab v1, v2    - ok
 
-- Modern CNN
+       6. Object Detection
 
-      LeNet        - ok
-      AlexNet 
-      VGG Nets     - ok
-      GoogLeNet    - ok
-      ResNet       - ok
+             - RCNN
+             - Fast RCNN
+             - Faster RCNN
+             - SPP Net
+             - Yolo
+             - SDD
+             - Attention Net
 
-- Object Detection
-
-      RCNN
-      Fast RCNN
-      Faster RCNN
-      SPP Net
-      Yolo
-      SDD
-      Attention Net
-
-- Semantic Segmentation
-
-      FCN               - ok
-      DeConvNet         - ok
-      SegNet            - ok     
-      U-Net             - ok
-      DeepLab v1, v2    - ok
       
 
 
