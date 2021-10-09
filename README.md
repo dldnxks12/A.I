@@ -37,7 +37,8 @@
 
 #### `Deep Learning `
 
-       1. Linear Regression    - ok
+       1. Linear Regression      - ok
+       
        2. Logistic Regression 
            
             - Logistic Regression(Binary Classification)    - ok
@@ -45,16 +46,16 @@
            
        3. Auto Encoder
             
-             - AE           - ok
-             - CAE          - ok
+             - AE                - ok
+             - CAE               - ok
 
       4. Modern CNN
 
-             - LeNet        - ok
-             - AlexNet      - ok
-             - VGG Nets     - ok
-             - GoogLeNet    - ok
-             - ResNet       - ok
+             - LeNet             - ok
+             - AlexNet           - ok
+             - VGG Nets          - ok
+             - GoogLeNet         - ok
+             - ResNet            - ok
 
 
        5. Semantic Segmentation
