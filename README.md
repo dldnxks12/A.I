@@ -44,20 +44,16 @@
 
 - Deep Learning 
 
-       1. Linear Regression      - ok
-       
-       2. Logistic Regression 
-           
+       1. Linear Regression      - ok    
+       2. Logistic Regression            
             - Logistic Regression(Binary Classification)    - ok
             - Softmax Regression(MultiClass Classification) - ok
            
-       3. Auto Encoder
-            
+       3. Auto Encoder            
              - AE                - ok
              - CAE               - ok
 
       4. Modern CNN
-
              - LeNet             - ok
              - AlexNet           - ok
              - VGG Nets          - ok
@@ -66,7 +62,6 @@
 
 
        5. Semantic Segmentation
-
              - FCN               - ok
              - DeConvNet         - ok
              - SegNet            - ok     
@@ -74,7 +69,6 @@
              - DeepLab v1, v2    - ok
 
        6. Object Detection
-
              - RCNN
              - Fast RCNN
              - Faster RCNN
