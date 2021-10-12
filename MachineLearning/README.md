@@ -1,6 +1,6 @@
 #### Machine Learning
 
-      1. Linear Regression
+      1. Linear Regression       - ok
       2. K-nearest neighborhood  - ok
       3. K-means clustering      - ok      
       4. Naive Bayes             - ok      
