@@ -33,7 +33,7 @@ for epoch in range(1000):
 
 
 plt.figure()
-ax1 = plt.subplot(1,2,1, projection='3d')
+ax1 = plt.axes( projection='3d')
 ax1.scatter3D(x1, x2, y)
 
 xx = np.linspace(-3, 3, 100)
