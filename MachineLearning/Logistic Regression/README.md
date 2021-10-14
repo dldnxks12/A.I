@@ -14,22 +14,28 @@
 
 `Target Datas`
 
-![img_1.png](img_1.png)
+![img_1.png](img/img_1.png)
 
 <br>
 
 `Classification result`
 
-![img.png](img.png)
+![img.png](img/img.png)
 
 <br>
 
 `Loss & ACC`
 
-![img_2.png](img_2.png)
+![img_2.png](img/img_2.png)
 
 </div>
 
 <br>
 
 - Hinge Loss 
+
+<div align="center">
+
+![img_3.png](img/img_3.png)
+
+</div>
