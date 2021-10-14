@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 # Data Load
-dataset = np.loadtxt("data_linear_regression.csv", delimiter=',', dtype = np.float32)
+dataset = np.loadtxt("./csv files/data_linear_regression.csv", delimiter=',', dtype = np.float32)
 np.random.shuffle(dataset)
 print(dataset.shape) # 25, 4
 
