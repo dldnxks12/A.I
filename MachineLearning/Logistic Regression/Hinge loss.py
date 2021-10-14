@@ -51,8 +51,12 @@ for epoch in range(1000):
 ACC = (((w1*x1 + w2*x2 + b) > 0 ) == y_org).sum()/N
 print(f"ACC {ACC}")
 
-#plt.figure()
-#plt.scatter(x1, x2, c = y_org)
-#plt.show()
+plt.figure()
+plt.scatter(x1, x2, c = y_org)
+
+xx1 = np.linspace(-10,10,500)
+xx2 = -(x1*w1 + b) / w2
+plt.plot(xx1, xx2, c = 'r')
+plt.show()
 
 
