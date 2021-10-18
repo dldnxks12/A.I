@@ -17,11 +17,11 @@
             - Dynamic Programming
                 - Value iteration
                 - Policy iteration
-                - Q-Learning
-                - Sarsa
 
             - Model free Approaches
-
+                - Q-Learning
+                - Sarsa
+                
         3. ML based R learning
         4. DL based R learning
 
