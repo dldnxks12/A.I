@@ -3,18 +3,18 @@
 - Reinforcement Learning
 
        1. Mathematical Background 
-            - Probability                - ok
-            - Random Variable            - ok
-            - Random Process             - ok
+            - Probability                 - ok
+            - Random Variable             - ok
+            - Random Process              - ok
 
         2. Basic RL Algorithm
-            - Markov Process             - ok             
-            - Markov Reward Process      - ok
-            - Markov Decision Process    - ok 
+            - Markov Process              - ok             
+            - Markov Reward Process       - ok
+            - Markov Decision Process     - ok 
                 - Bellman Expectation Eqn 
                 - Bellman Optimality Eqn  
 
-            - Dynamic Programming
+            - Dynamic Programming         - ok
                 - Value iteration
                 - Policy iteration
 
