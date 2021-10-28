@@ -15,10 +15,12 @@
                 - Bellman Optimality Eqn  
 
             - Dynamic Programming         - ok
-                - Value iteration
-                - Policy iteration
-
+                - Value iteration         - ok
+                - Policy iteration        - ok
+ 
             - Model free Approaches
+                - Monte Carlo             - ok
+                - Temporal Difference     - ok 
                 - Q-Learning
                 - Sarsa
                 

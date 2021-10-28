@@ -35,7 +35,7 @@ for epoch in range(1000):
     if epoch % 100 == 99:
         correct_prediction = hypothesis.argmax(dim = 1) == y_train
         acc = correct_prediction.sum().item() / len(correct_prediction)
-        print(f" Epoch {epoch} Cost {cost.item()} Acc {acc*100}")
+        print(f" Epoch {epoch} Cost {cost.item()} Acc {acc*100}%")
 
 
 
