@@ -1,3 +1,10 @@
+'''
+
+Dataset : data를 담아두고 관리하는 Class
+DataLoader : Dataset에서 data를 꺼내서 학습하는 과정을 지원해주는 Class
+
+'''
+
 import numpy as np
 import random 
 import matplotlib.pyplot as plt
@@ -6,11 +13,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+from torch.utils.data import DataLoader
 
 import torch.nn.init # for xavier initializer
 import torchvision.transforms as transforms # data attribute transformation
 import torchvision.datasets as dsets # for dataset given by pytorch
-
 
 device = 'cude' if torch.cuda.is_available() else 'cpu'
 print("Device : " , device)
@@ -57,7 +64,9 @@ class CNN(nn.Module):
 
     return out
 
-model = CNN().to(device)  
+# Create Instance
+model = CNN().to(device)
+
 # Parameter Setting 
 learning_rate = 0.01
 training_epochs = 10
