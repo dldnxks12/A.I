@@ -19,8 +19,8 @@
             - Model free Approaches
                 - Monte Carlo             - ok
                 - Temporal Difference     - ok 
-                - Q-Learning
-                - Sarsa
+                - Q-Learning              - ok
+                - Sarsa                   - ok
                 
         3. ML based R learning
         4. DL based R learning
