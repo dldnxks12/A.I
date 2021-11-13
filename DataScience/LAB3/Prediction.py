@@ -59,10 +59,16 @@ student_corr2 = pd.DataFrame(data2, columns=list(student_corr.columns))
 #plt.show()
 
 # Target Value G3 Restore
+print(student_corr['G3'].shape)
+print(student['G3'].shape)
+
 preprocessed_student['G3'] = student['G3']
 preprocessed_student2['G3'] = student['G3']
 student_corr['G3'] = student['G3']
 student_corr2['G3'] = student['G3']
+
+
+
 
 ################################################################################################ Modeling
 

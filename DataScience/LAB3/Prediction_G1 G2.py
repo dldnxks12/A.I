@@ -18,8 +18,8 @@ student = pd.read_csv('student-mat.csv')
 preprocessed_student = student.copy()
 preprocessed_student = preprocessed_student.drop(['address'], axis = 1)
 preprocessed_student = preprocessed_student[preprocessed_student.age < 20]
-preprocessed_student = preprocessed_student[preprocessed_student.G3 != 0]
-preprocessed_student = preprocessed_student.drop(['school', 'G1', 'G2'], axis = 1)
+#preprocessed_student = preprocessed_student.drop(['school', 'G1', 'G2'], axis = 1)
+preprocessed_student = preprocessed_student.drop(['school'], axis = 1)
 
 # One-hot Encoding
 preprocessed_student = pd.get_dummies(preprocessed_student)
@@ -31,9 +31,11 @@ student_corr = preprocessed_student.loc[:, most_correlated.index]
 
 
 ################################################################################################ Scaling
+
 # Before Scaling
 #preprocessed_student.plot.kde()
 #student_corr.plot.kde()
+
 
 # StandardScaler
 ss = StandardScaler()
@@ -58,6 +60,7 @@ student_corr2 = pd.DataFrame(data2, columns=list(student_corr.columns))
 #student_corr.plot.kde()
 #plt.show()
 
+
 # Target Value G3 Restore
 preprocessed_student['G3'] = student['G3']
 preprocessed_student2['G3'] = student['G3']
@@ -74,6 +77,7 @@ X3 = student_corr2.drop(['G3'], axis = 1)
 y3 = student_corr2['G3']
 X4 = preprocessed_student2.drop(['G3'], axis = 1)
 y4 = preprocessed_student2['G3']
+
 
 # split Dataset
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2)
@@ -118,7 +122,6 @@ r2_3 = metric.r2_score(y_test3, y_pred3)
 r2_4 = metric.r2_score(y_test4, y_pred4)
 
 
-
 print("MSE Normal")
 print(f"STD MSE_Important : {MSE} | MSE_FULL : {MSE2}")
 print(f"MINMAX MSE_Important : {MSE3} |  MSE_FULL : {MSE4}")
@@ -136,20 +139,20 @@ print(f"STD R2_Important : {r2} | R2_FULL : {r2_2}")
 print(f"MINMAX R2_Important : {r2_3} |  R2_FULL : {r2_4}")
 
 
-plt.figure(figsize = (32, 8))
-plt.subplot(1,12,1)
+plt.figure(figsize = (16, 8))
+plt.subplot(1,4,1)
 plt.scatter(range(len(y_test)), y_test, color = 'blue')
 plt.scatter(range(len(y_pred)), y_pred, color = 'red')
 plt.title("Std with important Data")
-plt.subplot(1,12,2)
+plt.subplot(1,4,2)
 plt.scatter(range(len(y_test2)), y_test2, color = 'blue')
 plt.scatter(range(len(y_pred2)), y_pred2, color = 'red')
 plt.title("Std with Full Data")
-plt.subplot(1,12,3)
+plt.subplot(1,4,3)
 plt.scatter(range(len(y_test3)), y_test3, color = 'blue')
 plt.scatter(range(len(y_pred3)), y_pred3, color = 'red')
 plt.title("MinMax with important Data")
-plt.subplot(1,12,4)
+plt.subplot(1,4,4)
 plt.scatter(range(len(y_test4)), y_test4, color = 'blue')
 plt.scatter(range(len(y_pred4)), y_pred4, color = 'red')
 plt.title("MinMax with Full Data")
