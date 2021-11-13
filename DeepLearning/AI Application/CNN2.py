@@ -30,7 +30,6 @@ class CNN(nn.Module):
   def __init__(self, In = 3, Out = 2):
     super(CNN,self).__init__()
 
-    # Input image size : batch x 1 x 28 x 28 
     self.layer1 = nn.Sequential(
         nn.Conv2d(In, 32, kernel_size = 3, stride = 1, padding = 1),
         nn.ReLU(),
@@ -99,7 +98,7 @@ for epoch in range(training_epochs):
 
   print(f"[Epoch : {epoch+1:>4}]  Cost : {avg_cost :>.9}")  
   
-  trans = transforms.Compose([transforms.Resize((64,128)),transforms.ToTensor()])
+trans = transforms.Compose([transforms.Resize((64,128)),transforms.ToTensor()])
 test_data = dsets.ImageFolder(root = "/content/drive/MyDrive/Colab Notebooks/인공지능 응용/test_data", transform  = trans)
 test_set = DataLoader(dataset = test_data, batch_size = len(test_data))
 
