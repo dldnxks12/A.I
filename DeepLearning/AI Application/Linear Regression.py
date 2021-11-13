@@ -11,6 +11,7 @@ y_train = torch.FloatTensor([[1],[2],[3]]) # 1개 짜리 데이터 3개 임을 �
 print(x_train.shape)
 print(y_train.shape)
 # Hypothesis & Cost
+
 '''
 Hypothesis H(x) = Wx + B 
 Cost : 주로 MSE 사용
