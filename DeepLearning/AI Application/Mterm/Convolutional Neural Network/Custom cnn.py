@@ -69,7 +69,7 @@ dataloader = DataLoader(dataset = train_data, batch_size = 100, shuffle = True, 
 
 total_batch = len(dataloader)
 
-for epoch in range(15)
+for epoch in range(15):
     avg_cost = 0
     for x, y in dataloader:
         x = x.to(device)
