@@ -18,8 +18,8 @@ student = pd.read_csv('student-mat.csv')
 preprocessed_student = student.copy()
 preprocessed_student = preprocessed_student.drop(['address'], axis = 1)
 preprocessed_student = preprocessed_student[preprocessed_student.age < 20]
-#preprocessed_student = preprocessed_student.drop(['school', 'G1', 'G2'], axis = 1)
-preprocessed_student = preprocessed_student.drop(['school'], axis = 1)
+preprocessed_student = preprocessed_student.drop(['school', 'G1', 'G2'], axis = 1)
+#preprocessed_student = preprocessed_student.drop(['school'], axis = 1)
 
 # One-hot Encoding
 preprocessed_student = pd.get_dummies(preprocessed_student)
