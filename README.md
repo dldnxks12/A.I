@@ -19,10 +19,13 @@
                 - Policy iteration        - ok
  
             - Model free Approaches
-                - Monte Carlo             - ok
-                - Temporal Difference     - ok 
-                - Sarsa                   - ok
-                - Q-Learning              - ok
+                MF Prediction                
+                  - Monte Carlo           - ok
+                  - Temporal Difference   - ok
+                  
+                MF Control                
+                  - Sarsa                 - ok
+                  - Q-Learning            - ok
                 
                 
         3. ML based R learning
