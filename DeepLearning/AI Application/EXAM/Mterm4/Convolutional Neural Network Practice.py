@@ -7,7 +7,7 @@ import torch.optim as optim
 import torchvision.datasets as dsets
 import torchvision.transforms as transform
 
-from torch.utils.data as DataLoader
+from torch.utils.data import DataLoader
 
 import numpy as np
 import random
@@ -42,7 +42,7 @@ class CNN(nn.Mudule):
             nn.Dropout(0.5)
         )
         self.layer5 = nn.Linear(625, 10)
-        nn.init.xavier_uniform_.(self.layer5.weight)
+        nn.init.xavier_uniform_(self.layer5.weight)
 
     def forward(self, X):
         out = self.layer1(X)
