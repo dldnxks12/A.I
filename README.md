@@ -42,7 +42,7 @@
       5. Naive Bayes             - ok      
       6. SVM                     - ok
       7. PCA
-      8. Decision Tree
+      8. Decision Tree           - ok
       9. Perceptron              - ok      
              1. SLP              - ok
              2. MLP              - ok
