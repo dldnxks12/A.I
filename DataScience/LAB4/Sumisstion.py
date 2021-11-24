@@ -50,5 +50,22 @@ param = {'n_estimators' : [10, 150, 300],
 
 gs = GridSearchCV(rf, param, cv = 5, n_jobs = 4)
 gs_fit = gs.fit(X_TFIDF_pd, data['sentiment'])
-print(pd.DataFrame(gs_fit.cv_results_).sort_values('mean_test_score', ascending = False).head())
+result1 = pd.DataFrame(gs_fit.cv_results_).sort_values('mean_test_score', ascending = False).head())
+svc = SVC(kernel = 'rbf' , probability=True)
+param = {'gamma' : [0.1, 0.5, 1],
+         'C' : [1, 5, 10]}
 
+svc = SVC(kernel = 'rbf' , probability=True)
+param = {'gamma' : [0.1, 0.5, 1],
+         'C' : [1, 5, 10]}
+
+gs2 = GridSearchCV(svc, param, cv = 5, n_jobs = 4)
+gs_fit2 = gs2.fit(X_TFIDF_pd, data['sentiment'])
+result2 = pd.DataFrame(gs_fit2.cv_results_).sort_values('mean_test_score', ascending = False).head()
+
+gbc = GradientBoostingClassifier()
+param = {'n_estimators' : [100, 300, 500]}
+
+gs3 = GridSearchCV(gbc, param, cv = 5, n_jobs = 4)
+gs_fit3 = gs3.fit(X_TFIDF_pd, data['sentiment'])
+result3 = pd.DataFrame(gs_fit3.cv_results_).sort_values('mean_test_score', ascending = False).head()
