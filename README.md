@@ -26,7 +26,10 @@
                 MF Control                
                   - Sarsa                 - ok
                   - Q-Learning            - ok
-                
+
+        3. ML based R learning
+                - Function Approximation
+                - DQN                
                 
         3. ML based R learning
         4. DL based R learning
