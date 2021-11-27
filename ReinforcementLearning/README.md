@@ -23,6 +23,9 @@
                 - Sarsa                   - ok
                 
         3. ML based R learning
+                - Function Approximation
+                - DQN
+
         4. DL based R learning
 
 
