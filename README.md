@@ -23,14 +23,23 @@
                   - Monte Carlo           - ok
                   - Temporal Difference   - ok
                   
+                  (Example : Random Walk)
+                  
                 MF Control                
                   - Sarsa                 - ok
                   - Q-Learning            - ok
 
+                  (Example : Cliff Walking)
+                  (Example : Windy Grid)
+                  (Example : Windy Cliff)
+
         3. ML based R learning
-                - Function Approximation
-                - DQN                
-                
+                - Function Approximation  - ok 
+                - DQN                     - ok
+
+                  (Example : Cartpole)
+       
+                 
         3. ML based R learning
         4. DL based R learning
 
