@@ -1,5 +1,11 @@
 #### Machine Learning Based Reinforcement Learning 
 
+<div align="center">
+
+![img.png](img.png)
+
+</div>
+
 - Intro
 
       기존의 Q-Learning과 Sarsa로 수행했던 MDP 모델 해결은 모두 Tabular 형식이었다.
