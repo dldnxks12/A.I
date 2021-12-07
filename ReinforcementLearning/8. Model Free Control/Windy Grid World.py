@@ -56,23 +56,25 @@ def episode(q_value):
     time = 0
     state = START
 
-    if np.random.binomial(1, EPSILON) == 1:
+    # Epsilon Greedy Policy for Policy Improvement ...
+    if np.random.binomial(1, EPSILON) == 1: # 탐험 모드
         action = np.random.choice(ACTIONS)
-    else:
+    else: # Optimal Action
         values_ = q_value[state[0], state[1], :]  # 해당 state의 4가지 action들을 포함
         action = np.random.choice([action_ for action_, value_ in enumerate(values_) if value_ == np.max(values_)]) # max value가 여러 가지라면 그 중에서 randomly choice
 
     # Try until Goal state
     while state != GOAL:
-        next_state = Step(state, action)
+        next_state = Step(state, action) # S , A -> S' 찾기
 
+        # S' -> A' 구하기 with Greedy Policy
         if np.random.binomial(1, EPSILON) == 1:
             next_action = np.random.choice(ACTIONS)
         else:
             values_ = q_value[next_state[0], next_state[1], :]
             next_action = np.random.choice([action_ for action_ , value_ in enumerate(values_) if value_ == np.max(values_)])
 
-        # Sarsa Update
+        # Sarsa Update with S, A, R, S', A'
         q_value[state[0], state[1], action] += ALPHA * (REWARD + q_value[next_state[0], next_state[1], next_action] - q_value[state[0], state[1], action])
 
         state = next_state

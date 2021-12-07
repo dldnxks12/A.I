@@ -73,6 +73,7 @@ def batch_updating(method, episodes, alpha = 0.001):
                 updates = np.zeros(7)
                 for trajectory_, rewards_ in zip(trajectories, rewards):
                     for i in range(0, len(trajectory_) - 1):
+                        # Incremental Mean Method Update
                         updates[trajectory_[i]] += rewards_[i] - current_values[trajectory_[i]]
                 updates *= alpha
 
