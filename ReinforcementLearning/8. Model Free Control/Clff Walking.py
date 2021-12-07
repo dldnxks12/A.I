@@ -58,14 +58,15 @@ def choose_action(state, q_value):
 
 def sarsa(q_value, step_size = ALPHA):
     state = START
-    action = choose_action(state, q_value)
+    action = choose_action(state, q_value) # With Epsilon Greedy
     reward = 0.0
 
     while state != GOAL:
-        next_state, reward = Step(state, q_value)
-        next_action = choose_action(next_state, q_value)
+        next_state, reward = Step(state, q_value) # S, A에서 다음 R, S' 를 관찰
+        next_action = choose_action(next_state, q_value) # S'에서 A'를 Get
         reward += reward
 
+        # About TD Target ...
         q_value[next_state[0], next_state[1], action] += step_size*(reward + GAMMA*(q_value[next_state[0], next_state[1], next_action]) - q_value[next_state[0], next_state[1], action])
 
         state = next_state
@@ -78,11 +79,12 @@ def q_learning(q_value, step_size = ALPHA):
     reward = 0.0
 
     while state != GOAL:
-        action = choose_action(state, q_value)
-        next_state, reward = Step(state, action)
+        action = choose_action(state, q_value) # Epsilon Greedy로 S -> A Get
+        next_state, reward = Step(state, action) # A를 수행해셔 R, S'를 Get
 
         reward += reward
 
+        # A'은 Greedy Policy로 Get !
         q_value[state[0], state[1], action] += step_size* ( reward + GAMMA*np.max(q_value[next_state[0], next_state[1], :]) -  q_value[state[0], state[1], action])
 
         state = next_state
