@@ -4,7 +4,7 @@ import string
 import pandas as pd
 
 # .tsv file --- csv와 비슷하지만 comma 대신 tab으로 구분된 file
-data = pd.read_csv('data/SMSSpamCollection.tsv', sep='\t', names= ['label', 'body_text'], header = None)
+data = pd.read_csv('../LAB 5/SMSSpamCollection.tsv', sep='\t', names= ['label', 'body_text'], header = None)
 
 def remove_punct(text):
     text_nopunct = ''.join([char for char in text if char not in string.punctuation])

@@ -11,7 +11,7 @@ pd.set_option('display.max_colwidth', 100)  # Extend column width
 stopwords = nltk.corpus.stopwords.words('english')  # remove Stop words
 ps = nltk.PorterStemmer()  # make stem words
 
-data = pd.read_csv('data/SMSSpamCollection.tsv', sep='\t', names=['label', 'body_text'], header=None)
+data = pd.read_csv('../LAB 5/SMSSpamCollection.tsv', sep='\t', names=['label', 'body_text'], header=None)
 
 def clean_text(text):
     # Remove Punctuation
