@@ -36,13 +36,15 @@
         3. ML based R learning
                 - Function Approximation  - ok 
                 - DQN                     - ok
-
                   (Example : Cartpole)
-       
-                 
-        3. ML based R learning
-        4. DL based R learning
+        
+        4. Policy Base R Learning
+                - REINFORCE
+                - A2C
 
+        # Term Project
+           REINFORCE Cartpole
+           A2C Cartpole
 ---
 
 - Machine Learning
