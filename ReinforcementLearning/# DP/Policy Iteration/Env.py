@@ -14,7 +14,7 @@ POSSIBLE_ACTIONS = [0, 1, 2, 3]  # 좌, 우, 상, 하
 ACTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # 좌표로 나타낸 행동
 REWARDS = []
 
-# Grid World Setting
+# # DP Setting
 class Env:
     def __init__(self):
         self.transition_probability = TRANSITION_PROB
@@ -66,7 +66,7 @@ class Env:
         return self.all_state
 
 
-# Grid World GUI Setting
+# # DP GUI Setting
 class GraphicDisplay(tk.Tk):
     def __init__(self, agent):
         super(GraphicDisplay, self).__init__()

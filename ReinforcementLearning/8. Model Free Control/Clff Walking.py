@@ -4,7 +4,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-# Set Grid World size
+# Set # DP size
 WORLD_HEIGHT = 4
 WORLD_WIDTH = 12
 

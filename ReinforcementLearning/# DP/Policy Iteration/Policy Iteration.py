@@ -5,7 +5,7 @@ class PolicyIteration:
 
     # Initial Setting
     def __init__(self, env):
-        # Env.py에서 설정한 Grid World Setting
+        # Env.py에서 설정한 # DP Setting
         self.env = env
 
         # Value function을 2차원 형태로 초기화

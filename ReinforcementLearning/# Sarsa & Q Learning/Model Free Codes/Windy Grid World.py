@@ -4,9 +4,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 #matplotlib.use('Agg') # png file로 만들 수 있다.
 
-####################################################################################  Grid World Setting
+####################################################################################  # DP Setting
 
-# Set Grid World size
+# Set # DP size
 WORLD_HEIGHT = 7
 WORLD_WIDTH = 10
 
