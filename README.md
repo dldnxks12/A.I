@@ -12,20 +12,20 @@
             - Markov Reward Process       - ok
             - Markov Decision Process     - ok 
                 - Bellman Expectation Eqn 
-                - Bellman Optimality Eqn  
+                - Bellman Optimality  Eqn  
 
             - Dynamic Programming         - ok
                 - Value iteration         - ok
                 - Policy iteration        - ok
  
             - Model free Approaches
-                MF Prediction                
+                # MF Prediction                
                   - Monte Carlo           - ok
                   - Temporal Difference   - ok
                   
                   (Example : Random Walk)
                   
-                MF Control                
+                # MF Control                
                   - Sarsa                 - ok
                   - Q-Learning            - ok
 
@@ -36,15 +36,21 @@
         3. ML based R learning
                 - Function Approximation  - ok 
                 - DQN                     - ok
-                  (Example : Cartpole)
+
+                  (Example : Cartpole - DQN)
         
         4. Policy Base R Learning
-                - REINFORCE
-                - A2C
+                - REINFORCE               - ok
+                - A2C                     - ok
 
+  
         # Term Project
-           REINFORCE Cartpole
-           A2C Cartpole
+ 
+           Cartpole A2C          
+           Cartpole DQN         
+           Cartpole REINFORCE   
+
+
 ---
 
 - Machine Learning
