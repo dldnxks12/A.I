@@ -103,6 +103,12 @@
              - Yolo
              - SDD
              - Attention Net
+    
+       7. NLP
+             - RNN                       - ok
+             - LSTM / GRU                - ok
+             - Sequence Prediction       - ok
+             - Sequence Classification   - ok
 
       
 
