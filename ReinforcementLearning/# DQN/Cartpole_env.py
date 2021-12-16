@@ -133,6 +133,7 @@ class CartPoleEnv(gym.Env):
             x_dot = x_dot + self.tau * xacc2            # 속도 = 속도+가속도적분
             theta = theta + self.tau * theta_dot        # 각도 = 각도 + 각속도적분
             theta_dot = theta_dot + self.tau * thetaacc # 각속도 = 각속도 + 각가속도적분
+
         else:  # semi-implicit euler
             x_dot = x_dot + self.tau * xacc
             x = x + self.tau * x_dot

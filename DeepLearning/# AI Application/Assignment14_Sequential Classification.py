@@ -4,16 +4,13 @@ import torch.nn as nn
 from torchtext.legacy import data, datasets
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 print(device)
 
 torch.manual_seed(777)
 if device == 'cuda':
   torch.cuda.manual_seed(777)
 
-
 # Hyperparameters
-
 batch_size = 64
 learning_rate = 0.001
 traininig_epochs = 5
@@ -77,7 +74,6 @@ for epoch in range(traininig_epochs):
     hypothesis = model(X)
     cost = criterion(hypothesis, Y)
 
-
     optimizer.zero_grad()
     cost.backward()
     optimizer.step()
@@ -85,17 +81,13 @@ for epoch in range(traininig_epochs):
     avg_cost += cost / batch_size
 
   print(f"Epoch : {epoch} Cost : {avg_cost}")
-
-
 torch.save(model.state_dict(), '/content/drive/MyDrive/Colab Notebooks/인공지능 응용/HW/model_s1.pt')
-
 
 # model load
 model_new = BasicGRU(1, 256, vocab_size, 128, n_classes, 0.5).to(device)
 model_new.load_state_dict(torch.load('/content/drive/MyDrive/Colab Notebooks/인공지능 응용/HW/model_s1.pt'))
 
 # Validation
-
 corrects = 0
 for batch in val_iter:
   x,y = batch.text.to(device), batch.label.to(device)
@@ -106,7 +98,6 @@ for batch in val_iter:
 print('accuracy = ', corrects/len(val_iter.dataset)*100.0)
 
 # Test
-
 corrects = 0
 for batch in test_iter:
   x,y = batch.text.to(device), batch.label.to(device)
