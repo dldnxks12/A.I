@@ -47,8 +47,8 @@ label = torch.randn(1, 61, requires_grad = True)
 print("input shape", input.shape)
 '''
 
-train_data = pd.read_csv("C:/Users/USER/PycharmProjects/A.I/-Project/-Hackerton/csv files/js_train_data.csv")
-train_label = pd.read_csv("C:/Users/USER/PycharmProjects/A.I/-Project/-Hackerton/csv files/js_train_label.csv")
+train_data = pd.read_csv("/# Project/-Hackerton/csv files/js_train_data.csv")
+train_label = pd.read_csv("/# Project/-Hackerton/csv files/js_train_label.csv")
 test_data = pd.read_csv("C:/Users/USER/Desktop/Hackerton/test_features.csv")
 
 out_list = []

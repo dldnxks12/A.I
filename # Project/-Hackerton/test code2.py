@@ -9,6 +9,7 @@ from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 torch.manual_seed(777)
@@ -18,8 +19,8 @@ if device == 'cuda':
 print("Device", device)
 
 # 증강 데이터 load
-train_data = pd.read_csv("C:/Users/USER/PycharmProjects/A.I/-Project/-Hackerton/csv files/js_train_data.csv")
-train_label = pd.read_csv("C:/Users/USER/PycharmProjects/A.I/-Project/-Hackerton/csv files/js_train_label.csv")
+train_data = pd.read_csv("/# Project/-Hackerton/csv files/js_train_data.csv")
+train_label = pd.read_csv("/# Project/-Hackerton/csv files/js_train_label.csv")
 test_data = pd.read_csv("C:/Users/USER/Desktop/Hackerton/test_features.csv")
 
 print("Data load ok")
@@ -61,58 +62,90 @@ test_data = torch.from_numpy(out_list)
 print("test shape check", test_data.shape)
 
 # train - valid dataset split
-data, valid_data = data[:14000], data[14000:]
-label, valid_label = label[:14000], label[14000:]
+data, valid_data = data[:13000], data[13000:]
+label, valid_label = label[:13000], label[13000:]
 
-# --------------------------------------- VGG model ------------------------- #
-class VGG_ORG(nn.Module):
-    def __init__(self, in_channel):
-        super().__init__()
+class Inception(nn.Module):
+  def __init__(self, in_channel):
+    super().__init__()
+    # Block 1
+    self.branch1_1 = nn.Conv2d(in_channel, 16, kernel_size=3, stride=1, padding=1)
+    self.branch1_2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
 
-        self.layer1 = nn.Sequential(  # 1 x 600 x 6
-            nn.Conv2d(in_channel, 16, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
-        )
+    # Block 2
+    self.branch3_1 = nn.Conv2d(in_channel, 16, kernel_size=1)  # 1x1 Conv
+    self.branch3_2 = nn.Conv2d(16, 32, kernel_size=3, stride=1, padding=1)
+    self.branch3_3 = nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1)
 
-        self.layer2 = nn.Sequential(  # 32 x 300 x 3
-            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=3, stride=1)
-        )
+    # Block 3
+    self.branch_pool = nn.Conv2d(in_channel, 32, kernel_size=3, stride=1, padding=1)
 
-        self.fc1 = nn.Linear(64 * 298, 100)  # 512 자리에 512 x width x heigth 넣어주기
-        self.fc2 = nn.Linear(100, 61)
+  def forward(self, x):
+    # print("Input shape : ", np.shape(x)) # torch.Size([100, 8, 301, 4])
 
-    def forward(self, x):
-        # Conv layer
-        out = self.layer1(x)  # out shape torch.Size([100, 32, 300, 3])
-        out = self.layer2(out)  # out shape torch.Size([100, 64, 298, 1])
+    branch1x1 = self.branch1_1(x)
+    branch1x1 = self.branch1_2(branch1x1)
 
-        # flatten
-        out = out.view(-1, 64 * 298)
+    branch3x3 = self.branch3_1(x)
+    branch3x3 = self.branch3_2(branch3x3)
+    branch3x3 = self.branch3_3(branch3x3)
 
-        # fc layer
-        out = F.relu(self.fc1(out))
-        out = F.relu(self.fc2(out))
+    branch_pool = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
+    branch_pool = self.branch_pool(branch_pool)
 
-        return out
+    # 3개의 output들을 1개의 list로
+    outputs = [branch1x1, branch3x3, branch_pool]  # np.shape(outputs)) (3,)
+
+    # torch.cat (concatenate)
+    cat = torch.cat(outputs, 1)  # outputs list의 tensor들을 dim = 1로 이어준다.
+
+    #cat.shape : torch.Size([300, 32, 301, 4])
+    return cat
+
+
+class Classification(nn.Module):
+  def __init__(self):
+    super().__init__()
+
+    self.Conv1 = nn.Conv2d(1, 8, kernel_size=3, stride=1, padding=1)
+    self.Conv2 = nn.Conv2d(96, 16, kernel_size=3, stride=1, padding=1)
+
+    self.Incept1 = Inception(in_channel=8)
+    self.Incept2 = Inception(in_channel=16)
+
+    self.mp1 = nn.MaxPool2d(kernel_size=2, stride=2)
+    self.mp2 = nn.MaxPool2d(kernel_size=3, stride=1)
+
+    self.fc1 = nn.Linear(96 * 298 * 1, 3000)
+    self.fc2 = nn.Linear(3000, 1000)
+    self.fc3 = nn.Linear(1000, 61)
+
+  def forward(self, x):
+
+    out = self.Conv1(x)  # out_channel = 8
+    out = F.relu(self.mp1(out))
+    out = self.Incept1(out)  # out_channel = 96
+
+    out = self.Conv2(out)  # out_channel = 16
+    out = F.relu(self.mp2(out))
+    out = self.Incept2(out)  # out_channel = 96
+
+    out = out.view(-1, 96 * 298 * 1)
+
+    out = F.relu(self.fc1(out))
+    out = F.relu(self.fc2(out))
+    out = F.relu(self.fc3(out))
+
+    return out
 
 # ----------------------- Model --------------------------- #
-model = VGG_ORG(in_channel=1).to(device)
+
+model = Classification().to(device)
 
 # model parameter
 batch_size = 64
-learning_rate = 0.01 # 다음엔 0.01 정도로
-num_epochs = 150     # 다음엔 100 정도로
+learning_rate = 0.005 # 다음엔 0.01 정도로
+num_epochs = 200     # 다음엔 100 정도로
 
 optimizer = optim.SGD(model.parameters(), lr=learning_rate)
 loss = nn.CrossEntropyLoss()
@@ -127,7 +160,7 @@ print(" --- Ok before training --- ")
 for epoch in range(num_epochs + 1):
   avg_cost = 0
   batch_length = len(train_loader)
-  for x, y in train_loader:
+  for x, y, in train_loader:
 
     y = y.long().to(device)
 
@@ -181,3 +214,4 @@ submission.to_csv('js_submission10_05_2.csv', index=False)
 
 print(" --- Save model --- ")
 torch.save(model.state_dict(), "csv files/saved_model.pt")
+

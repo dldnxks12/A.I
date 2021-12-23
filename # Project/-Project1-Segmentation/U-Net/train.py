@@ -13,10 +13,10 @@ LEARNING_RATE = 1e-6
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 BATCH_SIZE = 30
 NUM_EPOCHS = 1
-TRAIN_IMG_DIR = "/-Project/-Project1-Segmentation/U-Net/BUSI2/train/"
-TRAIN_MASK_DIR = "/-Project/-Project1-Segmentation/U-Net/BUSI2/train-mask/"
-VAL_IMG_DIR = "/-Project/-Project1-Segmentation/U-Net/BUSI2/test/"
-VAL_MASK_DIR = "/-Project/-Project1-Segmentation/U-Net/BUSI2/test-mask/"
+TRAIN_IMG_DIR = "/# Project/-Project1-Segmentation/U-Net/BUSI2/train/"
+TRAIN_MASK_DIR = "/# Project/-Project1-Segmentation/U-Net/BUSI2/train-mask/"
+VAL_IMG_DIR = "/# Project/-Project1-Segmentation/U-Net/BUSI2/test/"
+VAL_MASK_DIR = "/# Project/-Project1-Segmentation/U-Net/BUSI2/test-mask/"
 
 
 def main():

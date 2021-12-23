@@ -6,7 +6,7 @@ import torch.optim as optim
 
 torch.manual_seed(777)
 
-data = np.loadtxt("C:/Users/USER/PycharmProjects/A.I/DeepLearning/# AI Application/csv files/data_multinomial_classification.csv", delimiter=',')
+data = np.loadtxt("C:/Users/USER/PycharmProjects/A.I/Deep Learning/# AI Application/csv files/data_multinomial_classification.csv", delimiter=',')
 
 x_train = torch.FloatTensor(data[:,:-1])
 y_train = torch.LongTensor(data[:,-1])
