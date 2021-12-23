@@ -6,7 +6,7 @@ import torch.optim as optim
 
 torch.manual_seed(777)
 
-data = np.loadtxt("C:/Users/USER/PycharmProjects/A.I/Deep Learning/# AI Application/csv files/data_logistic_regression.csv", delimiter=',')
+data = np.loadtxt("C:/Users/USER/PycharmProjects/A.I/DeepLearning/# AI Application/csv files/data_logistic_regression.csv", delimiter=',')
 
 print(data.shape)
 x_train = torch.FloatTensor(data[:,:-1])
