@@ -1,2 +1,2 @@
-### Markov Decision Process / Dynamic Programming
+### Dynamic Programming
 
