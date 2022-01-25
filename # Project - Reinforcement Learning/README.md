@@ -16,6 +16,10 @@
 
 - `Model`
 
+        # Object Detection 
+            1. RCNN Base
+            2. YOLO Base
+
         # PG Base Algorithm
             1. REINFORCE
             2. A2C
@@ -38,13 +42,18 @@
 
 ![img_1.png](img_1.png)
 
+</div>
+
 카메라 정면에 End Effector 모형을 부착하는 것으로 목표 지점 정의
+
+<div align="center">
 
 ![img_2.png](img_2.png)
 
-카메라를 움직이며 해당 물체와 End Effector가 만나도록 학습
-
 </div>
+
+1. 이미지 내 객체 탐지 
+2. 카메라를 움직이며 해당 물체와 End Effector가 만나도록 학습
 
 <br>
 
