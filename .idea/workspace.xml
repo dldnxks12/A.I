@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b79e093f-d0de-485a-b9c4-2fa0e3abc79c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Reinforcement Learning #2/# Week 1/mpd_Episodic.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Reinforcement Learning #2/VI_FrozenLake.py" beforeDir="false" afterPath="$PROJECT_DIR$/Reinforcement Learning #2/# Week 1/VI_FrozenLake.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Reinforcement Learning #2/# Week 1/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Reinforcement Learning #2/# Week 1/VI_FrozenLake.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Reinforcement Learning #2/# Week 1/mpd_Episodic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Reinforcement Learning #2/README.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +46,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Robotics" />
     <property name="run.code.analysis.last.selected.profile" value="aDefault" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
@@ -62,28 +64,7 @@
       <recent name="C:\Users\USER\PycharmProjects\A.I\ReinforcementLearning\# A2C" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.mpd_Episodic">
-    <configuration name="RNN" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="A.I" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DeepLearning/# AI Application/EXAM/Final" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DeepLearning/# AI Application/EXAM/Final/RNN.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.VI_FrozenLake">
     <configuration name="RNN2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="A.I" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -147,6 +128,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="VI_FrozenLake" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="C:\Users\User\.conda\envs\Env_Js\python.exe" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Reinforcement Learning #2/# Week 1" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Reinforcement Learning #2/# Week 1/VI_FrozenLake.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="mpd_Episodic" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -170,11 +172,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.VI_FrozenLake" />
         <item itemvalue="Python.mpd_Episodic" />
         <item itemvalue="Python.Sequence classification" />
         <item itemvalue="Python.Sequence prediction" />
         <item itemvalue="Python.RNN2" />
-        <item itemvalue="Python.RNN" />
       </list>
     </recent_temporary>
   </component>
