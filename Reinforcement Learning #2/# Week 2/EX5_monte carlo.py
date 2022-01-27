@@ -38,7 +38,7 @@ def generate_episode(Q, epsilon, env):
     return states, actions, rewards
 
 # Batch Version
-def first_visit_mc_prediction(env, epsilon, n_episodes):
+def first_visit_mc_control(env, epsilon, n_episodes):
     Q = np.zeros([env.nS, env.nA])
     R = [[[] for _ in range(env.nA)] for _ in range(env.nS)]
     gamma = 0.9
