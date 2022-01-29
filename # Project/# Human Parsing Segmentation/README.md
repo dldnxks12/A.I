@@ -1,7 +1,18 @@
-#### Image Segmentation 
+### Human Parsing Dataset를 통한 Segmentation Model 성능 비교  
 
-- Model : FCN, SegNet, UNET
-- Dataset : Human Parsing dataset, BUSI dataset , Carvana dataset 
+
+
+- `사용 모델` 
+
+       # FCN
+       # SegNet 
+       # U-NET 
+
+- `사용 데이터셋` 
+
+       # Human Parsing dataset, 
+       # BUSI dataset 
+       # Carvana dataset 
 
 ---
 

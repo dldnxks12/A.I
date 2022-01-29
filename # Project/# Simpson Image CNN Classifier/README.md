@@ -1,6 +1,6 @@
 #### Simpson family Classify with CNN 
 
-- Project Key Poing
+- `Project Key Point`
 
       1. Data가 적을 경우 Data augumentation
       2. Weight를 저장하고 로드하는 방법
@@ -10,7 +10,7 @@
 
 <div align=center>
 
-Simpson family dataset 
+`Simpson family dataset` 
   
 ![6566](https://user-images.githubusercontent.com/59076451/125173049-f2b43480-e1f7-11eb-8f14-2ef3e326e97c.PNG)
   
