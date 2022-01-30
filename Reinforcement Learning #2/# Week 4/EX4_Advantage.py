@@ -1,17 +1,14 @@
-# Value function을 Baseline function으로 하여 Variance 줄이기
-# Temporal difference를 이용하여 Value function 또한 근사
+# 학습이 진행되지 않음
 
 import gym
 import sys
 import math
-import torch
 import random
+import torch
 import numpy as np
 from time import sleep
-from IPython.display import clear_output # 그림을 띄우고 뭘 하고 싶은데, 매번 그림을 띄우고 지우는 코드가 필요
 
-# GPU / CPU Setting
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # Policy
 class PolicyNetwork(torch.nn.Module): # torch Module Import...
@@ -74,49 +71,48 @@ def gen_epsiode(ep):
 
   return states, actions, rewards, score
 
-def G_(rewards, t):
-    G = 0
-    for i, _ in enumerate(rewards, t):
-        G += math.pow(gamma, i - t) * rewards[i]
-        if i == len(rewards) - 1:
-            break
-    return G
 
-# Hyperparamer Setting
-alpha = 0.001 # TD/MC Update Factor
-gamma = 0.99  # Discount Factor
+# We dont Need G anymore
+# We gonna Use TD Advantage r + gamma*V(S') - V(S)
 
-# Model 객체 + Optimizer
+alpha = 0.005
+gamma = 0.99
+
 pi = PolicyNetwork().to(device)
-pi_optimizer = torch.optim.Adam(pi.parameters(), lr=alpha)
+V  = VNetwork().to(device)
 
-V = VNetwork().to(device)
-V_optimizer = torch.optim.Adam(V.parameters(), lr=alpha)
+pi_optimizer = torch.optim.Adam(pi.parameters(), lr = alpha)
+V_optimizer  = torch.optim.Adam(V.parameters(), lr = alpha)
 
 env = gym.make('CartPole-v1')
 
 scores = []
 episode = 0
-MAX_EPISODES = 10000
+MAX_EPISODE = 10000
 
-while episode < MAX_EPISODES:
-    states, actions, rewards, score = gen_epsiode(episode)  # 학습하는 거 아니고, 현재 조건에 따라서 생성
-    scores.append(score) # for Visualization later with matplotlib
+while episode < MAX_EPISODE:
+    states, actions, rewards, score = gen_epsiode(episode)
+    scores.append(score)
 
-    G = 0
     loss1 = 0
     loss2 = 0
     for time_step, item in enumerate(zip(states, actions, rewards)):
-        state = item[0]
+        if time_step == len(states) - 1:
+            break
+        state  = item[0]
         action = item[1]
         reward = item[2]
 
-        G = G_(rewards, time_step)
-        loss1 += (G - V(state)) ** 2
-        loss2 += math.pow(gamma, time_step)*(G - V(state)) * ((pi(state)[action] + 1e-5).log())
+        next_state = states[time_step+1]
+
+        # G - V[state] => reward + gamma*V[next_state] - V[state]
+        loss1 += ( reward + (gamma*V(next_state)) - V(state) )**2
+        loss2 += math.pow(gamma, time_step)*(reward + (gamma*V(next_state)) - V(state)) * ((pi(state)[action] + 1e-5).log())
+
 
     loss1 = loss1/len(states)
     loss2 = -loss2
+
     V_optimizer.zero_grad()
     pi_optimizer.zero_grad()
 
@@ -131,6 +127,4 @@ while episode < MAX_EPISODES:
     episode += 1
 
 env.close()
-
-
 

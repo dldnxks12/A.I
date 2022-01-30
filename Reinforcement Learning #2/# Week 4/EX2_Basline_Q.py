@@ -1,6 +1,4 @@
-# Value function을 Baseline function으로 하여 Variance 줄이기
-# Temporal difference를 이용하여 Value function 또한 근사
-
+# 학습 X 단순히 뒤의 DQN에서 Q Value를 근사할 수 있는 방법인지 Check 하기 위한 Code
 import gym
 import sys
 import math
@@ -34,7 +32,7 @@ class VNetwork(torch.nn.Module):
         super().__init__()
         self.fcV1 = torch.nn.Linear(4, 256)
         self.fcV2 = torch.nn.Linear(256, 256)
-        self.fcV3 = torch.nn.Linear(256, 1) # V = x1w1 + x2w2 + x3w2 + x4w4 -> State가 Continuous며 이런식으로 Value functon을 ..
+        self.fcV3 = torch.nn.Linear(256, 2) # V = x1w1 + x2w2 + x3w2 + x4w4 -> State가 Continuous며 이런식으로 Value functon을 ..
 
     def forward(self, x):
         x = self.fcV1(x)
@@ -112,8 +110,9 @@ while episode < MAX_EPISODES:
         reward = item[2]
 
         G = G_(rewards, time_step)
-        loss1 += (G - V(state)) ** 2
-        loss2 += math.pow(gamma, time_step)*(G - V(state)) * ((pi(state)[action] + 1e-5).log())
+
+        loss1 += (G - V(state)[action]) ** 2
+        loss2 += math.pow(gamma, time_step)*(G - V(state)[action]) * ((pi(state)[action] + 1e-5).log())
 
     loss1 = loss1/len(states)
     loss2 = -loss2
