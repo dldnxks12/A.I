@@ -109,16 +109,10 @@ while episode < MAX_TRAIN:
         Q_optimizer.step()
 
         for (w_target , w) in zip(Q_target.parameters(), Q.parameters()):
-            print(w_target)
-            print(w)
-            w_target = (3*w_target) + w
-            print(w_target)
-            print("EMD")
-            break
+            pass
 
         for (w_target , w) in zip(Q_target.parameters(), Q.parameters()):
-            print(w_target)
-            sys.exit()
+            pass
 
         Policy_loss = -Policy_loss
         pi_optimizer.zero_grad()
