@@ -79,7 +79,7 @@ class QNet(nn.Module):
         h2 = F.relu(self.fc_a(a)) # 64
         # cat = torch.cat([h1, h2], dim = -1) # 128
         # cat = torch.cat([h1, h2], dim = 1) # 128
-        cat = torch.cat([h1, h2], dim = 0)  # 128
+        cat = torch.cat([h1, h2], dim = -1)  # 128
 
         q = F.relu(self.fc_q(cat)) # 32
         q = self.fc_out(q)  # 1
@@ -111,14 +111,22 @@ def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
             y = reward + gamma*q_target(next_state, mu_target(next_state))
 
         loss1 += (y - q(state, action))**2
-        loss2 += q(state, mu(state))
 
     loss1 = loss1.mean()
-    loss2 = -loss2.mean()  # Gradient Ascent -> Gradient Descent
 
     q_optimizer.zero_grad()
     loss1.backward()
     q_optimizer.step()
+
+    for (state, action, reward, next_state, done) in zip(states, actions, rewards, next_states, dones):
+        if done == 0: # done == True일 때,
+            y = reward
+        else:
+            y = reward + gamma*q_target(next_state, mu_target(next_state))
+
+        loss2 += q(state, mu(state))
+
+    loss2 = -loss2.mean()  # Gradient Ascent -> Gradient Descent
 
     mu_optimizer.zero_grad()
     loss2.backward()
@@ -130,7 +138,7 @@ def soft_update(net, net_target):
         param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
 
-env = gym.make('Pendulum-v1')
+env = gym.make('Pendulum-v0')
 memory = ReplayBuffer()
 
 # 2개의 동일한 네트워크 생성 ...

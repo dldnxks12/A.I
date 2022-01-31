@@ -1,13 +1,16 @@
 # DQN - A2C
-# 1.30 실패 - Tensorflow 기반으로 다시 해보기
+# 동시에 Gradient 계산 Ok
+# 학습은 아직 진행 X
 
 import gym
 import sys
 import math
-import random
 import torch
+import random
+import collections
 import numpy as np
 from time import sleep
+from collections import deque
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -19,105 +22,130 @@ class PolicyNetwork(torch.nn.Module): # torch Module Import...
     self.fcA2 = torch.nn.Linear(10, 2) # Output : Action (왼쪽 , 오른쪽)
 
   def forward(self, x): # x : state
-    policy      = self.fcA1(x)
-    policy      = torch.nn.functional.relu(policy)
-    policy      = self.fcA2(policy)
-    policy      = torch.nn.functional.softmax(policy, dim = -1)
-    return policy
+    x      = self.fcA1(x)
+    x      = torch.nn.functional.relu(x)
+    x      = self.fcA2(x)
+    x      = torch.nn.functional.softmax(x, dim = -1)
+    return x
 
 # Q Value function
 class QNetwork(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.fcQ1 = torch.nn.Linear(4, 256)
-        self.fcQ2 = torch.nn.Linear(256, 256)
-        self.fcQ3 = torch.nn.Linear(256, 2)
+        self.fcS1 = torch.nn.Linear(4, 64)
+        self.fcA1 = torch.nn.Linear(1, 64)
+        self.fcQ1 = torch.nn.Linear(128, 32)
+        self.fcQ2 = torch.nn.Linear(32, 1)
 
-    def forward(self, x): # Input : state / Output : Q value
-        x = self.fcQ1(x)
-        x = torch.nn.functional.relu(x)
-        x = self.fcQ2(x)
-        x = torch.nn.functional.relu(x)
-        x = self.fcQ3(x)
-        return x
+    def forward(self, x, a): # Input : state / Output : Q value
+        h1 = self.fcS1(x)
+        h1 = torch.nn.functional.relu(h1)
+        h2 = self.fcA1(a)
+        h2 = torch.nn.functional.relu(h2)
+        cat = torch.cat([h1, h2], dim = -1)
+        q = self.fcQ1(cat)
+        q = torch.nn.functional.relu(q)
+        q = self.fcQ2(q)
+        return q
 
-class QTargetNetwork(torch.nn.Module):
+class ReplayBuffer():
     def __init__(self):
-        super().__init__()
-        self.fcQ1 = torch.nn.Linear(4, 256)
-        self.fcQ2 = torch.nn.Linear(256, 256)
-        self.fcQ3 = torch.nn.Linear(256, 2)
+        self.buffer = collections.deque(maxlen = 50000)
 
-    def forward(self, x): # Input : state / Output : Q value
-        x = self.fcQ1(x)
-        x = torch.nn.functional.relu(x)
-        x = self.fcQ2(x)
-        x = torch.nn.functional.relu(x)
-        x = self.fcQ3(x)
-        return x
+    def put(self, transition):
+        self.buffer.append(transition)
 
-alpha = 0.001
-gamma = 0.99
+    def sample(self, n):
+        mini_batch = random.sample(self.buffer, n)
+        states, actions, rewards, next_states, dones = [], [], [], [], []
+
+        for transition in mini_batch:
+            state, action, reward, next_state, done = transition
+            states.append(state)
+            actions.append([action])
+            rewards.append([reward])
+            next_states.append(next_state)
+            done_mask = 0.0 if done else 1.0
+            dones.append([done_mask])
+
+        return torch.tensor(states, dtype = torch.float), torch.tensor(actions, dtype = torch.float), \
+               torch.tensor(rewards, dtype = torch.float), torch.tensor(next_states, dtype = torch.float),\
+               torch.tensor(dones, dtype = torch.float)
+
+    def size(self):
+        return len(self.buffer)
+
+def soft_update(net, net_target):
+    for param_target, param in zip(net_target.parameters(), net.parameters()):
+        param_target.data.copy_(param_target.data * (1.0 - beta) + param.data * beta)
+
+# Replay buffer object ...
+memory = ReplayBuffer()
+alpha = 0.001    # Learning rate
+gamma = 0.99     # Discount factor
+beta = 0.005     # Soft Update rate
+MAX_EPISODE = 10000
+episode = 0
 
 pi       = PolicyNetwork().to(device)
 Q        = QNetwork().to(device)
-Q_target        = QTargetNetwork().to(device)
+Q_target = QNetwork().to(device)
 
-pi_optimizer       = torch.optim.Adam(pi.parameters(), lr = alpha)
-Q_optimizer        = torch.optim.Adam(Q.parameters(), lr = alpha)
-Q_target_optimizer = torch.optim.Adam(Q_target.parameters(), lr = alpha)
-
-
-replay = []
-MAX_TRAIN = 1000
-episode =0
+pi_optimizer = torch.optim.Adam(pi.parameters(), lr = alpha)
+Q_optimizer  = torch.optim.Adam(Q.parameters(), lr = alpha)
 env = gym.make('CartPole-v1')
-while episode < MAX_TRAIN:
+while episode < MAX_EPISODE:
 
     state = env.reset()
-    state = torch.FloatTensor(state).to(device)
     done = False
+    score = 0
 
-    beta = 0.3
     while not done:
-        policy = pi(state)
+
+        if episode % 100 == 0:
+            env.render()
+
+        policy = pi(torch.from_numpy(state).float().to(device))
         action = torch.multinomial(policy, 1).item()
         next_state, reward, done, info = env.step(action)
+        memory.put((state, action, reward, next_state, done))
 
-        replay.append([state, action, reward, next_state])
+        score += reward
+        state = next_state
+        #state = torch.from_numpy(state).float()
 
-        if len(replay) <= 50: # Replay Memory에 experience가 쌓일 때 까지 ...
-            continue
+        if memory.size() > 2000:
+            for i in range(10):
+                states, actions, rewards, next_states, dones = memory.sample(32)
+                critic = 0
+                actor  = 0
+                for (state, action, reward, next_state, done) in zip(states, actions, rewards, next_states, dones):
+                    if done == 0:
+                        y = reward
+                    else:
+                        next_action = torch.FloatTensor([max(pi(next_state))])
+                        y = reward + gamma*Q_target(next_state, next_action)
 
-        Mini_batch = random.sample(replay, 40)
-        Critic_loss = 0
-        Policy_loss = 0
+                    critic += (y - Q(state, action))**2
 
-        for state, action, reward, next_state in Mini_batch:
-            if done:
-                y = reward
-            else:
-                y = reward + gamma*Q_target(state)[action]
+                Q_optimizer.zero_grad()
+                critic.backward()
+                Q_optimizer.step()
 
-            Critic_loss += (y - Q(state)[action])**2
-            Q_value = (Q(state)).clone()
-            Policy_loss +=  Q_value[action]*((pi(state)[action]).log())
-        Critic_loss /= len(Mini_batch)
+                # Soft Update  ...
+                soft_update(Q, Q_target)
 
-        Q_optimizer.zero_grad()
-        Critic_loss.backward()
-        Q_optimizer.step()
+                for (state, action, reward, next_state, done) in zip(states, actions, rewards, next_states, dones):
+                    action2 = np.array(action, dtype = np.int64)
+                    actor += Q(state, action)*(pi(state)[action2].log())
+                actor = -actor
 
-        for (w_target , w) in zip(Q_target.parameters(), Q.parameters()):
-            pass
+                pi_optimizer.zero_grad()
+                actor.backward()
+                pi_optimizer.step()
 
-        for (w_target , w) in zip(Q_target.parameters(), Q.parameters()):
-            pass
-
-        Policy_loss = -Policy_loss
-        pi_optimizer.zero_grad()
-        Policy_loss.backward()
-        pi_optimizer.step()
+    if episode % 10 == 0:
+        print(f"Episode : {episode} || Reward : {score} ")
 
     episode += 1
 
