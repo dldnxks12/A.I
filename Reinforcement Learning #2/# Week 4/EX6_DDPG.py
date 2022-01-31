@@ -165,6 +165,11 @@ for episode in range(MAX_EPISODES):
     done = False
 
     while not done: # Stacking Experiences
+
+        if episode % 100 == 0:
+            env.render()
+
+
         a = mu(torch.from_numpy(s).float()) # Return action (-2 ~ 2 사이의 torque  ... )
         a = a.item() + ou_noise()[0] # Action에 Noise를 추가해서 Exploration 기능 추가 ...
         s_prime, r, done, info = env.step([a])
