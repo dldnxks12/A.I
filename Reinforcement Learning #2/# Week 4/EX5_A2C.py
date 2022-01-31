@@ -32,10 +32,10 @@ class PolicyNetwork(torch.nn.Module): # torch Module Import...
 class QNetwork(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.fcS1 = torch.nn.Linear(4, 64)
-        self.fcA1 = torch.nn.Linear(1, 64)
-        self.fcQ1 = torch.nn.Linear(128, 32)
-        self.fcQ2 = torch.nn.Linear(32, 1)
+        self.fcS1 = torch.nn.Linear(4, 16)
+        self.fcA1 = torch.nn.Linear(1, 16)
+        self.fcQ1 = torch.nn.Linear(32, 16)
+        self.fcQ2 = torch.nn.Linear(16, 1)
 
     def forward(self, x, a): # Input : state / Output : Q value
         h1 = self.fcS1(x)
@@ -83,13 +83,14 @@ def soft_update(net, net_target):
 memory = ReplayBuffer()
 alpha = 0.001    # Learning rate
 gamma = 0.99     # Discount factor
-beta = 0.05     # Soft Update rate
+beta = 0.005     # Soft Update rate
 MAX_EPISODE = 10000
 episode = 0
 
 pi       = PolicyNetwork().to(device)
 Q        = QNetwork().to(device)
 Q_target = QNetwork().to(device)
+Q_target.load_state_dict(Q.state_dict())   # 파라미터 동기화
 
 pi_optimizer = torch.optim.Adam(pi.parameters(), lr = alpha)
 Q_optimizer  = torch.optim.Adam(Q.parameters(), lr = alpha)
@@ -97,17 +98,13 @@ env = gym.make('CartPole-v1')
 
 while episode < MAX_EPISODE:
 
-    state = env.reset()
+    state = env.reset() # state : numpy
     done = False
     score = 0
 
     while not done:
 
-        if episode % 2000 == 0:
-            env.render()
-
-        # state의 type이 numpy <-> torch 바뀜 이유?
-        #policy = pi(torch.tensor(state).float().to(device))
+        state = np.array(state)
         policy = pi(torch.from_numpy(state).float().to(device))
         action = torch.multinomial(policy, 1).item()
         next_state, reward, done, info = env.step(action)
@@ -130,7 +127,7 @@ while episode < MAX_EPISODE:
 
                     critic += (y - Q(state, action))**2
 
-                critic = critic.mean()
+                critic = -critic/64
                 Q_optimizer.zero_grad()
                 critic.backward()
                 Q_optimizer.step()
@@ -140,18 +137,19 @@ while episode < MAX_EPISODE:
 
                 for (state, action, reward, next_state, done) in zip(states, actions, rewards, next_states, dones):
                     action2 = np.array(action, dtype = np.int64)
-                    actor += Q(state, action)*((pi(state)[action2].log() + 1e-5))
+                    print(action)
+                    print(action2)
+                    print(action)
+                    sys.exit()
+                    actor += Q( state, action )*( (pi(state)[action2] + 1e-5).log() )
 
-                actor = actor.mean()
-                actor = -actor
+                actor = -actor/32
 
                 pi_optimizer.zero_grad()
                 actor.backward()
                 pi_optimizer.step()
 
-    if episode % 100 == 0:
-        print(f"Episode : {episode} || Reward : {score} ")
-
+    print(f"Episode : {episode} || Reward : {score} ")
     episode += 1
 env.close()
 
