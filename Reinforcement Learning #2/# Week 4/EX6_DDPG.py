@@ -138,7 +138,7 @@ def soft_update(net, net_target):
         param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
 
-env = gym.make('Pendulum-v0')
+env = gym.make('Pendulum-v1')
 memory = ReplayBuffer()
 
 # 2개의 동일한 네트워크 생성 ...
@@ -166,7 +166,7 @@ for episode in range(MAX_EPISODES):
 
     while not done: # Stacking Experiences
 
-        if episode % 100 == 0:
+        if episode % 10 == 0:
             env.render()
 
 
