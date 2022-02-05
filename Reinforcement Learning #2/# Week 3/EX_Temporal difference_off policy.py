@@ -1,4 +1,4 @@
-# Temporal Difference(0) Prediction for Value function
+# Off Policy Temporal Difference(0) Prediction for Value function
 
 import gym
 import sys
