@@ -1,5 +1,12 @@
 ### Policy gradient
 
+- List
+
+      REINFORCE
+      A2C
+      DPG
+      DDPG
+      
 
 - `DDPG`
 
