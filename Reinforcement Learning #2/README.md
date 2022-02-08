@@ -1,4 +1,4 @@
-### Reinforcement learning `2021 Winter Semester in KAIST`
+### Reinforcement learning `2022 Winter Semester in KAIST`
 
 
 - `Week 1 : Dynamic Programming`
