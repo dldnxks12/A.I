@@ -65,7 +65,6 @@ class MuNet(nn.Module):  # Mu = Torque -> Action
         mu = torch.tanh(self.fc_mu(x)) * 2  # Multipled by 2 because the action space of the Pendulum-v0 is [-2,2]
         return mu
 
-
 class QNet(nn.Module):
     def __init__(self):
         super(QNet, self).__init__()
@@ -137,8 +136,7 @@ def soft_update(net, net_target):
     for param_target, param in zip(net_target.parameters(), net.parameters()):
         param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
-
-env = gym.make('Pendulum-v1')
+env = gym.make('Pendulum-v0')
 memory = ReplayBuffer()
 
 # 2개의 동일한 네트워크 생성 ...
@@ -168,7 +166,6 @@ for episode in range(MAX_EPISODES):
 
         if episode % 10 == 0:
             env.render()
-
 
         a = mu(torch.from_numpy(s).float()) # Return action (-2 ~ 2 사이의 torque  ... )
         a = a.item() + ou_noise()[0] # Action에 Noise를 추가해서 Exploration 기능 추가 ...
