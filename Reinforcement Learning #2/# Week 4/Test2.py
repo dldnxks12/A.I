@@ -18,16 +18,8 @@ import torchvision.transforms as T
 
 env = gym.make('CartPole-v0').unwrapped
 
-# matplotlib 설정
-is_ipython = 'inline' in matplotlib.get_backend()
-if is_ipython:
-    from IPython import display
-
-plt.ion()
-
 # GPU를 사용할 경우
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
@@ -221,6 +213,11 @@ def optimize_model():
     action_batch = torch.cat(batch.action)
     reward_batch = torch.cat(batch.reward)
 
+    print(non_final_mask)
+    print(non_final_mask)
+    print(non_final_next_states)
+
+
     # Q(s_t, a) 계산 - 모델이 Q(s_t)를 계산하고, 취한 행동의 열을 선택합니다.
     # 이들은 policy_net에 따라 각 배치 상태에 대해 선택된 행동입니다.
 
@@ -301,5 +298,3 @@ for i_episode in range(num_episodes):
 print('Complete')
 env.render()
 env.close()
-plt.ioff()
-plt.show()

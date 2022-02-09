@@ -15,14 +15,9 @@ import math
 import random
 import numpy as np
 import collections
-from collections import deque
-from time import sleep
-from IPython.display import clear_output
 
-from PIL import Image
-
-import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.pyplot as plt
 
 import torch
 import torch.nn as nn
@@ -30,15 +25,22 @@ import torch.optim as optim
 import torchvision.transforms as T
 import torch.nn.functional as F
 
-# 그림을 띄우고 뭘 하고 싶은데, 매번 그림을 띄우고 지우는 코드가 필요
+from time import sleep
+from itertools import count
+from collections import deque
+from IPython.display import clear_output
+from PIL import Image
+
+#########################################################################
+# 기본 환경 Setting ...
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("")
+print(f"# -- On {device} -- #")
+print("")
 
-#is_ipython = 'inline' in matplotlib.get_backend()
-#if is_ipython:
-#  from IPython import display
-
-#plt.ion()
-
+#########################################################################
+# Model Setting ...
 class ReplayBuffer():
   def __init__(self):
     self.buffer = collections.deque(maxlen = 50000)
@@ -53,20 +55,15 @@ class ReplayBuffer():
     for transition in mini_batch:
       state, action, reward, next_state, done = transition
       states.append(state)
-      actions.append([action])
-      rewards.append([reward])
+      actions.append(action)
+      rewards.append(reward)
       next_states.append(next_state)
-      done_mask = 0.0 if done else 1.0
-      dones.append([done_mask])
+      dones.append(done)
 
-    return torch.tensor(states, dtype = torch.float), torch.tensor(actions, dtype = torch.float) , torch.tensor(rewards, dtype = torch.float), torch.tensor(next_states, dtype = torch.float), torch.tensor(dones, dtype = torch.float)
+    return states, actions, rewards, next_states, dones
 
   def size(self):
     return len(self.buffer)
-
-def update(net, net_target):
-  for param_target, param in zip(net_target.parameters(), net.parameters()):
-    param_target.data.copy_(param.data)
 
 class DQN(nn.Module):
   def __init__(self, w, h, outputs):
@@ -79,7 +76,7 @@ class DQN(nn.Module):
     self.conv3 = nn.Conv2d(32, 32, kernel_size = 5, stride = 2)
     self.bn3 = nn.BatchNorm2d(32)
 
-
+    # Calculate Convolution Output Size
     def conv2d_size_out(size, kernel_size = 5, stride = 2):
       return (size - (kernel_size - 1) - 1) // stride + 1 # Convolution Output Size
 
@@ -96,7 +93,10 @@ class DQN(nn.Module):
     x = F.relu(self.bn3(self.conv3(x)))
     x = self.head(x.view(x.size(0), -1)) # data flatten 후 fc layer에 넣어주기
 
+    return x
 
+#########################################################################
+# Image Preprocessing ...
 resize = T.Compose([T.ToPILImage(),
                     T.Resize(40, interpolation=Image.CUBIC),
                     T.ToTensor()])
@@ -131,54 +131,148 @@ def get_screen():
     screen = screen[:, :, slice_range]
     screen = np.ascontiguousarray(screen, dtype=np.float32) / 255
     screen = torch.from_numpy(screen)
-    return resize(screen).unsqueeze(0)
 
-env = gym.make('CartPole-v1').unwrapped
+    return resize(screen).unsqueeze(0) # 개수 x 채널 x 높이 x 넓이
+
+#########################################################################
+# Env setting ...
+env = gym.make('CartPole-v1').unwrapped # Env의 모든 성질을 가져다 수정해서 쓰려면 unwrapped
 env.reset()
 
-BATCH_SIZE = 128
-GAMMA = 0.999
-EPS_START = 0.9
-EPS_END = 0.05
-EPS_DECAY = 200
-TARGET_UPDATE = 10
+BATCH_SIZE = 128 # 한 번에 학습시킬 Image 개수
+GAMMA = 0.999    # Discount Factor
+EPS = 0.1        # Soft greedy ...
 
+# Get Cropped Image
 init_screen = get_screen()
+
+# Image shape
+# init_screen.shape : [1, 3, 40, 90]
 _, _, screen_height, screen_width = init_screen.shape
 
-# gym 행동 공간에서 행동의 숫자를 얻습니다.
 n_actions = env.action_space.n
 
-policy_net = DQN(screen_height, screen_width, n_actions).to(device)
-target_net = DQN(screen_height, screen_width, n_actions).to(device)
-target_net.load_state_dict(policy_net.state_dict())
-target_net.eval()
+# Q Network의 출력 : Q(. , 1) , Q (. , 2) 총 2개
+Q        = DQN(screen_height, screen_width, n_actions).to(device)
+Q_target = DQN(screen_height, screen_width, n_actions).to(device)
 
-optimizer = optim.RMSprop(policy_net.parameters())
+# Parameter 동기화
+Q_target.load_state_dict(Q.state_dict())
+Q_target.eval()
+
+optimizer = optim.Adam(Q.parameters(), lr = 0.001)
 memory = ReplayBuffer()
 
-steps_done = 0
+# Update method 1
+def update(net, net_target):
+  for param_target, param in zip(net_target.parameters(), net.parameters()):
+    param_target.data.copy_(param.data)
+
+# Update method 2
+def update2(net, target_net):
+    target_net.load_state_dict(net.state_dict())
 
 def select_action(state):
-    global steps_done
     sample = random.random()
-    eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-        math.exp(-1. * steps_done / EPS_DECAY)
-    steps_done += 1
-    if sample > eps_threshold:
-        with torch.no_grad():
-            # t.max (1)은 각 행의 가장 큰 열 값을 반환합니다.
-            # 최대 결과의 두번째 열은 최대 요소의 주소값이므로,
-            # 기대 보상이 더 큰 행동을 선택할 수 있습니다.
-            print(policy_net(state))
-            print(policy_net(state).max(1))
-            print(policy_net(state).max(1)[1])
-            print(policy_net(state).max(1)[1].view(1, 1))
-            sys.exit()
-            return policy_net(state).max(1)[1].view(1, 1)
+    if sample > EPS: # sample > 0.1
+        with torch.no_grad(): # 그냥 뽑기만 할 거니까 학습 xxx
+            # Max Q value의 Index 1겹 씌워서 return
+            return Q(state).max(1)[1].view(1, 1)
     else:
+        # action range에서 무작위로 선택
         return torch.tensor([[random.randrange(n_actions)]], device=device, dtype=torch.long)
 
+########################################################################
+# Optimize
+
+def Optimize():
+    if memory.size() < BATCH_SIZE:
+        return
+
+    states, actions, rewards, next_states, dones = memory.sample(BATCH_SIZE)
+
+    # print(np.shape(states)) # 128 x  ...
+    # print(np.shape(state))  # 1 x 3 x 40 x 90
+
+    # 128개의 현재 State Sample에서 None이 아닌 것들만 골라내기  ...
+    non_final_mask = torch.tensor(tuple(map(lambda x : x is not None, next_states)), device = device, dtype = torch.bool)
+
+    # 128개의 다음 State Sample에서 None이 아닌 것들 골라서 버리기
+    non_final_next_states = torch.cat([x for x in next_states if x is not None])
+
+    batch_states = torch.cat(states)   # 128 x 3 x 40 x 90
+    batch_actions = torch.cat(actions) # 128 x 1 (Index .. )
+    batch_rewards = torch.cat(rewards) # 128
+
+    # Batch_actions의 Index에 해당하는 Q Value들 ...
+    Q_Values = Q(batch_states).gather(1, batch_actions)
+
+    # None Mask에 의해서, 학습되지 않는 놈들은 0의 값으로 남아있을 것 ..
+    next_state_values = torch.zeros(BATCH_SIZE , device = device)
+    next_state_values[non_final_mask] = Q_target(non_final_next_states).max(1)[0].detach()
+
+    Q_target_Values = batch_rewards + (next_state_values * GAMMA)
+
+    criterion = nn.SmoothL1Loss()
+    loss = criterion(Q_Values, Q_target_Values.unsqueeze(1))
+
+    optimizer.zero_grad()
+    loss.backward()
+#    Gradient Clamping --- Loss Nan 방지
+#    for param in Q.parameters():
+#        param.grad.data.clamp_(-1, 1)
+    optimizer.step()
+
+
+########################################################################
+# Training ...
+
+MAX_EPISODE = 5000
+episode = 0
+scores = []
+while episode < MAX_EPISODE:
+    score = 0
+    env.reset()
+    last_screen = get_screen()
+    current_screen = get_screen()
+
+    # 이전 Image와 현재 Image의 Pixel간 차이를 State로 ...
+    state = current_screen - last_screen
+
+    for t in count():
+        action = select_action(state)
+        # next_state, reward, done, info = env.step() ...
+        _, reward, done, info = env.step(action.item())
+        reward = torch.tensor([reward], device = device) # State, Action들과 같은 형태로 만들고 GPU에 올리기
+
+        last_screen = current_screen
+        current_screen = get_screen()
+
+        if not done:
+            next_state = current_screen - last_screen
+        else:
+            next_state = None # Episode가 끝나면 현재와 이전 Pixel간 차이 None으로 ...
+
+        memory.put((state, action, reward, next_state, done))
+        state = next_state
+        score += reward
+
+        # Optimize ..
+        Optimize()
+
+        # if Done .. Out
+        if done:
+            break
+
+    if episode % 10 == 0:
+        update2(Q, Q_target)
+
+    episode += 1
+    scores.append(score)
+    print(f"Episode : {episode} || Score : {score}")
+
+env.close()
+print("Story End..")
 
 
 
