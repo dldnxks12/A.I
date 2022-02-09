@@ -1,3 +1,4 @@
+# 학습 OK
 # DQN - A2C
 
 import gym
@@ -11,6 +12,7 @@ from time import sleep
 from collections import deque
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
 
 # Policy
 class PolicyNetwork(torch.nn.Module):  # torch Module Import...

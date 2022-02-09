@@ -1,4 +1,4 @@
-# Gradient 충돌 문제 해결해야함
+# 학습 OK
 
 import gym
 import sys

@@ -1,4 +1,5 @@
-# 학습 X 단순히 뒤의 DQN에서 Q Value를 근사할 수 있는 방법인지 Check 하기 위한 Code
+# 학습 OK 
+
 import gym
 import sys
 import math
@@ -27,12 +28,12 @@ class PolicyNetwork(torch.nn.Module): # torch Module Import...
     return policy
 
 # Value function
-class VNetwork(torch.nn.Module):
+class QNetwork(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.fcV1 = torch.nn.Linear(4, 256)
-        self.fcV2 = torch.nn.Linear(256, 256)
-        self.fcV3 = torch.nn.Linear(256, 2) # V = x1w1 + x2w2 + x3w2 + x4w4 -> State가 Continuous며 이런식으로 Value functon을 ..
+        self.fcV1 = torch.nn.Linear(4, 64)
+        self.fcV2 = torch.nn.Linear(64, 32)
+        self.fcV3 = torch.nn.Linear(32, 2) # V = x1w1 + x2w2 + x3w2 + x4w4 -> State가 Continuous며 이런식으로 Value functon을 ..
 
     def forward(self, x):
         x = self.fcV1(x)
@@ -88,8 +89,8 @@ gamma = 0.99  # Discount Factor
 pi = PolicyNetwork().to(device)
 pi_optimizer = torch.optim.Adam(pi.parameters(), lr=alpha)
 
-V = VNetwork().to(device)
-V_optimizer = torch.optim.Adam(V.parameters(), lr=alpha)
+Q = QNetwork().to(device)
+Q_optimizer = torch.optim.Adam(Q.parameters(), lr=alpha)
 
 env = gym.make('CartPole-v1')
 
@@ -111,18 +112,29 @@ while episode < MAX_EPISODES:
 
         G = G_(rewards, time_step)
 
-        loss1 += (G - V(state)[action]) ** 2
-        loss2 += math.pow(gamma, time_step)*(G - V(state)[action]) * ((pi(state)[action] + 1e-5).log())
+        loss1 += (G - Q(state)[action]) ** 2
 
     loss1 = loss1/len(states)
-    loss2 = -loss2
-    V_optimizer.zero_grad()
-    pi_optimizer.zero_grad()
 
+    Q_optimizer.zero_grad()
     loss1.backward()
-    loss2.backward()
+    Q_optimizer.step()
 
-    V_optimizer.step()
+    for time_step, item in enumerate(zip(states, actions, rewards)):
+        state = item[0]
+        action = item[1]
+        reward = item[2]
+
+        G = G_(rewards, time_step)
+
+        with torch.no_grad():
+            result = Q(state)[action]
+
+        loss2 += math.pow(gamma, time_step)*(G - result) * ((pi(state)[action] + 1e-5).log())
+
+    loss2 = -loss2
+    pi_optimizer.zero_grad()
+    loss2.backward()
     pi_optimizer.step()
 
     Loss = loss1 + loss2

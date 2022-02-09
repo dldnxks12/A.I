@@ -257,7 +257,7 @@ def optimize_model():
 # 의미있는 개선을 위해서 300 이상의 더 많은 에피소드를 실행해 보십시오.
 #
 
-num_episodes = 50
+num_episodes = 5000
 for i_episode in range(num_episodes):
     # 환경과 상태 초기화
     env.reset()

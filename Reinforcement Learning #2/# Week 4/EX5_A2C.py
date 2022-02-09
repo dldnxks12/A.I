@@ -1,6 +1,5 @@
 # DQN - A2C
 # 동시에 Gradient 계산 Ok
-# 학습은 아직 진행 X
 
 import gym
 import sys
@@ -13,6 +12,7 @@ from time import sleep
 from collections import deque
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+#device = 'cpu'
 
 # Policy
 class PolicyNetwork(torch.nn.Module): # torch Module Import...
@@ -68,9 +68,9 @@ class ReplayBuffer():
             done_mask = 0.0 if done else 1.0
             dones.append([done_mask])
 
-        return torch.tensor(states, dtype = torch.float), torch.tensor(actions, dtype = torch.float), \
-               torch.tensor(rewards, dtype = torch.float), torch.tensor(next_states, dtype = torch.float),\
-               torch.tensor(dones, dtype = torch.float)
+        return torch.tensor(states, device = device, dtype = torch.float), torch.tensor(actions, device = device, dtype = torch.float), \
+               torch.tensor(rewards,  device = device,dtype = torch.float), torch.tensor(next_states,  device = device,dtype = torch.float),\
+               torch.tensor(dones,  device = device,dtype = torch.float)
 
     def size(self):
         return len(self.buffer)
@@ -96,6 +96,43 @@ pi_optimizer = torch.optim.Adam(pi.parameters(), lr = alpha)
 Q_optimizer  = torch.optim.Adam(Q.parameters(), lr = alpha)
 env = gym.make('CartPole-v1')
 
+
+def train(memory, Q, Q_target, Q_optimizer):
+    states, actions, rewards, next_states, dones = memory.sample(32)
+    critic = 0
+    actor = 0
+    for (state, action, reward, next_state, done) in zip(states, actions, rewards, next_states, dones):
+        if done == 0:
+            y = reward
+        else:
+            with torch.no_grad():
+                next_action = torch.FloatTensor([max(pi(next_state))])
+                next_action = next_action.to(device)
+                y = reward + gamma * Q_target(next_state, next_action)
+
+        critic += (y - Q(state, action)) ** 2
+
+    critic = critic / 64
+    Q_optimizer.zero_grad()
+    critic.backward()
+    Q_optimizer.step()
+
+    # Soft Update  ...
+    soft_update(Q, Q_target)
+
+    for (state, action, reward, next_state, done) in zip(states, actions, rewards, next_states, dones):
+        with torch.no_grad():
+            result = Q(state, action)
+        action = torch.tensor(action, device = device, dtype = torch.int)
+        action = action.item()
+        actor += result * ((pi(state)[action] + 1e-5).log())
+
+    actor = -actor / 32
+
+    pi_optimizer.zero_grad()
+    actor.backward()
+    pi_optimizer.step()
+
 while episode < MAX_EPISODE:
 
     state = env.reset() # state : numpy
@@ -115,39 +152,8 @@ while episode < MAX_EPISODE:
 
         if memory.size() > 2000:
             for i in range(10):
-                states, actions, rewards, next_states, dones = memory.sample(32)
-                critic = 0
-                actor  = 0
-                for (state, action, reward, next_state, done) in zip(states, actions, rewards, next_states, dones):
-                    if done == 0:
-                        y = reward
-                    else:
-                        next_action = torch.FloatTensor([max(pi(next_state))])
-                        y = reward + gamma*Q_target(next_state, next_action)
+                train(memory, Q, Q_target, Q_optimizer)
 
-                    critic += (y - Q(state, action))**2
-
-                critic = -critic/64
-                Q_optimizer.zero_grad()
-                critic.backward()
-                Q_optimizer.step()
-
-                # Soft Update  ...
-                soft_update(Q, Q_target)
-
-                for (state, action, reward, next_state, done) in zip(states, actions, rewards, next_states, dones):
-                    action2 = np.array(action, dtype = np.int64)
-                    print(action)
-                    print(action2)
-                    print(action)
-                    sys.exit()
-                    actor += Q( state, action )*( (pi(state)[action2] + 1e-5).log() )
-
-                actor = -actor/32
-
-                pi_optimizer.zero_grad()
-                actor.backward()
-                pi_optimizer.step()
 
     print(f"Episode : {episode} || Reward : {score} ")
     episode += 1

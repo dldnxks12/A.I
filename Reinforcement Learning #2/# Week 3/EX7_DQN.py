@@ -11,6 +11,9 @@ from IPython.display import clear_output
 
 # 그림을 띄우고 뭘 하고 싶은데, 매번 그림을 띄우고 지우는 코드가 필요
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("")
+print(f"On {device}")
+print("")
 
 class ReplayBuffer():
   def __init__(self):
@@ -32,7 +35,7 @@ class ReplayBuffer():
       done_mask = 0.0 if done else 1.0
       dones.append([done_mask])
 
-    return torch.tensor(states, dtype = torch.float), torch.tensor(actions, dtype = torch.float) , torch.tensor(rewards, dtype = torch.float), torch.tensor(next_states, dtype = torch.float), torch.tensor(dones, dtype = torch.float)
+    return torch.tensor(states, device= device ,dtype = torch.float), torch.tensor(actions, device= device , dtype = torch.float), torch.tensor(rewards, device= device , dtype = torch.float), torch.tensor(next_states, device= device , dtype = torch.float), torch.tensor(dones, device= device,  dtype = torch.float)
 
   def size(self):
     return len(self.buffer)
@@ -59,7 +62,7 @@ class QNetwork(torch.nn.Module):
     super().__init__()
     self.fcQ1 = torch.nn.Linear(4, 256)
     self.fcQ2 = torch.nn.Linear(256, 32)
-    self.fcQ3 = torch.nn.Linear(32, 1)
+    self.fcQ3 = torch.nn.Linear(32, 2)
 
   def forward(self, x):
     x = self.fcQ1(x)
@@ -87,7 +90,7 @@ pi_optimizer = torch.optim.Adam(pi.parameters(), lr = alpha)
 Q_optimizer = torch.optim.Adam(Q.parameters(), lr = alpha)
 
 def train(memory, Q, Q_target, Q_optimizer):
-  states, actions, rewards, next_states, dones = memory.sample(32)
+  states, actions, rewards, next_states, dones = memory.sample(128)
 
   loss = 0 
   for state, action, reward, next_state, done in zip(states, actions, rewards, next_states, dones):
@@ -95,7 +98,7 @@ def train(memory, Q, Q_target, Q_optimizer):
       y = reward
     else:
       y = reward + gamma*(max(Q_target(next_state)))
-
+    action = int(action.item())
     loss += (y - Q(state)[action]) ** 2
 
   loss = loss / 64
@@ -105,27 +108,17 @@ def train(memory, Q, Q_target, Q_optimizer):
   Q_optimizer.step()
   
 env = gym.make('CartPole-v1')
-  
-flag = False
 while episode < MAX_EPISODE:
 
   state = env.reset()
   done = False
-  score = 0 
+  score = 0
+  state = np.array(state)
 
   while not done:
 
-    if episode % 10 == 0:
-      flag == True
-    else:
-      flag == False
-
-    #if episode % 100 == 0:
-    #  env.render()
-
-    state = np.array(state)
-    policy = pi(torch.from_numpy(state).float().to(device))
-    
+    with torch.no_grad():
+      policy = pi(torch.from_numpy(state).float().to(device))
     action = torch.multinomial(policy, 1).item()
     next_state, reward, done, info = env.step(action)
 
@@ -137,11 +130,10 @@ while episode < MAX_EPISODE:
     if memory.size() > 2000:
       train(memory, Q, Q_target, Q_optimizer)
       
-      if flag == True:
+      if episode % 10 == 0:
         update(Q, Q_target)
-        flag = False
 
-    print(f"Epidoe : {episode} || Reward : {score}")
-    episode += 1
+  print(f"Epidoe : {episode} || Reward : {score}")
+  episode += 1
 
 env.close()

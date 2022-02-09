@@ -140,8 +140,10 @@ env = gym.make('CartPole-v1').unwrapped # Env의 모든 성질을 가져다 수�
 env.reset()
 
 BATCH_SIZE = 128 # 한 번에 학습시킬 Image 개수
-GAMMA = 0.999    # Discount Factor
-EPS = 0.1        # Soft greedy ...
+GAMMA = 0.9    # Discount Factor
+EPS_START = 0.9
+EPS_END = 0.05
+EPS_DECAY = 200
 
 # Get Cropped Image
 init_screen = get_screen()
@@ -172,9 +174,15 @@ def update(net, net_target):
 def update2(net, target_net):
     target_net.load_state_dict(net.state_dict())
 
+
+steps_done = 0
 def select_action(state):
+    global steps_done
     sample = random.random()
-    if sample > EPS: # sample > 0.1
+    eps_threshold = EPS_END + (EPS_START - EPS_END) * \
+        math.exp(-1. * steps_done / EPS_DECAY)
+    steps_done += 1
+    if sample > eps_threshold: # sample > 0.1
         with torch.no_grad(): # 그냥 뽑기만 할 거니까 학습 xxx
             # Max Q value의 Index 1겹 씌워서 return
             return Q(state).max(1)[1].view(1, 1)
@@ -219,8 +227,8 @@ def Optimize():
     optimizer.zero_grad()
     loss.backward()
 #    Gradient Clamping --- Loss Nan 방지
-#    for param in Q.parameters():
-#        param.grad.data.clamp_(-1, 1)
+    for param in Q.parameters():
+        param.grad.data.clamp_(-1, 1)
     optimizer.step()
 
 

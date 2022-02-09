@@ -1,3 +1,5 @@
+# 학습 OK
+
 # Value function을 Baseline function으로 하여 Variance 줄이기
 # Temporal difference를 이용하여 Value function 또한 근사
 
@@ -113,7 +115,10 @@ while episode < MAX_EPISODES:
 
         G = G_(rewards, time_step)
         loss1 += (G - V(state)) ** 2
-        loss2 += math.pow(gamma, time_step)*(G - V(state)) * ((pi(state)[action] + 1e-5).log())
+
+        with torch.no_grad():
+            result = V(state)
+        loss2 += math.pow(gamma, time_step)*(G - result) * ((pi(state)[action] + 1e-5).log())
 
     loss1 = loss1/len(states)
     loss2 = -loss2

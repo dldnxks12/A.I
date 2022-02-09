@@ -1,5 +1,7 @@
 # Gradient Ascent -> Gradient Descent를 위해 Optimizer 이전에 Cost를 음수로 ..
 
+# Q를 G로 근사 ... Q or V의 Network 학습 필요 XX
+
 import gym
 import sys
 import math
