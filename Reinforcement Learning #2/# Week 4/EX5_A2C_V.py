@@ -144,11 +144,11 @@ while episode < MAX_EPISODE:
         score += reward
         state = next_state
 
-        if memory.size() > 2000:
-            #for i in range(5):
-            train(memory, V, V_target, V_optimizer)
-            # Soft Update  ...
-            soft_update(V, V_target)
+    if memory.size() > 2000:
+        #for i in range(5):
+        train(memory, V, V_target, V_optimizer)
+        # Soft Update  ...
+        soft_update(V, V_target)
 
     print(f"Episode : {episode} || Reward : {score} ")
     episode += 1

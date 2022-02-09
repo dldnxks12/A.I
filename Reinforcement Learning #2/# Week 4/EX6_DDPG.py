@@ -20,7 +20,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 lr_mu = 0.0005       # Learning Rate for Torque (Action)
 lr_q = 0.001         # Learning Rate for Q
 gamma = 0.99         # discount factor
-batch_size = 32      # Mini Batch Size for Sampling from Replay Memory
+batch_size = 16      # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 50000 # Replay Memory Size
 tau = 0.005          # for target network soft update
 
@@ -107,7 +107,9 @@ def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
         if done == 0: # done == True일 때,
             y = reward
         else:
-            y = reward + gamma*q_target(next_state, mu_target(next_state))
+            # target network Weight 변경 x
+            with torch.no_grad():
+                y = reward + gamma*q_target(next_state, mu_target(next_state))
 
         loss1 += (y - q(state, action))**2
 
@@ -121,7 +123,9 @@ def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
         if done == 0: # done == True일 때,
             y = reward
         else:
-            y = reward + gamma*q_target(next_state, mu_target(next_state))
+            # target network Weight 변경 x
+            with torch.no_grad():
+                y = reward + gamma*q_target(next_state, mu_target(next_state))
 
         loss2 += q(state, mu(state))
 
@@ -136,7 +140,7 @@ def soft_update(net, net_target):
     for param_target, param in zip(net_target.parameters(), net.parameters()):
         param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
-env = gym.make('Pendulum-v0')
+env = gym.make('Pendulum-v1')
 memory = ReplayBuffer()
 
 # 2개의 동일한 네트워크 생성 ...
@@ -164,7 +168,7 @@ for episode in range(MAX_EPISODES):
 
     while not done: # Stacking Experiences
 
-        if episode % 10 == 0:
+        if episode % 100 == 0:
             env.render()
 
         a = mu(torch.from_numpy(s).float()) # Return action (-2 ~ 2 사이의 torque  ... )
@@ -175,19 +179,19 @@ for episode in range(MAX_EPISODES):
         score = score + r
         s = s_prime
 
-    if memory.size() > 2000:
-        for i in range(10):
-            train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
-            soft_update(mu, mu_target)
-            soft_update(q, q_target)
+        if memory.size() > 2000:
+            for i in range(10):
+                train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
+                soft_update(mu, mu_target)
+                soft_update(q, q_target)
 
     reward_history.append(score)
     reward_history_100.append(score)
     avg = sum(reward_history_100) / len(reward_history_100)
-    episode = episode + 1
     if episode % 100 == 0:
         print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
     score = 0.0
+    episode = episode + 1
 
 env.close()
 
