@@ -23,6 +23,8 @@ print("")
 print(f"On {device}")
 print("")
 
+# Original ...
+'''
 # Hyperparameters
 lr_mu = 0.0005         # Learning Rate for Torque (Action)
 lr_q = 0.001          # Learning Rate for Q
@@ -30,6 +32,15 @@ gamma = 0.99         # discount factor
 batch_size = 32      # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 50000 # Replay Memory Size
 tau = 0.005          # for target network soft update
+'''
+
+# Hyperparameters
+lr_mu = 0.005         # Learning Rate for Torque (Action)
+lr_q = 0.001          # Learning Rate for Q
+gamma = 0.99         # discount factor
+batch_size = 64      # Mini Batch Size for Sampling from Replay Memory
+buffer_limit = 50000 # Replay Memory Size
+tau = 0.05          # for target network soft update
 
 ###########################################################################
 # Model and ReplayBuffer
@@ -154,7 +165,7 @@ mu_target.load_state_dict(mu.state_dict()) # 파라미터 동기화
 mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
 q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
-MAX_EPISODES = 10000
+MAX_EPISODES = 50000
 
 print_interval = 20
 reward_history = []
@@ -166,7 +177,7 @@ while episode < MAX_EPISODES:
     done = False
     score = 0.0
     while not done:
-        if episode % 200 == 0:
+        if episode % 2000 == 0:
             env.render()
 
         action = mu(torch.from_numpy(state).to(device))
@@ -192,7 +203,7 @@ while episode < MAX_EPISODES:
     reward_history.append(score)
     reward_history_100.append(score)
     avg = sum(reward_history_100) / len(reward_history_100)
-    if episode % 10 == 0:
+    if episode % 50 == 0:
         print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
     episode += 1
 env.close()

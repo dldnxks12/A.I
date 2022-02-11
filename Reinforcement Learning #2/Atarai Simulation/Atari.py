@@ -15,8 +15,6 @@ from IPython.display import clear_output
 from skimage.color import rgb2gray
 from skimage.transform import rescale
 
-os.environ['KMP_DUPLICATE_LIB_OK'] ='True'
-
 # CNN Network ...
 class QNetwork(torch.nn.Module):
     # Input : 4 장의 사진 || Output : 4개의 Action
