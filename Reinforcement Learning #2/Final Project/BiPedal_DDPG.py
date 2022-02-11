@@ -1,5 +1,5 @@
 # 코드 동작 OK
-# 학습 Ok
+# 학습 X
 
 import gym
 import sys
@@ -23,8 +23,7 @@ print("")
 print(f"On {device}")
 print("")
 
-# Original ...
-'''
+
 # Hyperparameters
 lr_mu = 0.0005         # Learning Rate for Torque (Action)
 lr_q = 0.001          # Learning Rate for Q
@@ -32,15 +31,7 @@ gamma = 0.99         # discount factor
 batch_size = 32      # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 50000 # Replay Memory Size
 tau = 0.005          # for target network soft update
-'''
 
-# Hyperparameters
-lr_mu = 0.005         # Learning Rate for Torque (Action)
-lr_q = 0.001          # Learning Rate for Q
-gamma = 0.99         # discount factor
-batch_size = 64      # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 50000 # Replay Memory Size
-tau = 0.05          # for target network soft update
 
 ###########################################################################
 # Model and ReplayBuffer
@@ -81,29 +72,33 @@ class MuNet(nn.Module):  # Output : Deterministic Action !
     def __init__(self):
         super(MuNet, self).__init__()
         self.fc1 = nn.Linear(24, 128) # Input  : 24 continuous states
-        self.fc2 = nn.Linear(128, 64)
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, 64)
         self.fc_mu = nn.Linear(64, 4) # Output : 4 continuous actions
 
     def forward(self, x): # Input : state (COS, SIN, 각속도)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
 class QNet(nn.Module):
     def __init__(self):
         super(QNet, self).__init__()
-        self.fc_s   = nn.Linear(24, 64)    # State  24 개
-        self.fc_a   = nn.Linear(4, 64)     # Action 4  개
-        self.fc_q   = nn.Linear(128, 32)  # State , Action 이어붙이기
-        self.fc_out = nn.Linear(32, 1)  # Output : Q value
+        self.fc_s   = nn.Linear(24, 128)    # State  24 개
+        self.fc_a   = nn.Linear(4, 128)     # Action 4  개
+        self.fc_q   = nn.Linear(256, 128)  # State , Action 이어붙이기
+        self.fc_out = nn.Linear(128, 64)  # Output : Q value
+        self.fc_out2 = nn.Linear(64, 1)  # Output : Q value
 
     def forward(self, x, a):
-        h1 = F.relu(self.fc_s(x)) # 64
-        h2 = F.relu(self.fc_a(a)) # 64
-        cat = torch.cat([h1, h2], dim = 1)  # 128
+        h1 = F.relu(self.fc_s(x)) # 128
+        h2 = F.relu(self.fc_a(a)) # 128
+        cat = torch.cat([h1, h2], dim = 1)  # 256
         q = F.relu(self.fc_q(cat))   # 128
-        q = self.fc_out(q)  # 1 - Q Value
+        q = self.fc_out(q)   # 64
+        q = self.fc_out2(q)  # 1 - Q Value
         return q
 
 
@@ -122,13 +117,11 @@ class OrnsteinUhlenbeckNoise:
 
 ###########################################################################
 # Train ...
-
 def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
     Critic, Actor = 0.0 , 0.0
 
     y = rewards + ( gamma*(q_target(next_states, mu_target(next_states)))*dones )
-
     Critic = torch.nn.functional.smooth_l1_loss( q(states, actions), y.detach() )
     q_optimizer.zero_grad()
     Critic.backward()
@@ -167,7 +160,6 @@ q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 MAX_EPISODES = 50000
 
-print_interval = 20
 reward_history = []
 reward_history_100 = deque(maxlen=100)
 
@@ -177,20 +169,18 @@ while episode < MAX_EPISODES:
     done = False
     score = 0.0
     while not done:
-        if episode % 2000 == 0:
+        if episode % 500 == 0:
             env.render()
 
         action = mu(torch.from_numpy(state).to(device))
-        noise = torch.tensor(ou_noise(), device = device, dtype = torch.long)
+        noise = torch.tensor(ou_noise(), device = device)
 
         # Add Exploration property
         action = (action + noise).cpu().detach().numpy()
-
         next_state, reward, done, _ = env.step(action)
 
         # Type Check
         # print(type(state), type(action), type(next_state), type(reward), type(done))
-
         memory.put((state, action, reward, next_state, done))
         score += reward
         state = next_state
@@ -203,7 +193,7 @@ while episode < MAX_EPISODES:
     reward_history.append(score)
     reward_history_100.append(score)
     avg = sum(reward_history_100) / len(reward_history_100)
-    if episode % 50 == 0:
+    if episode % 20 == 0:
         print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
     episode += 1
 env.close()

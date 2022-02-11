@@ -87,7 +87,7 @@ optimizer = torch.optim.Adam(Q.parameters(), lr=0.0005)
 
 history = deque(maxlen=100000)  # Replay Buffer - 맘에 안들면 기존의 Buffer 사용해도 무관
 gamma = 0.99                 # Discount factor
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 
 #######################################################################
 # Train ...
@@ -130,7 +130,7 @@ def process(state):
 
 #######################################################################
 # Record Parameter
-MAX_EPISODE = 1000
+max_time_steps = 1000
 
 # for computing average reward over 100 episodes
 reward_history = deque(maxlen=100)
@@ -156,11 +156,13 @@ for episode in range(2500):
     state = np.array(stack) # numpy type으로
     state = torch.from_numpy(state).float().to(device).unsqueeze(0) # Shape : 1, 4, 80, 80
 
-    if episode % 10 == 0:
-        env.render()
 
     # sys.exit()
-    for t in range(1, MAX_EPISODE + 1):
+    for t in range(1, max_time_steps + 1):
+
+        if episode % 100 == 0:
+            env.render()
+
         # Epsilon greedy policy
         with torch.no_grad():
             if random.random() < 0.05:

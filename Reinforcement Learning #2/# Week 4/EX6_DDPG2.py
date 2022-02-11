@@ -154,7 +154,6 @@ for episode in range(MAX_EPISODES):
         action = mu(torch.from_numpy(state).float()) # Return action (-2 ~ 2 사이의 torque  ... )
         action = action.item() + ou_noise()[0] # Action에 Noise를 추가해서 Exploration 기능 추가 ...
         next_state, reward, done, info = env.step([action])
-
         memory.put((state, action, reward / 100.0, next_state, done))
         score = score + reward
         state = next_state
