@@ -1,3 +1,6 @@
+# Code 동작 OK
+# 학습 Testing ...
+
 import os
 import gym
 import sys
@@ -74,41 +77,60 @@ print("")
 # env = gym.make("PongNoFrameskip-v4")
 env = gym.make("Breakout-v0")
 
-# network and optimizer
-n_actions = env.action_space.n
-Q = QNetwork().to(device)
+# Networks ...
+n_actions = env.action_space.n           # 4개의 Action
+Q        = QNetwork().to(device)         # Training Network
+Q_target = QNetwork().to(device)         # Target Network - Update this network Periodically
+Q_target.load_state_dict(Q.state_dict()) # Target Network Parameter Synchronize ...
+
 optimizer = torch.optim.Adam(Q.parameters(), lr=0.0005)
 
-# target network
-Q_target = QNetwork().to(device)
-Q_target.load_state_dict(Q.state_dict())
-
-history = deque(maxlen=100000)  # replay buffer
-discount = 0.99  # discount factor gamma
+history = deque(maxlen=100000)  # Replay Buffer - 맘에 안들면 기존의 Buffer 사용해도 무관
+gamma = 0.99                 # Discount factor
 BATCH_SIZE = 16
 
-# Replay Memory 에서 Batch Size만큼 transition뽑아와서 학습 시키기 --- Pixel 학습 ..!
+#######################################################################
+# Train ...
+# Replay Memory 에서 Batch Size만큼 transition뽑아와서 학습 시키기 - Pixel 단위 학습
 def update_Q(Q, Q_target, optimizer):
 
     # Q : 4개 Frame 넣어주고, 4개 Action 받아오기
 
     batch = random.sample(history, BATCH_SIZE)
-    print(batch.shape)
-    sys.exit()
     loss = 0
 
-    # Fill in this part
+    # state, next_state, action = Tensor
+    # reward, done = float, bool
+    for state, action, next_state, reward, done in batch:
+        A = torch.argmax(Q(next_state)) # Avoide Maximization Bias ...
+        target = reward + ( gamma * (Q_target(next_state).squeeze(0)[A]) ) * done
+        loss += (target - Q(state).squeeze(0)[action])**2
+
+    loss = loss.mean()
+
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
 
 
+#######################################################################
+# Image Preprocessing ...
 def process(state):
-    state = rgb2gray(state[35:195, :, :])
-    state = rescale(state, scale=0.5)
-    state = state[np.newaxis, np.newaxis, :, :]
-    state = state[0][0]
+
+    # In State Shape : 210 , 160, 3
+
+    state = rgb2gray(state[35:195, :, :])       # 160, 160
+    state = rescale(state, scale=0.5)           # 80,  80
+    state = state[np.newaxis, np.newaxis, :, :] # 1, 1, 80, 80  --------------- # 이부분 왜 있는 지 모르겠다.
+    state = state[0][0]                         # 80, 80
+
+    # Out State Shape : 80, 80
     return state
 
 
-max_time_steps = 1000
+#######################################################################
+# Record Parameter
+MAX_EPISODE = 1000
 
 # for computing average reward over 100 episodes
 reward_history = deque(maxlen=100)
@@ -117,24 +139,28 @@ reward_history = deque(maxlen=100)
 target_interval = 1000
 target_counter = 0
 
-# training
+#######################################################################
+# Main Loop ...
 for episode in range(2500):
     # sum of accumulated rewards
     rewards = 0
 
     # get initial observation
-    observation = env.reset()
+    observation = env.reset()  # Observation Shape : 210 , 160, 3
+
+    # Image Preprocessing
     state = process(observation)
-    stack = [state] * 4     # state를 4개로 복제
+
+    # state를 4개로 복제
+    stack = [state] * 4 # shape : 4, 80, 80
     state = np.array(stack) # numpy type으로
+    state = torch.from_numpy(state).float().to(device).unsqueeze(0) # Shape : 1, 4, 80, 80
 
-    # On GPU + float + tensor type
-    state = torch.from_numpy(state).float().to(device).unsqueeze(0)
+    if episode % 10 == 0:
+        env.render()
 
-    # loop until an episode ends
-    for t in range(1, max_time_steps + 1):
-        # env.render()
-
+    # sys.exit()
+    for t in range(1, MAX_EPISODE + 1):
         # Epsilon greedy policy
         with torch.no_grad():
             if random.random() < 0.05:
@@ -144,13 +170,16 @@ for episode in range(2500):
                 # action = Q(state.float().to(device)).max(1)[1].view(1, 1).item()
 
                 # GET ACTION : Method 2
-                q_values = Q(state.to(device)).detach()
+                q_values = Q(state.to(device)).detach() # Output : 4개의 Action
                 action = torch.argmax(q_values)
 
+
         observation_next, reward, done, info = env.step(action)
+
+        # 새로나온 Image Preprocessing
         state_next = process(observation_next)
 
-        # Frame 4개 들어있는 Stack에 Frame 하나 빼고, 새 걸로 하나 넣고!
+        # Frame 4개 들어있는 Stack에 Frame 하나 버리고, 새 걸로 하나 넣어서 Stack 내용물 Update!
         stack.pop(0)
         stack.append(state_next)
 
