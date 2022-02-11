@@ -76,7 +76,7 @@ class MuNet(nn.Module):  # Output : Deterministic Action !
         self.fc3 = nn.Linear(128, 64)
         self.fc_mu = nn.Linear(64, 4) # Output : 4 continuous actions
 
-    def forward(self, x): # Input : state (COS, SIN, 각속도)
+    def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))

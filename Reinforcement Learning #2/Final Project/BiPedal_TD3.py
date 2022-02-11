@@ -15,7 +15,7 @@ from collections import deque
 
 #GPU Setting
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-#device =  'cpu'
+#device = 'cpu'
 
 print("")
 print(f"On {device}")
@@ -35,7 +35,7 @@ class ReplayBuffer():
         for transition in mini_batch:
             s, a, r, s_prime, done = transition
             s_lst.append(s) # s = [COS SIN 각속도]
-            a_lst.append([a])
+            a_lst.append(a)
             r_lst.append([r])
             s_prime_lst.append(s_prime)
             done_mask = 0.0 if done else 1.0
@@ -49,36 +49,38 @@ class ReplayBuffer():
         return len(self.buffer)
 
 
-class MuNet(nn.Module):  # Mu = Torque -> Action
+class MuNet(nn.Module):  # Output : Deterministic Action !
     def __init__(self):
         super(MuNet, self).__init__()
-        self.fc1 = nn.Linear(3, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc_mu = nn.Linear(64, 1)
+        self.fc1 = nn.Linear(24, 128) # Input  : 24 continuous states
+        self.fc2 = nn.Linear(128, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc_mu = nn.Linear(64, 4) # Output : 4 continuous actions
 
-    def forward(self, x): # Input : state (COS, SIN, 각속도)
+    def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        mu = torch.tanh(self.fc_mu(x)) * 2  # Multipled by 2 because the action space of the Pendulum-v0 is [-2,2]
+        x = F.relu(self.fc3(x))
+        mu = torch.tanh(self.fc_mu(x))
         return mu
+
 
 class QNet(nn.Module):
     def __init__(self):
         super(QNet, self).__init__()
-        self.fc_s = nn.Linear(3, 64)   # State = (COS, SIN, 각속도)
-        self.fc_a = nn.Linear(1, 64)   # Action = Torque
-        self.fc_q = nn.Linear(128, 32) # State , Action 이어붙이기
-        self.fc_out = nn.Linear(32, 1) # Output : Q value
+        self.fc_s   = nn.Linear(24, 128)    # State  24 개
+        self.fc_a   = nn.Linear(4, 128)     # Action 4  개
+        self.fc_q   = nn.Linear(256, 128)  # State , Action 이어붙이기
+        self.fc_out = nn.Linear(128, 64)  # Output : Q value
+        self.fc_out2 = nn.Linear(64, 1)  # Output : Q value
 
     def forward(self, x, a):
-        h1 = F.relu(self.fc_s(x)) # 64
-        h2 = F.relu(self.fc_a(a)) # 64
-        # cat = torch.cat([h1, h2], dim = -1) # 128
-        # cat = torch.cat([h1, h2], dim = 1) # 128
-        cat = torch.cat([h1, h2], dim = 1)  # 128
-
-        q = F.relu(self.fc_q(cat)) # 32
-        q = self.fc_out(q)  # 1
+        h1 = F.relu(self.fc_s(x)) # 128
+        h2 = F.relu(self.fc_a(a)) # 128
+        cat = torch.cat([h1, h2], dim = 1)  # 256
+        q = F.relu(self.fc_q(cat))   # 128
+        q = self.fc_out(q)   # 64
+        q = self.fc_out2(q)  # 1 - Q Value
         return q
 
 
@@ -106,12 +108,13 @@ def train(episode, mu, mu_target, q1, q2, q1_target, q2_target, memory, q1_optim
 
     Q_loss, mu_loss = 0, 0
 
-    noise_bar = torch.clamp(torch.tensor(ou_noise()[0]), -1, 1)
+    noise_bar = torch.clamp(torch.tensor(ou_noise()), -1, 1).to(device)
 
     # print("Point 1")
     # print(noise_bar) # 0.1425
 
     action_bar = mu_target(next_states) + noise_bar
+    action_bar = torch.tensor(action_bar, dtype = torch.float)
 
     # Shape Check 필요
     q1_value = q1_target(next_states, action_bar).mean()
@@ -156,7 +159,7 @@ buffer_limit = 50000 # Replay Memory Size
 tau = 0.005          # for target network soft update
 
 # Import Gym Environment
-env = gym.make('Pendulum-v1')
+env = gym.make('BipedalWalker-v3')
 
 # Replay Buffer
 memory = ReplayBuffer()
@@ -183,13 +186,13 @@ q1_optimizer = optim.Adam(q1.parameters(), lr=lr_q)
 q2_optimizer = optim.Adam(q2.parameters(), lr=lr_q)
 
 # Noise
-ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(1))
+ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 
 score = 0.0
 print_interval = 20
 reward_history = []
 reward_history_100 = deque(maxlen=100)
-MAX_EPISODES = 10000
+MAX_EPISODES = 50000
 
 for episode in range(MAX_EPISODES):
     state = env.reset()
@@ -201,8 +204,9 @@ for episode in range(MAX_EPISODES):
         #    env.render()
 
         action = mu(torch.from_numpy(state).float().to(device)) # Return action (-2 ~ 2 사이의 torque  ... )
-        action = action.item() + ou_noise()[0] # Action에 Noise를 추가해서 Exploration 기능 추가 ...
-        next_state, reward, done, info = env.step([action])
+        noise = torch.tensor(ou_noise(), device=device)
+        action = (action + noise).cpu().detach().numpy() # Action에 Noise를 추가해서 Exploration 기능 추가 ...
+        next_state, reward, done, info = env.step(action)
         memory.put((state, action, reward / 100.0, next_state, done))
         score = score + reward
         state = next_state
@@ -217,7 +221,7 @@ for episode in range(MAX_EPISODES):
     reward_history.append(score)
     reward_history_100.append(score)
     avg = sum(reward_history_100) / len(reward_history_100)
-    if episode % 10 == 0:
+    if episode % 100 == 0:
         print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
     score = 0.0
     episode = episode + 1
