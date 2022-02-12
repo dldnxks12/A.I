@@ -41,6 +41,12 @@ class ReplayBuffer():
             done_mask = 0.0 if done else 1.0
             done_mask_lst.append([done_mask])
 
+        s_lst = np.array(s_lst)
+        a_lst = np.array(a_lst)
+        r_lst = np.array(r_lst)
+        s_prime_lst = np.array(s_prime_lst)
+        done_mask_lst = np.array(done_mask_lst)
+
         return torch.tensor(s_lst, device = device, dtype=torch.float), torch.tensor(a_lst, device = device, dtype=torch.float), \
                torch.tensor(r_lst, device = device,dtype=torch.float), torch.tensor(s_prime_lst, device = device, dtype=torch.float), \
                torch.tensor(done_mask_lst, device = device, dtype=torch.float)
@@ -117,20 +123,23 @@ def train(episode, mu, mu_target, q1, q2, q1_target, q2_target, memory, q1_optim
     q1_value = q1_target(next_states, action_bar).mean()
     q2_value = q2_target(next_states, action_bar).mean()
 
-    selected_Q = torch.min( q1_value, q2_value)
+    selected_Q = torch.min(q1_value, q2_value)
     selected_Q_index = torch.argmin(torch.tensor([q1_value, q2_value]), axis = 0)
 
+    # Q1
     if selected_Q_index == 0:
         # q1 Network Update
         y = rewards + (gamma * q1_target(next_states, action_bar)) * dones
-        Q_loss = torch.nn.functional.smooth_l1_loss(q2(states, actions), y.detach())
+        Q_loss = torch.nn.functional.smooth_l1_loss(q1(states, actions), y.detach())
         q2_optimizer.zero_grad()
         Q_loss.backward()
         q2_optimizer.step()
+
+    # Q2
     else:
         # q2 Network Update
         y = rewards + (gamma * q2_target(next_states, action_bar)) * dones
-        Q_loss = torch.nn.functional.smooth_l1_loss(q1(states, actions), y.detach())
+        Q_loss = torch.nn.functional.smooth_l1_loss(q2(states, actions), y.detach())
         q1_optimizer.zero_grad()
         Q_loss.backward()
         q1_optimizer.step()
@@ -139,9 +148,9 @@ def train(episode, mu, mu_target, q1, q2, q1_target, q2_target, memory, q1_optim
     # Update Policy Network periodically ...
     if episode % 5 == 0:
         if selected_Q_index == 0:
-            mu_loss -= q2(states, mu(states)).mean()
+            mu_loss = -q1(states, mu(states)).mean()
         else:
-            mu_loss -= q1(states, mu(states)).mean()
+            mu_loss = -q2(states, mu(states)).mean()
         mu_optimizer.zero_grad()
         mu_loss.backward()
         mu_optimizer.step()

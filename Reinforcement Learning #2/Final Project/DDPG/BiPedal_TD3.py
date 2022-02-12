@@ -1,5 +1,5 @@
 # TD3 = DDPG + Remove Maximization Bias
-# 학습 OK
+# 학습 X
 
 import gym
 import sys
@@ -40,6 +40,12 @@ class ReplayBuffer():
             s_prime_lst.append(s_prime)
             done_mask = 0.0 if done else 1.0
             done_mask_lst.append([done_mask])
+
+        s_lst = np.array(s_lst)
+        a_lst = np.array(a_lst)
+        r_lst = np.array(r_lst)
+        s_prime_lst = np.array(s_prime_lst)
+        done_mask_lst = np.array(done_mask_lst)
 
         return torch.tensor(s_lst, device = device, dtype=torch.float), torch.tensor(a_lst, device = device, dtype=torch.float), \
                torch.tensor(r_lst, device = device,dtype=torch.float), torch.tensor(s_prime_lst, device = device, dtype=torch.float), \
@@ -95,6 +101,8 @@ class OrnsteinUhlenbeckNoise:
         x = self.x_prev + self.theta * (self.mu - self.x_prev) * self.dt + \
             self.sigma * np.sqrt(self.dt) * np.random.normal(size=self.mu.shape)
         self.x_prev = x
+
+        x = torch.tensor(x, device = device, dtype = torch.float)
         return x
 
 
@@ -107,14 +115,12 @@ def train(episode, mu, mu_target, q1, q2, q1_target, q2_target, memory, q1_optim
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
 
     Q_loss, mu_loss = 0, 0
-
-    noise_bar = torch.clamp(torch.tensor(ou_noise()), -1, 1).to(device)
+    noise_bar = torch.clamp(ou_noise(), -1, 1)
 
     # print("Point 1")
     # print(noise_bar) # 0.1425
 
     action_bar = mu_target(next_states) + noise_bar
-    action_bar = torch.tensor(action_bar, dtype = torch.float)
 
     # Shape Check 필요
     q1_value = q1_target(next_states, action_bar).mean()
@@ -142,9 +148,9 @@ def train(episode, mu, mu_target, q1, q2, q1_target, q2_target, memory, q1_optim
     # Update Policy Network periodically ...
     if episode % 5 == 0:
         if selected_Q_index == 0:
-            mu_loss -= q2(states, mu(states)).mean()
+            mu_loss = -q2(states, mu(states)).mean()
         else:
-            mu_loss -= q1(states, mu(states)).mean()
+            mu_loss = -q1(states, mu(states)).mean()
         mu_optimizer.zero_grad()
         mu_loss.backward()
         mu_optimizer.step()
@@ -221,7 +227,7 @@ for episode in range(MAX_EPISODES):
     reward_history.append(score)
     reward_history_100.append(score)
     avg = sum(reward_history_100) / len(reward_history_100)
-    if episode % 100 == 0:
+    if episode % 10 == 0:
         print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
     score = 0.0
     episode = episode + 1

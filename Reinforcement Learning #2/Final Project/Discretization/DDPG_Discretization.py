@@ -37,24 +37,24 @@ class ReplayBuffer():
 
     def sample(self, n):
         mini_batch = random.sample(self.buffer, n) # buffer에서 n개 뽑기
-        s_lst, a_lst, r_lst, s_prime_lst, done_mask_lst = [], [], [], [], []
+        states, actions, rewards, next_states, done_mask_lst = [], [], [], [], []
 
         for transition in mini_batch:
-            s, a, r, s_prime, done = transition
-            s_lst.append(s) # s = [COS SIN 각속도]
-            a_lst.append([a])
-            r_lst.append([r])
-            s_prime_lst.append(s_prime)
+            state, action, reward, next_state, done = transition
+            states.append(state) # s = [COS SIN 각속도]
+            actions.append([action])
+            rewards.append([reward])
+            next_states.append(next_state)
             done_mask = 0.0 if done else 1.0
             done_mask_lst.append([done_mask])
 
-        s_lst = np.array(s_lst)
-        a_lst = np.array(a_lst)
-        r_lst = np.array(r_lst)
-        s_prime_lst = np.array(s_prime_lst)
+        s_lst = np.array(states)
+        #a_lst = np.array(actions)
+        r_lst = np.array(rewards)
+        s_prime_lst = np.array(next_states)
         done_mask_lst = np.array(done_mask_lst)
 
-        return torch.tensor(s_lst, dtype=torch.float), torch.tensor(a_lst, dtype=torch.float), \
+        return torch.tensor(s_lst, dtype=torch.float), torch.tensor(actions, dtype=torch.float), \
                torch.tensor(r_lst, dtype=torch.float), torch.tensor(s_prime_lst, dtype=torch.float), \
                torch.tensor(done_mask_lst, dtype=torch.float)
 
@@ -72,8 +72,8 @@ class MuNet(nn.Module):  # Mu = Torque -> Action
     def forward(self, x): # Input : state (COS, SIN, 각속도)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        mu = torch.tanh(self.fc_mu(x)) * 2  # Multipled by 2 because the action space of the Pendulum-v0 is [-2,2]
-        return mu
+        mu = torch.tanh(self.fc_mu(x)) * 2
+        return mu # Return Deterministic Policy
 
 class QNet(nn.Module):
     def __init__(self):
@@ -87,6 +87,7 @@ class QNet(nn.Module):
         h1 = F.relu(self.fc_s(x)) # 64
         h2 = F.relu(self.fc_a(a)) # 64
         cat = torch.cat([h1, h2], dim = 1)  # 128
+
         q = F.relu(self.fc_q(cat)) # 32
         q = self.fc_out(q)  # 1
         return q
@@ -149,28 +150,35 @@ q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(1))
 MAX_EPISODES = 10000
 
+
+# Action Space Map
+A = np.arange(-2, 2, 0.001)
 for episode in range(MAX_EPISODES):
-    state = env.reset()
+    s = env.reset()
     done = False
+    score = 0.0
 
     while not done: # Stacking Experiences
 
-        #if episode % 100 == 0:
-        #    env.render()
+        a = mu(torch.from_numpy(s).float()) # Return action (-2 ~ 2 사이의 torque  ... )
 
-        action = mu(torch.from_numpy(state).float()) # Return action (-2 ~ 2 사이의 torque  ... )
-        action = action.item() + ou_noise()[0] # Action에 Noise를 추가해서 Exploration 기능 추가 ...
+        # Discretize Action Space ...
+        discrete_action = np.digitize(a.detach().numpy(), bins = A)
 
-        print(action)
-        print(action.shape)
-        sys.exit()
+        # Soft Greedy
+        sample = random.random()
+        if sample < 0.1:
+            random_action = np.array([random.randrange(0, len(A))])
+            action = A[random_action - 1]
 
-        next_state, reward, done, info = env.step([action])
+        else:
+            action = A[discrete_action - 1]
 
-        memory.put((state, action, reward / 100.0, next_state, done))
-        score = score + reward
+        s_prime, r, done, info = env.step(action)
 
-        state = next_state
+        memory.put((s, a, r / 100.0, s_prime, done))
+        score = score + r
+        s = s_prime
 
         if memory.size() > 2000:
             for i in range(10):
@@ -178,12 +186,10 @@ for episode in range(MAX_EPISODES):
                 soft_update(mu, mu_target)
                 soft_update(q, q_target)
 
-    reward_history.append(score)
     reward_history_100.append(score)
     avg = sum(reward_history_100) / len(reward_history_100)
     if episode % 10 == 0:
         print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
-    score = 0.0
     episode = episode + 1
 
 env.close()

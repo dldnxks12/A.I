@@ -108,6 +108,7 @@ def train(memory, Q, Q_target, Q_optimizer):
   Q_optimizer.step()
   
 env = gym.make('CartPole-v1')
+
 while episode < MAX_EPISODE:
 
   state = env.reset()

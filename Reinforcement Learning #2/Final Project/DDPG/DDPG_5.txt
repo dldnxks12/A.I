@@ -1,0 +1,23 @@
+# ----------------------- # 
+DDPG_Parameter 2022-2-12
+
+
+# - Extra ViewPoints - #
+
+Fast Reset Version
+Train x 10 Version
+
+
+# - Category 1 - #
+
+Reward        : Sign Assigned
+lr_mu         : 0.05
+lr_q          : 0.1
+tau           : 0.05
+
+# - Category 2 - #
+
+batch_size    : 128
+buffer_limit  : 20000
+memory.size() : 2000
+# ----------------------- # 
