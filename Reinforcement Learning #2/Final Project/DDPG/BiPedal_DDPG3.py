@@ -213,7 +213,6 @@ env.close()
 
 #######################################################################
 # Record Hyperparamters & Result Graph
-
 with open('DDPG_3.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("DDPG_Parameter 2022-2-12" + '\n')

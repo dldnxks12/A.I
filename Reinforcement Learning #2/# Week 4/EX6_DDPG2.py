@@ -140,14 +140,12 @@ q_target.load_state_dict(q.state_dict())   # 파라미터 동기화
 mu_target.load_state_dict(mu.state_dict()) # 파라미터 동기화
 
 score = 0.0
-print_interval = 20
-reward_history = []
-reward_history_100 = deque(maxlen=100)
+reward_history_20 = deque(maxlen=100)
 
 mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
 q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(1))
-MAX_EPISODES = 10000
+MAX_EPISODES = 500
 
 for episode in range(MAX_EPISODES):
     state = env.reset()
@@ -155,16 +153,8 @@ for episode in range(MAX_EPISODES):
 
     while not done: # Stacking Experiences
 
-        #if episode % 100 == 0:
-        #    env.render()
-
-        action = mu(torch.from_numpy(state).float()) # Return action (-2 ~ 2 사이의 torque  ... )
-        action = action.item() + ou_noise()[0] # Action에 Noise를 추가해서 Exploration 기능 추가 ...
-
-        print(action)
-        print(action.shape)
-        sys.exit()
-
+        action = mu(torch.from_numpy(state).float())        # Return action (-2 ~ 2 사이의 torque  ... )
+        action = action.item() + ou_noise()[0]              # Action에 Noise를 추가해서 Exploration 기능 추가 ...
         next_state, reward, done, info = env.step([action])
 
         memory.put((state, action, reward / 100.0, next_state, done))
@@ -178,13 +168,39 @@ for episode in range(MAX_EPISODES):
                 soft_update(mu, mu_target)
                 soft_update(q, q_target)
 
-    reward_history.append(score)
-    reward_history_100.append(score)
-    avg = sum(reward_history_100) / len(reward_history_100)
-    if episode % 10 == 0:
+    reward_history_20.append(score)
+    avg = sum(reward_history_20) / len(reward_history_20)
+    if episode % 20 == 0:
         print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
     score = 0.0
     episode = episode + 1
 
 env.close()
 
+# Record Hyperparamters & Result Graph
+with open('DDPG_Continuous.txt', 'w', encoding = 'UTF-8') as f:
+    f.write("# ----------------------- # " + '\n')
+    f.write("Parameter 2022-2-12" + '\n')
+    f.write('\n')
+    f.write('\n')
+    f.write("# - Category 1 - #" + '\n')
+    f.write('\n')
+    f.write("Reward        : Basic Env Setting" + '\n')
+    f.write("lr_mu         : " + str(lr_mu) + '\n')
+    f.write("lr_q          : " + str(lr_q) + '\n')
+    f.write("tau           : " + str(tau) + '\n')
+    f.write('\n')
+    f.write("# - Category 2 - #" + '\n')
+    f.write('\n')
+    f.write("batch_size    : " + str(batch_size)   + '\n')
+    f.write("buffer_limit  : " + str(buffer_limit) + '\n')
+    f.write("memory.size() : 2000" + '\n')
+    f.write("# ----------------------- # " + '\n')
+
+length = np.arange(len(reward_history_20))
+plt.figure()
+plt.xlabel("Episode")
+plt.ylabel("Reward")
+plt.title("DDPG_Continuous")
+plt.plot(length, reward_history_20)
+plt.savefig('DDPG_Continuous.png')

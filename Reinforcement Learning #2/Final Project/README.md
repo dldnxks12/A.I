@@ -1,9 +1,9 @@
-### `Final Project`
+### `Improve BIPedal`
 
 - `Project Goal`
 
     
-    Improve BiPedal Robot
+    Improve BiPedal bot
 
     # Method 1) 
 
@@ -12,6 +12,7 @@
     # Method 2)
 
         DDPG + Linearly Modified Reward
+        DDPG + Discretization +Linearly Modified Reward
 
     # Method 3)
 
