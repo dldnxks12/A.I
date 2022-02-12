@@ -3,7 +3,37 @@ import pandas as pd
 import random
 import torch
 import sys
+import math
 
+arr = np.array([1])
+arr2 = np.array([10])
+arr3 = np.array([100])
+arr_ = np.array([[arr, arr2, arr3]])
+
+print(arr_)
+print(arr_.shape)
+
+a = math.exp(-0.1065)
+b = math.exp(-0.1059)
+c = math.exp(0.0893)
+
+arr4 = np.array([a])
+arr5 = np.array([b])
+arr6 = np.array([c])
+arr__ = np.array([[arr4, arr5, arr6]])
+
+print(arr__)
+print(arr__.shape)
+
+result = arr_ * arr__
+print(result)
+print(result.shape)
+sys.exit()
+
+result = c / (a+b+c)
+
+print(result)
+'''
 ar = np.array([1,2,3,4,5])
 a = random.randrange(1, 10)
 b = random.randrange(0, 10)
@@ -33,3 +63,5 @@ print(d)
 print(action)
 
 # 20 개 구간
+
+'''

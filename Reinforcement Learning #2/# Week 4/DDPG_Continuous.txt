@@ -1,0 +1,17 @@
+# ----------------------- # 
+Parameter 2022-2-12
+
+
+# - Category 1 - #
+
+Reward        : Basic Env Setting
+lr_mu         : 0.0005
+lr_q          : 0.001
+tau           : 0.005
+
+# - Category 2 - #
+
+batch_size    : 16
+buffer_limit  : 50000
+memory.size() : 2000
+# ----------------------- # 

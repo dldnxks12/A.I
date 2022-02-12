@@ -11,6 +11,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from time import sleep
 from collections import deque
+import matplotlib.pyplot as plt
 
 #GPU Setting
 
@@ -54,9 +55,9 @@ class ReplayBuffer():
         s_prime_lst = np.array(next_states)
         done_mask_lst = np.array(done_mask_lst)
 
-        return torch.tensor(s_lst, dtype=torch.float), torch.tensor(actions, dtype=torch.float), \
-               torch.tensor(r_lst, dtype=torch.float), torch.tensor(s_prime_lst, dtype=torch.float), \
-               torch.tensor(done_mask_lst, dtype=torch.float)
+        return torch.tensor(s_lst, device = device, dtype=torch.float), torch.tensor(actions, device = device,dtype=torch.float), \
+               torch.tensor(r_lst, device = device,dtype=torch.float), torch.tensor(s_prime_lst,device = device, dtype=torch.float), \
+               torch.tensor(done_mask_lst, device = device, dtype=torch.float)
 
     def size(self):
         return len(self.buffer)
@@ -132,10 +133,10 @@ env = gym.make('Pendulum-v1')
 memory = ReplayBuffer()
 
 # 2개의 동일한 네트워크 생성 ...
-q =  QNet()
-q_target = QNet()
-mu = MuNet()
-mu_target = MuNet()
+q =  QNet().to(device)
+q_target = QNet().to(device)
+mu = MuNet().to(device)
+mu_target = MuNet().to(device)
 
 q_target.load_state_dict(q.state_dict())   # 파라미터 동기화
 mu_target.load_state_dict(mu.state_dict()) # 파라미터 동기화
@@ -148,7 +149,6 @@ q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(1))
 MAX_EPISODES = 500
 
-
 # Action Space Map
 A = np.arange(-2, 2, 0.001)
 for episode in range(MAX_EPISODES):
@@ -158,10 +158,10 @@ for episode in range(MAX_EPISODES):
 
     while not done: # Stacking Experiences
 
-        a = mu(torch.from_numpy(s).float()) # Return action (-2 ~ 2 사이의 torque  ... )
+        a = mu(torch.from_numpy(s).float().to(device)) # Return action (-2 ~ 2 사이의 torque  ... )
 
         # Discretize Action Space ...
-        discrete_action = np.digitize(a.detach().numpy(), bins = A)
+        discrete_action = np.digitize(a.cpu().detach().numpy(), bins = A)
 
         # Soft Greedy
         sample = random.random()
