@@ -97,6 +97,7 @@ reward_history_20 = deque(maxlen=100)
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(1))
 MAX_EPISODES = 500
+
 # Action Space Map
 A = np.arange(-2, 2, 0.001)
 for episode in range(MAX_EPISODES):
@@ -107,36 +108,44 @@ for episode in range(MAX_EPISODES):
     while not done: # Stacking Experiences
 
         # 3 개의 Model - 너도 그렇게 생각해 나도 그렇게 생각해 그런 느낌으로다가
-        a1 = mu1(torch.from_numpy(s).float().to(device))  # Return action (-2 ~ 2 사이의 torque  ... )
+        a1 = mu1(torch.from_numpy(s).float().to(device)) # Return action (-2 ~ 2 사이의 torque  ... )
         a2 = mu2(torch.from_numpy(s).float().to(device))  # Return action (-2 ~ 2 사이의 torque  ... )
         a3 = mu3(torch.from_numpy(s).float().to(device))  # Return action (-2 ~ 2 사이의 torque  ... )
 
-        a = (a1+a2+a3) / 3
+        # Q Value
+        discrete_action1 = np.digitize(a1.cpu().detach().numpy(), bins=A)
+        discrete_action2 = np.digitize(a2.cpu().detach().numpy(), bins=A)
+        discrete_action3 = np.digitize(a3.cpu().detach().numpy(), bins=A)
+
+        action1 = A[discrete_action1 - 1]
+        action2 = A[discrete_action2 - 1]
+        action3 = A[discrete_action3 - 1]
+
+        q1_value = q1(torch.from_numpy(s).float().unsqueeze(0).to(device), torch.tensor(action1, dtype = torch.float).unsqueeze(0).to(device))
+        q2_value = q2(torch.from_numpy(s).float().unsqueeze(0).to(device), torch.tensor(action2, dtype = torch.float).unsqueeze(0).to(device))
+        q3_value = q3(torch.from_numpy(s).float().unsqueeze(0).to(device), torch.tensor(action3, dtype = torch.float).unsqueeze(0).to(device))
+
+        # MAX 쓸지 MIN 쓸지 ...
+        Values = torch.tensor([q1_value, q2_value, q3_value])
+        a = torch.max(Values).cpu().detach().numpy()
+
         # Discretize Action Space ...
-        discrete_action = np.digitize(a.cpu().detach().numpy(), bins = A)
+        discrete_action = np.digitize(a, bins = A)
+        discrete_action = np.expand_dims(discrete_action, axis = 0)
 
-        # Soft Greedy
-        sample = random.random()
-        if sample < 0.1:
-            random_action = np.array([random.randrange(0, len(A))])
-            action = A[random_action - 1]
-
-        else:
-            action = A[discrete_action - 1]
-
+        # Basic Greedy Policy
+        action = A[discrete_action - 1] # Exploration을 따로 설정안해도 되지 않을까?
         action = torch.from_numpy(action)
-        print(action)
-        print(action.shape)
-        print(type(action))
 
         s_prime, r, done, info = env.step(action)
+
         memory.put((s, action, r / 100.0, s_prime, done))
         score = score + r
         s = s_prime
 
         if memory.size() > 2000:
             for i in range(10):
-                train(mu1,mu2,mu3, mu1_target,mu2_target, mu3_target, q1, q2, q3, q1_target, q2_target, q3_target, memory, q_optimizer, mu_optimizer)
+                train(mu1, mu2, mu3, mu1_target,mu2_target, mu3_target, q1, q2, q3, q1_target, q2_target, q3_target, memory, q_optimizer, mu_optimizer)
                 soft_update(q1, q1_target)
                 soft_update(q2, q2_target)
                 soft_update(q3, q3_target)
@@ -154,7 +163,7 @@ for episode in range(MAX_EPISODES):
 env.close()
 
 # Record Hyperparamters & Result Graph
-with open('DDPG_Discretization2.txt', 'w', encoding = 'UTF-8') as f:
+with open('DDPG_Discretization4.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("Parameter 2022-2-13" + '\n')
     f.write('\n')
@@ -177,6 +186,6 @@ length = np.arange(len(reward_history_20))
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
-plt.title("DDPG_Discretization2")
+plt.title("DDPG_Discretization4")
 plt.plot(length, reward_history_20)
-plt.savefig('DDPG_Discretization2.png')
+plt.savefig('DDPG_Discretization4.png')

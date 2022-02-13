@@ -84,12 +84,13 @@ class QNet1(nn.Module):
         self.fc_out = nn.Linear(32, 1) # Output : Q value
 
     def forward(self, x, a):
+
         h1 = F.relu(self.fc_s(x)) # 64
         h2 = F.relu(self.fc_a(a)) # 64
         cat = torch.cat([h1, h2], dim = 1)  # 128
-
         q = F.relu(self.fc_q(cat)) # 32
         q = self.fc_out(q)  # 1
+
         return q
 
 # Model 2

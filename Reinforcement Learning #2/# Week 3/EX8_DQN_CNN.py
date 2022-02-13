@@ -219,6 +219,7 @@ def Optimize():
     next_state_values = torch.zeros(BATCH_SIZE , device = device)
     next_state_values[non_final_mask] = Q_target(non_final_next_states).max(1)[0].detach()
 
+
     Q_target_Values = batch_rewards + (next_state_values * GAMMA)
 
     criterion = nn.SmoothL1Loss()
@@ -249,6 +250,15 @@ while episode < MAX_EPISODE:
 
     for t in count():
         action = select_action(state)
+        '''
+        print(action.shape) torch.Size([1, 1])
+        print(state.shape)  torch.Size([1, 3, 40, 90])
+
+        print(type(state))  <class 'torch.Tensor'>
+        print(type(action)) <class 'torch.Tensor'>
+        
+        '''
+
         # next_state, reward, done, info = env.step() ...
         _, reward, done, info = env.step(action.item())
         reward = torch.tensor([reward], device = device) # State, Action들과 같은 형태로 만들고 GPU에 올리기

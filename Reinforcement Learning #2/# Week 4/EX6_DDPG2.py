@@ -1,4 +1,9 @@
 # 학습 OK
+###########################################################################
+# To Avoid Library Collision
+import os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+###########################################################################
 
 import gym
 import sys

@@ -1,9 +1,4 @@
 # 학습 OK
-###########################################################################
-# To Avoid Library Collision
-import os
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
-###########################################################################
 
 import gym
 import sys
@@ -79,9 +74,6 @@ class MuNet(nn.Module):  # Mu = Torque -> Action
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         mu = torch.tanh(self.fc_mu(x)) * 2
-
-        print(mu)
-        sys.exit()
         return mu # Return Deterministic Policy
 
 class QNet(nn.Module):
@@ -181,6 +173,7 @@ for episode in range(MAX_EPISODES):
             action = A[discrete_action - 1]
 
         s_prime, r, done, info = env.step(action)
+
         memory.put((s, a, r / 100.0, s_prime, done))
         score = score + r
         s = s_prime
@@ -198,6 +191,8 @@ for episode in range(MAX_EPISODES):
     episode = episode + 1
 
 env.close()
+
+'''
 
 # Record Hyperparamters & Result Graph
 with open('DDPG_Discretization.txt', 'w', encoding = 'UTF-8') as f:
@@ -226,3 +221,6 @@ plt.ylabel("Reward")
 plt.title("DDPG_Discretization")
 plt.plot(length, reward_history_20)
 plt.savefig('DDPG_Discretization.png')
+
+
+'''

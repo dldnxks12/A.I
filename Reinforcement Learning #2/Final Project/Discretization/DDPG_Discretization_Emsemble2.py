@@ -16,7 +16,7 @@ def train(mu1,mu2,mu3, mu1_target,mu2_target, mu3_target, q1, q2, q3, q1_target,
 
     Q_loss, mu_loss = 0, 0
 
-    y1 = rewards + (gamma * q2_target(next_states, mu1_target(next_states))) * dones
+    y1 = rewards + (gamma * q1_target(next_states, mu1_target(next_states))) * dones
     y2 = rewards + (gamma * q2_target(next_states, mu2_target(next_states))) * dones
     y3 = rewards + (gamma * q3_target(next_states, mu3_target(next_states))) * dones
 
@@ -24,8 +24,8 @@ def train(mu1,mu2,mu3, mu1_target,mu2_target, mu3_target, q1, q2, q3, q1_target,
     soft_result = torch.nn.functional.softmax(result, dim = 0) # Q value에 따라 가중치
     y_result = (result * soft_result)
     y1_weight = y_result[0]
-    y3_weight = y_result[1]
-    y2_weight = y_result[2]
+    y2_weight = y_result[1]
+    y3_weight = y_result[2]
     # y_stack = torch.cat([y1_weight,y2_weight,y3_weight], axis = 0)
 
     Q_loss1 = torch.nn.functional.smooth_l1_loss(q1(states, actions), y1_weight.detach())
@@ -96,7 +96,7 @@ score = 0.0
 reward_history_20 = deque(maxlen=100)
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(1))
-MAX_EPISODES = 1000
+MAX_EPISODES = 500
 
 # Action Space Map
 A = np.arange(-2, 2, 0.001)
@@ -118,10 +118,11 @@ for episode in range(MAX_EPISODES):
 
         # Basic Greedy Policy
         action = A[discrete_action - 1] # Exploration을 따로 설정안해도 되지 않을까?
+        action = torch.from_numpy(action)
 
         s_prime, r, done, info = env.step(action)
 
-        memory.put((s, a, r / 100.0, s_prime, done))
+        memory.put((s, action, r / 100.0, s_prime, done))
         score = score + r
         s = s_prime
 
@@ -138,7 +139,7 @@ for episode in range(MAX_EPISODES):
 
     reward_history_20.append(score)
     avg = sum(reward_history_20) / len(reward_history_20)
-    if episode % 20 == 0:
+    if episode % 10 == 0:
         print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
     episode = episode + 1
 
@@ -147,7 +148,7 @@ env.close()
 # Record Hyperparamters & Result Graph
 with open('DDPG_Discretization3.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
-    f.write("Parameter 2022-2-12" + '\n')
+    f.write("Parameter 2022-2-13" + '\n')
     f.write('\n')
     f.write('\n')
     f.write("# - Category 1 - #" + '\n')
@@ -170,4 +171,4 @@ plt.xlabel("Episode")
 plt.ylabel("Reward")
 plt.title("DDPG_Discretization3")
 plt.plot(length, reward_history_20)
-plt.savefig('DDPG_Discretization3png')
+plt.savefig('DDPG_Discretization3.png')
