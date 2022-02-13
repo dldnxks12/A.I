@@ -1,7 +1,7 @@
 ###########################################################################
 # To Avoid Library Collision
 import os
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 ###########################################################################
 
 import cv2
@@ -49,49 +49,95 @@ class ReplayBuffer():
 
     def sample(self, n):
         mini_batch = random.sample(self.buffer, n)
-        states, actions, rewards, next_states, dones = [], [], [], [], []
+        states, actions, action_indexes, rewards, next_states, dones = [], [], [], [], [], []
 
         for transition in mini_batch:
-            state, action, reward, next_state, done = transition
+            state, action, action_index, reward, next_state, done = transition
             states.append(state)
             actions.append(action)
+            action_indexes.append(action_index)
             rewards.append(reward)
             next_states.append(next_state)
             dones.append(done)
 
-        return states, actions, rewards, next_states, dones
+        return states, actions, action_indexes,rewards, next_states, dones
 
     def size(self):
         return len(self.buffer)
 
-class DQN(nn.Module):
-    def __init__(self, height, width, output_action):
+class Block(nn.Module):
+
+    def __init__(self, in_channels = 10):
         super().__init__()
-        # Channel : In = 3, Out = 16
-        self.conv1 = nn.Conv2d(3, 16, kernel_size = 3, stride = 1)
-        self.bn1   = nn.BatchNorm2d(16)
-        self.conv2 = nn.Conv2d(16, 32, kernel_size= 3, stride = 1)
-        self.bn2 = nn.BatchNorm2d(32)
-        self.conv3 = nn.Conv2d(32, 32, kernel_size= 3, stride = 1)
-        self.bn3 = nn.BatchNorm2d(32)
+        # Block 1
+        self.branch1_1 = nn.Conv2d(in_channels, 16, kernel_size = 1)
 
-        # Calculate Convolution Output Size
-        def conv2d_size_out(size, kernel_size = 3, stride = 1):
-          return (size - (kernel_size - 1) - 1) // stride + 1 # Convolution Output Size
+        # Block 2
+        self.branch3_1 = nn.Conv2d(in_channels , 16, kernel_size = 1)
+        self.branch3_2 = nn.Conv2d(16, 24, kernel_size = 3, padding = 1)
+        self.branch3_3 = nn.Conv2d(24, 24, kernel_size = 3, padding = 1)
 
-        # Convolution을 3번 거친 결과의 Width & Height - fc layer input 크기 계산하는 쉬운 방법 get
-        convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(width)))
-        convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(height)))
-        linear_input_size = convw*convh*32
-        self.head = nn.Linear(linear_input_size , output_action)
+        # Block 3
+        self.branch5_1 = nn.Conv2d(in_channels, 16, kernel_size=1)  # 1x1 Conv
+        self.branch5_2 = nn.Conv2d(16, 24, kernel_size=5, padding=2)
 
-    def forward(self , x ):
-        x = F.relu(self.bn1(self.conv1(x)))
-        x = F.relu(self.bn2(self.conv2(x)))
-        x = F.relu(self.bn3(self.conv3(x)))
-        x = x.reshape(x.size(0), -1)
-        x = self.head(x)
-        x = torch.tanh(x) * 2
+        # Block 4
+        self.branch_pool = nn.Conv2d(in_channels, 24, kernel_size=1)
+
+    def forward(self, x):
+        # Block 1
+        branch1x1 = self.branch1_1(x) # torch.Size([1, 16, 26, 26])
+
+        # Block 2
+        branch3x3 = self.branch3_1(x)
+        branch3x3 = self.branch3_2(branch3x3)
+        branch3x3 = self.branch3_3(branch3x3) # torch.Size([1, 24, 26, 26])
+
+        # Block 3
+        branch5x5 = self.branch5_1(x)
+        branch5x5 = self.branch5_2(branch5x5) # torch.Size([1, 24, 26, 26])
+
+        # Block 4
+        branch_pool = F.avg_pool2d(x, kernel_size = 3, stride = 1, padding = 1)
+        branch_pool = self.branch_pool(branch_pool) # torch.Size([1, 24, 26, 26])
+        outputs = [branch1x1, branch3x3, branch5x5, branch_pool]
+
+        # 1 x 88 x 26 x 26
+        x = torch.cat(outputs, 1)
+        return x
+
+
+class Inception(nn.Module):
+    def __init__(self, output_action):
+        super(Inception, self).__init__()
+
+        self.conv1 = nn.Conv2d(3, 10, kernel_size =5) # 1 x 88 x 26 x 26
+        self.bn1   = nn.BatchNorm2d(10)
+        self.conv2 = nn.Conv2d(88, 20, kernel_size=5)
+        self.bn2   = nn.BatchNorm2d(20)
+
+        self.incept1 = Block(in_channels=10)
+        self.incept2 = Block(in_channels=20)
+
+        self.mp = nn.MaxPool2d(kernel_size=2)
+        self.fc = nn.Linear(792, output_action)
+
+    def forward(self, x):
+
+        in_size = x.size(0)  # 0 차원 크기 : batch size
+        x = self.bn1(self.conv1(x))           # torch.Size([1, 10, 22, 22])
+        x = F.relu(self.mp(x))      # torch.Size([1, 10, 11, 11])
+        x = self.incept1(x)         # torch.Size([1, 88, 11, 11])
+
+        x = self.bn2(self.conv2(x))           # torch.Size([1, 20, 7, 7])
+        x = F.relu(self.mp(x))      # torch.Size([1, 20, 3, 3])
+        x = self.incept2(x)         # torch.Size([1, 88, 3, 3])
+
+        x = x.reshape(in_size, -1)   # torch.Size([1, 792])
+        x = self.fc(x)               # torch.Size([1, 80])
+
+        x = F.softmax(x, dim=1)  # [1 , 80]
+
         return x
 
 # 학습하기 편하게 Pendulum 위치만 자르기
@@ -133,7 +179,7 @@ class OrnsteinUhlenbeckNoise:
         return x
 
 # Action Space Map
-A = np.arange(-2, 2, 0.00001)
+A = np.arange(-2, 2, 0.05)
 steps_done = 0
 def action_selection(state):
     global steps_done
@@ -142,16 +188,16 @@ def action_selection(state):
         math.exp(-1. * steps_done / EPS_DECAY)
     steps_done += 1
 
-    a = Q(state.to(device))
-    discrete_action = np.digitize(a.cpu().detach().numpy(), bins = A)
+    action_index = torch.argmax(Q(state.to(device))).unsqueeze(0)  # [ 1 , 16 ] output
+    if sample > eps_threshold:
+        action = np.array(A[action_index - 1])
+        action = np.expand_dims(action, axis = 0)
+        action = np.expand_dims(action, axis = 0)
 
-
-    if sample < eps_threshold:
-        action = A[discrete_action - 1]
     else:
-        # Random 선택
         random_action = np.array([random.randrange(0, len(A))])
         action = np.expand_dims(A[random_action - 1], axis = 0)
+        action_index = torch.tensor(random_action).to(device)
 
 
     action = torch.from_numpy(action)
@@ -159,7 +205,8 @@ def action_selection(state):
     # Type  : pytorch
     # Shape : [1,1]
 
-    return action
+    return action, action_index
+
 ##########################################################################
 # Hyperparameters
 LEARNING_RATE = 0.001
@@ -175,8 +222,8 @@ _, _, window_height, window_width = init_screen.shape
 
 # Window 넣어주고 1개 Action 받아올 것
 # Output -> Discrete Action으로 Mapping 시킬 것
-Q        = DQN(window_height, window_width, 1).to(device)
-Q_target = DQN(window_height, window_width, 1).to(device)
+Q        = Inception(len(A)).to(device)
+Q_target = Inception(len(A)).to(device)
 
 Q_target.load_state_dict(Q.state_dict())
 Q_target.eval() # 내가 원할 때 학습 시킬 것
@@ -184,10 +231,8 @@ Q_target.eval() # 내가 원할 때 학습 시킬 것
 optimizer = optim.Adam(Q.parameters(), lr = LEARNING_RATE)
 memory = ReplayBuffer()
 
-
 def Optimize():
-    states, actions, rewards, next_states, dones = memory.sample(BATCH_SIZE)
-
+    states, actions, action_indexes, rewards, next_states, dones = memory.sample(BATCH_SIZE)
     # states      # 32 x ...
     # next_states # 32 x ...
     # state       # 1 x 3 x 130 x 130
@@ -195,23 +240,25 @@ def Optimize():
     # actions     # 32 x ...
     # action      # 1 x 1
 
-
     non_final_mask = torch.tensor(tuple(map(lambda x : x is not None, next_states)), device= device, dtype = torch.bool)
     non_final_next_states = torch.cat([x for x in next_states if x is not None]).to(device)
 
-    batch_states = torch.cat(states).to(device)   # 32 x 3 x 130 x 130
-    batch_actions = torch.cat(actions).to(device) # 32 x 1
-    batch_rewards = torch.cat(rewards).to(device)
+    batch_states         = torch.cat(states).to(device)           # 32 x 3 x 26 x 26
+    batch_actions        = torch.cat(actions).to(device)          # 32 x 1
+    batch_action_indexes = torch.cat(action_indexes).unsqueeze(1).to(device)   # 32 x 1
+    batch_rewards        = torch.cat(rewards).to(device)
 
-    Q_values = Q(batch_states).squeeze(1) # size : [32]
+    # Q_values : 각 행동에 대한 분포 ...
+    Q_values = Q(batch_states).gather(1, batch_action_indexes) # size : [32]
+
     next_state_values = torch.zeros(BATCH_SIZE, device = device)
-    next_state_values[non_final_mask] = Q_target(non_final_next_states).squeeze(1).detach() # size : [32]
+    next_state_values[non_final_mask] = Q_target(non_final_next_states).max(1)[0].detach() # size : [32]
 
-    Q_target_values = batch_rewards + GAMMA*next_state_values
+    Q_target_values = batch_rewards + GAMMA * next_state_values
 
     loss = 0
     criterion = nn.SmoothL1Loss()
-    loss = criterion(Q_values, Q_target_values)
+    loss = criterion(Q_values, Q_target_values.unsqueeze(1))
 
     optimizer.zero_grad()
     loss.backward()
@@ -221,7 +268,6 @@ def Optimize():
     optimizer.step()
 
 ##########################################################################
-
 score = 0.0
 reward_history_20 = deque(maxlen=100)
 
@@ -241,9 +287,10 @@ while episode < MAX_EPISODES:
     simul_step = 0
 
     while not done: # Stacking Experiences
-        action = action_selection(state)
+        action, action_index = action_selection(state)
         _ , reward, done, info = env.step(action)
 
+        action_index = torch.tensor([action_index], device = device, dtype = torch.int64)
         reward = torch.tensor([reward] , device = device)
 
         last_window = current_window
@@ -257,7 +304,7 @@ while episode < MAX_EPISODES:
             next_state = None
 
         # Method 1
-        memory.put((state, action, reward / 10.0, next_state, done))
+        memory.put((state, action, action_index, reward / 10.0, next_state, done))
         state = next_state
         score += reward
 
@@ -287,7 +334,7 @@ while episode < MAX_EPISODES:
 env.close()
 
 # Record Hyperparamters & Result Graph
-with open('DQN_Discretization2.txt', 'w', encoding = 'UTF-8') as f:
+with open('DQN_Discretization_Inception.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("Parameter 2022-2-13" + '\n')
     f.write('\n')
@@ -309,6 +356,6 @@ length = np.arange(len(reward_history_20))
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
-plt.title("DQN_Discretization2")
+plt.title("DQN_Discretization_Inception")
 plt.plot(length, reward_history_20)
-plt.savefig('DQN_Discretization2.png')
+plt.savefig('DQN_Discretization_Inception.png')

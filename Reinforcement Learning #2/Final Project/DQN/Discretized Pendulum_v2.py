@@ -1,7 +1,7 @@
 ###########################################################################
 # To Avoid Library Collision
 import os
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 ###########################################################################
 
 import cv2
@@ -49,35 +49,39 @@ class ReplayBuffer():
 
     def sample(self, n):
         mini_batch = random.sample(self.buffer, n)
-        states, actions, rewards, next_states, dones = [], [], [], [], []
+        states, actions, action_indexes, rewards, next_states, dones = [], [], [], [], [], []
 
         for transition in mini_batch:
-            state, action, reward, next_state, done = transition
+            state, action, action_index, reward, next_state, done = transition
             states.append(state)
             actions.append(action)
+            action_indexes.append(action_index)
             rewards.append(reward)
             next_states.append(next_state)
             dones.append(done)
 
-        return states, actions, rewards, next_states, dones
+        return states, actions, action_indexes,rewards, next_states, dones
 
     def size(self):
         return len(self.buffer)
 
 class DQN(nn.Module):
-    def __init__(self, height, width, output_action): # Output Action : Discrete하게 나눈 Action 들
+
+    # Output Action : Discrete하게 나눈 Action
+    def __init__(self, height, width, output_action):
         super().__init__()
         # Channel : In = 3, Out = 16
         self.conv1 = nn.Conv2d(3, 16, kernel_size = 3, stride = 1)
         self.bn1   = nn.BatchNorm2d(16)
         self.conv2 = nn.Conv2d(16, 32, kernel_size= 3, stride = 1)
-        self.bn2 = nn.BatchNorm2d(32)
+        self.bn1   = nn.BatchNorm2d(16)
         self.conv3 = nn.Conv2d(32, 32, kernel_size= 3, stride = 1)
         self.bn3 = nn.BatchNorm2d(32)
 
         # Calculate Convolution Output Size
         def conv2d_size_out(size, kernel_size = 3, stride = 1):
-          return (size - (kernel_size - 1) - 1) // stride + 1 # Convolution Output Size
+            # Convolution Output Size
+            return (size - (kernel_size - 1) - 1) // stride + 1
 
         # Convolution을 3번 거친 결과의 Width & Height - fc layer input 크기 계산하는 쉬운 방법 get
         convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(width)))
@@ -85,17 +89,14 @@ class DQN(nn.Module):
         linear_input_size = convw*convh*32
         self.head = nn.Linear(linear_input_size , output_action)
 
-    def forward(self , x ):
+    def forward(self, x):
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x = F.relu(self.bn3(self.conv3(x)))
         x = x.reshape(x.size(0), -1)
         x = self.head(x)
 
-        x1 = F.softmax(x, dim = 0)
-        x2 = F.softmax(x, dim = 1)
-
-        sys.exit()
+        x = F.softmax(x, dim = 1) # [1 , 16]
 
         return x
 
@@ -147,16 +148,16 @@ def action_selection(state):
         math.exp(-1. * steps_done / EPS_DECAY)
     steps_done += 1
 
-    a = Q(state.to(device))
-    discrete_action = np.digitize(a.cpu().detach().numpy(), bins = A)
-
-
+    action_index = torch.argmax(Q(state.to(device))).unsqueeze(0)  # [ 1 , 16 ] output
     if sample > eps_threshold:
-        action = A[discrete_action - 1]
+        action = np.array(A[action_index - 1])
+        action = np.expand_dims(action, axis = 0)
+        action = np.expand_dims(action, axis = 0)
+
     else:
-        # Random 선택
         random_action = np.array([random.randrange(0, len(A))])
         action = np.expand_dims(A[random_action - 1], axis = 0)
+        action_index = torch.tensor(random_action).to(device)
 
 
     action = torch.from_numpy(action)
@@ -164,7 +165,8 @@ def action_selection(state):
     # Type  : pytorch
     # Shape : [1,1]
 
-    return action
+    return action, action_index
+
 ##########################################################################
 # Hyperparameters
 LEARNING_RATE = 0.001
@@ -189,10 +191,8 @@ Q_target.eval() # 내가 원할 때 학습 시킬 것
 optimizer = optim.Adam(Q.parameters(), lr = LEARNING_RATE)
 memory = ReplayBuffer()
 
-
 def Optimize():
-    states, actions, rewards, next_states, dones = memory.sample(BATCH_SIZE)
-
+    states, actions, action_indexes, rewards, next_states, dones = memory.sample(BATCH_SIZE)
     # states      # 32 x ...
     # next_states # 32 x ...
     # state       # 1 x 3 x 130 x 130
@@ -200,23 +200,25 @@ def Optimize():
     # actions     # 32 x ...
     # action      # 1 x 1
 
-
     non_final_mask = torch.tensor(tuple(map(lambda x : x is not None, next_states)), device= device, dtype = torch.bool)
     non_final_next_states = torch.cat([x for x in next_states if x is not None]).to(device)
 
-    batch_states = torch.cat(states).to(device)   # 32 x 3 x 130 x 130
-    batch_actions = torch.cat(actions).to(device) # 32 x 1
-    batch_rewards = torch.cat(rewards).to(device)
+    batch_states         = torch.cat(states).to(device)           # 32 x 3 x 26 x 26
+    batch_actions        = torch.cat(actions).to(device)          # 32 x 1
+    batch_action_indexes = torch.cat(action_indexes).unsqueeze(1).to(device)   # 32 x 1
+    batch_rewards        = torch.cat(rewards).to(device)
 
-    Q_values = Q(batch_states).squeeze(1) # size : [32]
+    # Q_values : 각 행동에 대한 분포 ...
+    Q_values = Q(batch_states).gather(1, batch_action_indexes) # size : [32]
+
     next_state_values = torch.zeros(BATCH_SIZE, device = device)
-    next_state_values[non_final_mask] = Q_target(non_final_next_states).squeeze(1).detach() # size : [32]
+    next_state_values[non_final_mask] = Q_target(non_final_next_states).max(1)[0].detach() # size : [32]
 
-    Q_target_values = batch_rewards + GAMMA*next_state_values
+    Q_target_values = batch_rewards + GAMMA * next_state_values
 
     loss = 0
     criterion = nn.SmoothL1Loss()
-    loss = criterion(Q_values, Q_target_values)
+    loss = criterion(Q_values, Q_target_values.unsqueeze(1))
 
     optimizer.zero_grad()
     loss.backward()
@@ -226,7 +228,6 @@ def Optimize():
     optimizer.step()
 
 ##########################################################################
-
 score = 0.0
 reward_history_20 = deque(maxlen=100)
 
@@ -246,9 +247,10 @@ while episode < MAX_EPISODES:
     simul_step = 0
 
     while not done: # Stacking Experiences
-        action = action_selection(state)
+        action, action_index = action_selection(state)
         _ , reward, done, info = env.step(action)
 
+        action_index = torch.tensor([action_index], device = device, dtype = torch.int64)
         reward = torch.tensor([reward] , device = device)
 
         last_window = current_window
@@ -262,7 +264,7 @@ while episode < MAX_EPISODES:
             next_state = None
 
         # Method 1
-        memory.put((state, action, reward / 10.0, next_state, done))
+        memory.put((state, action, action_index, reward / 10.0, next_state, done))
         state = next_state
         score += reward
 

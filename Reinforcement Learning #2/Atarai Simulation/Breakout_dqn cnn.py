@@ -156,8 +156,6 @@ for episode in range(2500):
     state = np.array(stack) # numpy type으로
     state = torch.from_numpy(state).float().to(device).unsqueeze(0) # Shape : 1, 4, 80, 80
 
-
-    # sys.exit()
     for t in range(1, max_time_steps + 1):
 
         if episode % 100 == 0:

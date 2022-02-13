@@ -1,0 +1,15 @@
+# ----------------------- # 
+Parameter 2022-2-13
+
+
+# - Category 1 - #
+
+Reward        : Reward / 10 
+LEARNING_RATE         : 0.001
+
+# - Category 2 - #
+
+batch_size    : 32
+buffer_limit  : 50000
+memory.size() : 500
+# ----------------------- # 
