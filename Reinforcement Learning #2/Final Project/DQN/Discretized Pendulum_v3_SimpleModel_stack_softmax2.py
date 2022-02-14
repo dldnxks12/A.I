@@ -60,22 +60,97 @@ class ReplayBuffer():
             next_states.append(next_state)
             dones.append(done)
 
-        return states, actions, action_indexes,rewards, next_states, dones
+        return states, actions, action_indexes, rewards, next_states, dones
 
     def size(self):
         return len(self.buffer)
 
+class Block(nn.Module):
+
+    def __init__(self, in_channels = 10):
+        super().__init__()
+        # Block 1
+        self.branch1_1 = nn.Conv2d(in_channels, 16, kernel_size = 1)
+
+        # Block 2
+        self.branch3_1 = nn.Conv2d(in_channels , 16, kernel_size = 1)
+        self.branch3_2 = nn.Conv2d(16, 24, kernel_size = 3, padding = 1)
+        self.branch3_3 = nn.Conv2d(24, 24, kernel_size = 3, padding = 1)
+
+        # Block 3
+        self.branch5_1 = nn.Conv2d(in_channels, 16, kernel_size=1)  # 1x1 Conv
+        self.branch5_2 = nn.Conv2d(16, 24, kernel_size=5, padding=2)
+
+        # Block 4
+        self.branch_pool = nn.Conv2d(in_channels, 24, kernel_size=1)
+
+    def forward(self, x):
+        # Block 1
+        branch1x1 = self.branch1_1(x) # torch.Size([1, 16, 26, 26])
+
+        # Block 2
+        branch3x3 = self.branch3_1(x)
+        branch3x3 = self.branch3_2(branch3x3)
+        branch3x3 = self.branch3_3(branch3x3) # torch.Size([1, 24, 26, 26])
+
+        # Block 3
+        branch5x5 = self.branch5_1(x)
+        branch5x5 = self.branch5_2(branch5x5) # torch.Size([1, 24, 26, 26])
+
+        # Block 4
+        branch_pool = F.avg_pool2d(x, kernel_size = 3, stride = 1, padding = 1)
+        branch_pool = self.branch_pool(branch_pool) # torch.Size([1, 24, 26, 26])
+        outputs = [branch1x1, branch3x3, branch5x5, branch_pool]
+
+        # 1 x 88 x 26 x 26
+        x = torch.cat(outputs, 1)
+        return x
+
+class Inception(nn.Module):
+    def __init__(self, output_action):
+        super(Inception, self).__init__()
+
+        # In Channel : Number of Stacked Frames ...
+        self.conv1 = nn.Conv2d(2, 10, kernel_size =5) # 1 x 88 x 26 x 26
+        self.bn1   = nn.BatchNorm2d(10)
+        self.conv2 = nn.Conv2d(88, 20, kernel_size=5)
+        self.bn2   = nn.BatchNorm2d(20)
+
+        self.incept1 = Block(in_channels=10)
+        self.incept2 = Block(in_channels=20)
+
+        self.mp = nn.MaxPool2d(kernel_size=2)
+        self.fc = nn.Linear(352, output_action)
+
+    def forward(self, x):
+
+        in_size = x.size(0)  # 0 차원 크기 : batch size
+        x = self.bn1(self.conv1(x))           # torch.Size([1, 10, 22, 22])
+        x = F.relu(self.mp(x))      # torch.Size([1, 10, 11, 11])
+        x = self.incept1(x)         # torch.Size([1, 88, 11, 11])
+
+        x = self.bn2(self.conv2(x))           # torch.Size([1, 20, 7, 7])
+        x = F.relu(self.mp(x))      # torch.Size([1, 20, 3, 3])
+        x = self.incept2(x)         # torch.Size([1, 88, 3, 3])
+
+        x = x.reshape(in_size, -1)   # torch.Size([1, 792])
+        x = self.fc(x)               # torch.Size([1, 80])
+
+        x = F.softmax(x, dim = 1)  # [1 , 80]
+
+        return x
+
 class DQN(nn.Module):
 
     # Output Action : Discrete하게 나눈 Action
-    def __init__(self, height, width, output_action):
+    def __init__(self, width, height, output_action):
         super().__init__()
         # Channel : In = 3, Out = 16
-        self.conv1 = nn.Conv2d(3, 16, kernel_size = 3, stride = 1)
-        self.bn1   = nn.BatchNorm2d(16)
-        self.conv2 = nn.Conv2d(16, 32, kernel_size= 3, stride = 1)
-        self.bn2   = nn.BatchNorm2d(16)
-        self.conv3 = nn.Conv2d(32, 32, kernel_size= 3, stride = 1)
+        self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1)
+        self.bn1 = nn.BatchNorm2d(16)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=3, stride=1)
+        self.bn2 = nn.BatchNorm2d(32)
+        self.conv3 = nn.Conv2d(32, 32, kernel_size=3, stride=1)
         self.bn3 = nn.BatchNorm2d(32)
 
         # Calculate Convolution Output Size
@@ -96,7 +171,7 @@ class DQN(nn.Module):
         x = x.reshape(x.size(0), -1)
         x = self.head(x)
 
-        x = F.softmax(x, dim = 1) # [1 , 16]
+        x = F.softmax(x, dim = 1)
 
         return x
 
@@ -106,20 +181,20 @@ def get_screen():
     screen = env.render(mode = 'rgb_array')
 
     # 260 x 260 x 3
-    Window = screen[120:380, 120:380, :]
-
-    # 3 x 130 x 130
-    # Window = cv2.resize(Window, None, fx = 0.5, fy = 0.5, interpolation = cv2.INTER_AREA).transpose((2,0,1))
+    Window = screen[150:350, 150:350, :]
 
     # 3 x 26 x 26
-    Window = cv2.resize(Window, None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA).transpose((2, 0, 1))
+    # 3 x 20 x 20
+    Window = cv2.resize(Window, None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA)
 
-    # 1 x 3 x 26 x 26
-    Window = torch.tensor(Window, dtype = torch.float).unsqueeze(0)
+    Window = cv2.cvtColor(Window, cv2.COLOR_BGR2GRAY)
+
+    # 26 x 26 # Gray Color
+    Window = torch.tensor(Window, dtype = torch.float)
 
     # Window
     # Type  : torch
-    # Shape : 1 x 3 x 26 x 26
+    # Shape : 26 x 26
     return Window
 
 def update(net, target_net):
@@ -139,26 +214,13 @@ class OrnsteinUhlenbeckNoise:
         return x
 
 # Action Space Map
-A = np.arange(-2, 2, 0.25)
-steps_done = 0
+A = np.arange(-2, 2, 0.05)
 def action_selection(state):
-    global steps_done
-    sample = random.random()
-    eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-        math.exp(-1. * steps_done / EPS_DECAY)
-    steps_done += 1
 
-    action_index = torch.argmax(Q(state.to(device))).unsqueeze(0)  # [ 1 , 16 ] output
-    if sample > eps_threshold:
-        action = np.array(A[action_index - 1])
-        action = np.expand_dims(action, axis = 0)
-        action = np.expand_dims(action, axis = 0)
-
-    else:
-        random_action = np.array([random.randrange(0, len(A))])
-        action = np.expand_dims(A[random_action - 1], axis = 0)
-        action_index = torch.tensor(random_action).to(device)
-
+    action_index = torch.argmax(Q(state)).unsqueeze(0)  # [ 1 , 16 ] output
+    action = np.array(A[action_index - 1])
+    action = np.expand_dims(action, axis = 0)
+    action = np.expand_dims(action, axis = 0)
 
     action = torch.from_numpy(action)
     # Action
@@ -169,21 +231,14 @@ def action_selection(state):
 
 ##########################################################################
 # Hyperparameters
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.05
 BATCH_SIZE = 32 # 한 번에 학습시킬 Image 개수
 GAMMA = 0.9    # Discount Factor
-EPS_START = 0.9
-EPS_END = 0.05
-EPS_DECAY = 200
 
-# Get Cropped Image
-init_screen = get_screen()
-_, _, window_height, window_width = init_screen.shape
-
-# Window 넣어주고 1개 Action 받아올 것
+height, width = get_screen().shape
 # Output -> Discrete Action으로 Mapping 시킬 것
-Q        = DQN(window_height, window_width, len(A)).to(device)
-Q_target = DQN(window_height, window_width, len(A)).to(device)
+Q        = DQN(height, width,len(A)).to(device)
+Q_target = DQN(height, width,len(A)).to(device)
 
 Q_target.load_state_dict(Q.state_dict())
 Q_target.eval() # 내가 원할 때 학습 시킬 것
@@ -200,31 +255,17 @@ def Optimize():
     # actions     # 32 x ...
     # action      # 1 x 1
 
-    non_final_mask = torch.tensor(tuple(map(lambda x : x is not None, next_states)), device= device, dtype = torch.bool)
-    non_final_next_states = torch.cat([x for x in next_states if x is not None]).to(device)
-
-    batch_states         = torch.cat(states).to(device)           # 32 x 3 x 26 x 26
-    batch_actions        = torch.cat(actions).to(device)          # 32 x 1
-    batch_action_indexes = torch.cat(action_indexes).unsqueeze(1).to(device)   # 32 x 1
-    batch_rewards        = torch.cat(rewards).to(device)
-
-    # Q_values : 각 행동에 대한 분포 ...
-    Q_values = Q(batch_states).gather(1, batch_action_indexes) # size : [32]
-
-    next_state_values = torch.zeros(BATCH_SIZE, device = device)
-    next_state_values[non_final_mask] = Q_target(non_final_next_states).max(1)[0].detach() # size : [32]
-
-    Q_target_values = batch_rewards + GAMMA * next_state_values
-
     loss = 0
-    criterion = nn.SmoothL1Loss()
-    loss = criterion(Q_values, Q_target_values.unsqueeze(1))
+    for (state, action, action_index, reward, next_state, done) in zip(states, actions, action_indexes, rewards, next_states, dones):
+        # Q(next_state) : 1 x 80
+        A = torch.argmax(Q(next_state)) # Max Index return
+        target = reward +(GAMMA * Q_target(next_state).squeeze(0)[A]) * done
+        loss += (target - Q(state).squeeze(0)[action_index])**2
+
+    loss = loss.mean()
 
     optimizer.zero_grad()
     loss.backward()
-    # Gradient Clamping --- Loss Nan 방지
-    #for param in Q.parameters():
-    #    param.grad.data.clamp_(-1, 1)
     optimizer.step()
 
 ##########################################################################
@@ -237,11 +278,12 @@ episode = 0
 while episode < MAX_EPISODES:
     env.reset()
 
-    last_window = get_screen()
-    current_window = get_screen()
+    observation = get_screen()
+    state = np.array(observation)
+    stack = [state] * 3
+    state = np.array(stack)
+    state = torch.from_numpy(state).float().to(device).unsqueeze(0)
 
-    # Pixel 간 차이를 State로  ...
-    state = current_window - last_window
     done = False
     score = 0.0
     simul_step = 0
@@ -250,31 +292,25 @@ while episode < MAX_EPISODES:
         action, action_index = action_selection(state)
         _ , reward, done, info = env.step(action)
 
+        next_observation = np.array(get_screen())
+        stack.pop(0)
+        stack.append(next_observation)
+
+        next_state = np.array(stack)
+        next_state = torch.from_numpy(next_state).float().to(device).unsqueeze(0)
+
         action_index = torch.tensor([action_index], device = device, dtype = torch.int64)
         reward = torch.tensor([reward] , device = device)
 
-        last_window = current_window
-        current_window = get_screen()
+        score += reward
 
-        if not done:
-            next_state = current_window - last_window
-        else:
-            # print(simul_step)
-            # print(done)
-            next_state = None
-
-        # Method 1
-        memory.put((state, action, action_index, reward / 10.0, next_state, done))
+        memory.put((state, action, action_index, reward, next_state, done))
         state = next_state
         score += reward
 
-        # Method 2
-        # Stack을 이용해서 4 장의 frame 넣어주기 - Atari Game 참고
-
         if memory.size() > 500:
-            for _ in range(10):
-                Optimize()
-                update(Q, Q_target)
+            Optimize()
+            update(Q, Q_target)
 
         # 200 번 한 후 Done
         if simul_step == 200:
@@ -294,7 +330,7 @@ while episode < MAX_EPISODES:
 env.close()
 
 # Record Hyperparamters & Result Graph
-with open('DQN_Discretization3.txt', 'w', encoding = 'UTF-8') as f:
+with open('DQN_Stacked.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("Parameter 2022-2-13" + '\n')
     f.write('\n')
@@ -316,6 +352,6 @@ length = np.arange(len(reward_history_20))
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
-plt.title("DQN_Discretization3")
+plt.title("DQN_Stacked")
 plt.plot(length, reward_history_20)
-plt.savefig('DQN_Discretization3.png')
+plt.savefig('DQN_Stacked.png')

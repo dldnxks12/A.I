@@ -1,4 +1,9 @@
 # 학습 OK
+###########################################################################
+# To Avoid Library Collision
+import os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+###########################################################################
 
 import gym
 import sys
@@ -22,11 +27,11 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.0005       # Learning Rate for Torque (Action)
-lr_q = 0.001         # Learning Rate for Q
+lr_mu = 0.0001       # Learning Rate for Torque (Action)
+lr_q = 0.01         # Learning Rate for Q
 gamma = 0.99         # discount factor
-batch_size = 16      # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 50000 # Replay Memory Size
+batch_size = 32      # Mini Batch Size for Sampling from Replay Memory
+buffer_limit = 20000 # Replay Memory Size
 tau = 0.005          # for target network soft update
 
 class ReplayBuffer():
@@ -173,7 +178,6 @@ for episode in range(MAX_EPISODES):
             action = A[discrete_action - 1]
 
         s_prime, r, done, info = env.step(action)
-
         memory.put((s, a, r / 100.0, s_prime, done))
         score = score + r
         s = s_prime
@@ -191,8 +195,6 @@ for episode in range(MAX_EPISODES):
     episode = episode + 1
 
 env.close()
-
-'''
 
 # Record Hyperparamters & Result Graph
 with open('DDPG_Discretization.txt', 'w', encoding = 'UTF-8') as f:
@@ -221,6 +223,3 @@ plt.ylabel("Reward")
 plt.title("DDPG_Discretization")
 plt.plot(length, reward_history_20)
 plt.savefig('DDPG_Discretization.png')
-
-
-'''

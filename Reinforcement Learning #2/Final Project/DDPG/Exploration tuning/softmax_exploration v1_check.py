@@ -1,5 +1,6 @@
-# 코드 동작 OK
-# 학습 X
+# MU NET 동일하게 4개 복제
+# Q NET 1개
+
 ###########################################################################
 # To Avoid Library Collision
 import os
@@ -29,12 +30,12 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.005          # Learning Rate for Torque (Action)
-lr_q  = 0.1          # Learning Rate for Q
-gamma = 0.99          # discount factor
-batch_size = 64       # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 20000  # Replay Memory Size
-tau = 0.05            # for target network soft update
+lr_mu = 0.05         # Learning Rate for Torque (Action)
+lr_q  = 0.05          # Learning Rate for Q
+gamma = 0.99         # discount factor
+batch_size = 64      # Mini Batch Size for Sampling from Replay Memory
+buffer_limit = 50000 # Replay Memory Size
+tau = 0.05          # for target network soft update
 
 
 ###########################################################################
@@ -101,6 +102,7 @@ class QNet(nn.Module):
         self.fc_out2 = nn.Linear(32, 1)    # Output : Q value
 
     def forward(self, x, a):
+
         h1 = F.relu(self.fc_s(x)) # 128
         h2 = F.relu(self.fc_a(a)) # 128
         cat = torch.cat([h1, h2], dim = 1)  # 256
@@ -125,20 +127,49 @@ class OrnsteinUhlenbeckNoise:
 
 ###########################################################################
 # Train ...
-def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
+def train(mu1,mu2,mu3,mu4,mu_target1,mu_target2,mu_target3,mu_target4, q, q_target, memory, q_optimizer, mu_optimizer1,mu_optimizer2,mu_optimizer3,mu_optimizer4):
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
-    Critic, Actor = 0.0 , 0.0
+    Critic = 0.0
+    Actor1 = 0.0
+    Actor2 = 0.0
+    Actor3 = 0.0
+    Actor4 = 0.0
 
-    y = rewards + ( gamma * q_target(next_states, mu_target(next_states)) * dones )
-    Critic = torch.nn.functional.smooth_l1_loss( q(states, actions), y.detach() )
+    y1 = rewards + (gamma * q_target(next_states, mu_target1(next_states)) * dones)
+    y2 = rewards + (gamma * q_target(next_states, mu_target2(next_states)) * dones)
+    y3 = rewards + (gamma * q_target(next_states, mu_target3(next_states)) * dones)
+    y4 = rewards + (gamma * q_target(next_states, mu_target4(next_states)) * dones)
+
+    Critic1 = torch.nn.functional.smooth_l1_loss(q(states, actions), y1.detach())
+    Critic2 = torch.nn.functional.smooth_l1_loss(q(states, actions), y2.detach())
+    Critic3 = torch.nn.functional.smooth_l1_loss(q(states, actions), y3.detach())
+    Critic4 = torch.nn.functional.smooth_l1_loss(q(states, actions), y4.detach())
+
+    Critic = Critic1 + Critic2 + Critic3 + Critic4
     q_optimizer.zero_grad()
     Critic.backward()
     q_optimizer.step()
 
-    Actor = -q(states, mu(states)).mean()
-    mu_optimizer.zero_grad()
-    Actor.backward()
-    mu_optimizer.step()
+    Actor1 = -q(states, mu1(states)).mean()
+    Actor2 = -q(states, mu2(states)).mean()
+    Actor3 = -q(states, mu3(states)).mean()
+    Actor4 = -q(states, mu4(states)).mean()
+
+    mu_optimizer1.zero_grad()
+    Actor1.backward()
+    mu_optimizer1.step()
+
+    mu_optimizer2.zero_grad()
+    Actor2.backward()
+    mu_optimizer2.step()
+
+    mu_optimizer3.zero_grad()
+    Actor3.backward()
+    mu_optimizer3.step()
+
+    mu_optimizer4.zero_grad()
+    Actor4.backward()
+    mu_optimizer4.step()
 
 # Soft Update
 def soft_update(net, net_target):
@@ -153,73 +184,98 @@ env.reset()
 
 memory = ReplayBuffer()
 
-# 2개의 동일한 네트워크 생성 ...
+# 1개의 Q Net
 q =  QNet().to(device)
 q_target = QNet().to(device)
-mu = MuNet().to(device)
-mu_target = MuNet().to(device)
 
 q_target.load_state_dict(q.state_dict())   # 파라미터 동기화
-mu_target.load_state_dict(mu.state_dict()) # 파라미터 동기화
+q_optimizer  = optim.Adam(q.parameters(), lr=lr_q)
 
-q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
-mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
+# 4 개의 동일한 Mu Network
+mu1        = MuNet().to(device)
+mu2        = MuNet().to(device)
+mu3        = MuNet().to(device)
+mu4        = MuNet().to(device)
+mu_target1 = MuNet().to(device)
+mu_target2 = MuNet().to(device)
+mu_target3 = MuNet().to(device)
+mu_target4 = MuNet().to(device)
+
+mu_target1.load_state_dict(mu1.state_dict()) # 파라미터 동기화
+mu_target2.load_state_dict(mu2.state_dict()) # 파라미터 동기화
+mu_target3.load_state_dict(mu3.state_dict()) # 파라미터 동기화
+mu_target4.load_state_dict(mu4.state_dict()) # 파라미터 동기화
+
+mu_optimizer1 = optim.Adam(mu1.parameters(), lr=lr_mu)
+mu_optimizer2 = optim.Adam(mu2.parameters(), lr=lr_mu)
+mu_optimizer3 = optim.Adam(mu3.parameters(), lr=lr_mu)
+mu_optimizer4 = optim.Adam(mu4.parameters(), lr=lr_mu)
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
-MAX_EPISODES = 3000
+MAX_EPISODES = 1000
 
 reward_history_20 = []
 
-'''
-    ### Action Space
-    Actions are motor speed values in the [-1, 1] range for each of the
-    4 joints at both hips and knees.
-'''
-
-E = 0.001
 episode = 0
-last_action  = 0
 while episode < MAX_EPISODES:
     state = env.reset()
     done = False
     score = 0.0
-    lasting_time = 1
     while not done:
-        action = mu(torch.from_numpy(state).to(device))
-        noise = torch.tensor(ou_noise(), device = device)
+
+        action1 = mu1(torch.from_numpy(state).to(device))
+        action2 = mu2(torch.from_numpy(state).to(device))
+        action3 = mu3(torch.from_numpy(state).to(device))
+        action4 = mu4(torch.from_numpy(state).to(device))
+
+        # 모두 다른 Noise 생성
+
+        '''
+        noise1 = torch.tensor(ou_noise(), device=device)
+        noise2 = torch.tensor(ou_noise(), device=device)
+        noise3 = torch.tensor(ou_noise(), device=device)
+        noise4 = torch.tensor(ou_noise(), device=device)
+        '''
+
+        q_value_for_softmax1 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action1.unsqueeze(0))
+        q_value_for_softmax2 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action2.unsqueeze(0))
+        q_value_for_softmax3 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action3.unsqueeze(0))
+        q_value_for_softmax4 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action4.unsqueeze(0))
+
+        actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4])
+        action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().detach().numpy()
+
+        action_list = [action1, action2, action3, action4]
+        action_index = [0, 1, 2, 3]
+
+        choice_action = np.random.choice(action_index, 1, p = action_softmax)
+        action = action_list[choice_action[0]].cpu().detach().numpy()
 
         # Add Exploration property
-        action = (action + noise).cpu().detach().numpy()
+        #action = (action + noise).cpu().detach().numpy()
+
         next_state, reward, done, _ = env.step(action)
 
-        # Modify Reward
-        if abs(action - last_action).mean() < E: # Action의 변화가 적다면
-            done = True # Episode 바로 중단
-            lasting_time = 1
-        else:
-            lasting_time += 0.0005
-            if reward <= -50:
-                reward = reward * 0.2
-            else:
-                reward = reward * lasting_time
+        reward = reward * 10
 
         # Type Check
         # print(type(state), type(action), type(next_state), type(reward), type(done))
         memory.put((state, action, reward, next_state, done))
         score += reward
         state = next_state
-        last_action = action
 
-    if memory.size() > 1000:
-        for _ in range(10):
-            train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
-            soft_update(mu, mu_target)
-            soft_update(q, q_target)
+    if memory.size() > 500:
+        train(mu1,mu2,mu3,mu4,mu_target1,mu_target2,mu_target3,mu_target4, q, q_target, memory, q_optimizer, mu_optimizer1,mu_optimizer2,mu_optimizer3,mu_optimizer4)
+        soft_update(mu1, mu_target1)
+        soft_update(mu2, mu_target2)
+        soft_update(mu3, mu_target3)
+        soft_update(mu4, mu_target4)
+        soft_update(q, q_target)
 
-    if episode % 20 == 0:
-        reward_history_20.append(score)
-        # avg = sum(reward_history_20) / len(reward_history_20)
-        print('episode: {}, reward: {:.1f}'.format(episode, score))
+    reward_history_20.append(score)
+    avg = sum(reward_history_20) / len(reward_history_20)
+    if episode % 10 == 0:
+        print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
     episode += 1
 
 env.close()
@@ -227,20 +283,14 @@ env.close()
 #######################################################################
 # Record Hyperparamters & Result Graph
 
-with open('DDPG_v2.txt', 'w', encoding = 'UTF-8') as f:
+with open('exploration-v1-check.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("DDPG_Parameter 2022-2-14" + '\n')
     f.write('\n')
     f.write('\n')
-    f.write("# - Extra ViewPoints - #" + '\n')
-    f.write('\n')
-    f.write("Fast Reset Version" + '\n')
-    f.write("Train x 10 Version" + '\n')
-    f.write('\n')
-    f.write('\n')
     f.write("# - Category 1 - #" + '\n')
     f.write('\n')
-    f.write("Reward        : Sign Assigned" + '\n')
+    f.write("Reward        : reward x 10" + '\n')
     f.write("lr_mu         : " + str(lr_mu) + '\n')
     f.write("lr_q          : " + str(lr_q) + '\n')
     f.write("tau           : " + str(tau) + '\n')
@@ -249,13 +299,13 @@ with open('DDPG_v2.txt', 'w', encoding = 'UTF-8') as f:
     f.write('\n')
     f.write("batch_size    : " + str(batch_size)   + '\n')
     f.write("buffer_limit  : " + str(buffer_limit) + '\n')
-    f.write("memory.size() : 2000" + '\n')
+    f.write("memory.size() : 500" + '\n')
     f.write("# ----------------------- # " + '\n')
 
-length = np.arange(len(reward_history_20))
+length = np.arange(len(reward_history_20))*20
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
-plt.title("DDPG_v2")
+plt.title("exploration-v1-check")
 plt.plot(length, reward_history_20)
-plt.savefig('DDPG_v2.png')
+plt.savefig('exploration-v1-check.png')

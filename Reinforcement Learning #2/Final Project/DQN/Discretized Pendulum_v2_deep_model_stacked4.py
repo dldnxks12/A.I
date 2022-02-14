@@ -112,7 +112,7 @@ class Inception(nn.Module):
         super(Inception, self).__init__()
 
         # In Channel : Number of Stacked Frames ...
-        self.conv1 = nn.Conv2d(3, 10, kernel_size =5) # 1 x 88 x 26 x 26
+        self.conv1 = nn.Conv2d(5, 10, kernel_size =5) # 1 x 88 x 26 x 26
         self.bn1   = nn.BatchNorm2d(10)
         self.conv2 = nn.Conv2d(88, 20, kernel_size=5)
         self.bn2   = nn.BatchNorm2d(20)
@@ -121,7 +121,7 @@ class Inception(nn.Module):
         self.incept2 = Block(in_channels=20)
 
         self.mp = nn.MaxPool2d(kernel_size=2)
-        self.fc = nn.Linear(792, output_action)
+        self.fc = nn.Linear(352, output_action)
 
     def forward(self, x):
 
@@ -147,12 +147,13 @@ def get_screen():
     screen = env.render(mode = 'rgb_array')
 
     # 260 x 260 x 3
-    Window = screen[120:380, 120:380, :]
+    Window = screen[150:350, 150:350, :]
 
     # 3 x 26 x 26
+    # 3 x 20 x 20
     Window = cv2.resize(Window, None, fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA)
-    Window = cv2.cvtColor(Window, cv2.COLOR_BGR2GRAY)
 
+    Window = cv2.cvtColor(Window, cv2.COLOR_BGR2GRAY)
 
     # 26 x 26 # Gray Color
     Window = torch.tensor(Window, dtype = torch.float)
@@ -261,7 +262,7 @@ while episode < MAX_EPISODES:
 
     observation = get_screen()
     state = np.array(observation)
-    stack = [state] * 3
+    stack = [state] * 5
     state = np.array(stack)
     state = torch.from_numpy(state).float().to(device).unsqueeze(0)
 

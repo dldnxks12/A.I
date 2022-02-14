@@ -79,9 +79,6 @@ class MuNet(nn.Module):  # Mu = Torque -> Action
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         mu = torch.tanh(self.fc_mu(x)) * 2
-
-        print(mu)
-        sys.exit()
         return mu # Return Deterministic Policy
 
 class QNet(nn.Module):
