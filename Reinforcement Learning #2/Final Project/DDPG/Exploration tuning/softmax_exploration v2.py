@@ -263,6 +263,7 @@ while episode < MAX_EPISODES:
     state = env.reset()
     done = False
     score = 0.0
+    env.render()
     while not done:
 
         action1 = mu1(torch.from_numpy(state).to(device))

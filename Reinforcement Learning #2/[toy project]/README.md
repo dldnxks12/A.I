@@ -11,6 +11,16 @@ Output : 모터 움직임 (상 하 좌 우)
 
       연속 행동 공간에서 정의되는 문제를 이산 행동 공간 모델에 적용하여 문제 해결
 
+<div align="center">
+
+ 24 State (Continuous) + 4 Action(Continuous)
+
+
+`Bi Pedal Walker-v3`
+
+![img_4.png](img_4.png)
+
+</div>
 
 - `Goal 2)`
 
