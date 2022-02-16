@@ -31,12 +31,12 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.0005         # Learning Rate for Torque (Action)
-lr_q  = 0.05          # Learning Rate for Q
-gamma = 0.99         # discount factor
-batch_size = 128      # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 50000 # Replay Memory Size
-tau = 0.05          # for target network soft update
+lr_mu = 0.001  # Learning Rate for Torque (Action)
+lr_q = 0.01  # Learning Rate for Q
+gamma = 0.99  # discount factor
+batch_size = 128  # Mini Batch Size for Sampling from Replay Memory
+buffer_limit = 50000  # Replay Memory Size
+tau = 0.05  # for target network soft update
 
 
 ###########################################################################
@@ -194,8 +194,8 @@ mu_optimizer4 = optim.Adam(mu4.parameters(), lr=lr_mu)
 mu_optimizer5 = optim.Adam(mu5.parameters(), lr=lr_mu)
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
-MAX_EPISODES = 1000
-DECAY_RATE = 1
+MAX_EPISODES = 500
+DECAY_RATE = 5
 avg_history = []
 reward_history_20 = []
 episode = 0
@@ -229,27 +229,27 @@ while episode < MAX_EPISODES:
             q_value_for_softmax5 = q_target(stack.to(device), action5)[0].unsqueeze(0)
 
         actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4, q_value_for_softmax5])
-        action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().detach().numpy()
+        action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().numpy()
 
         action_list = [action1[0], action2[0], action3[0], action4[0], action5[0]]
         action_index = [0, 1, 2, 3, 4]
 
         choice_action = np.random.choice(action_index, 1, p = action_softmax)
-        action = action_list[choice_action[0]].cpu().detach().numpy()
+        action = action_list[choice_action[0]].cpu().numpy()
 
         next_state, reward, done, _ = env.step(action)
-        memory.put((state, action, reward*10.0, next_state, done))
+        memory.put((state, action, reward * 10.0, next_state, done))
         score += reward
         state = next_state
 
     if memory.size() > 2000:
-
-        # Bagging 을 통해 Variance 줄이기
-        train(mu1, mu_target1, q, q_target, memory, q_optimizer, mu_optimizer1)
-        train(mu2, mu_target2, q, q_target, memory, q_optimizer, mu_optimizer2)
-        train(mu3, mu_target3, q, q_target, memory, q_optimizer, mu_optimizer3)
-        train(mu4, mu_target4, q, q_target, memory, q_optimizer, mu_optimizer4)
-        train(mu5, mu_target5, q, q_target, memory, q_optimizer, mu_optimizer5)
+        for _ in range(10):
+            # Bagging 을 통해 Variance 줄이기
+            train(mu1, mu_target1, q, q_target, memory, q_optimizer, mu_optimizer1)
+            train(mu2, mu_target2, q, q_target, memory, q_optimizer, mu_optimizer2)
+            train(mu3, mu_target3, q, q_target, memory, q_optimizer, mu_optimizer3)
+            train(mu4, mu_target4, q, q_target, memory, q_optimizer, mu_optimizer4)
+            train(mu5, mu_target5, q, q_target, memory, q_optimizer, mu_optimizer5)
 
         soft_update(mu1, mu_target1)
         soft_update(mu2, mu_target2)
@@ -273,7 +273,7 @@ env.close()
 #######################################################################
 # Record Hyperparamters & Result Graph
 
-with open('test 1 c1.txt', 'w', encoding = 'UTF-8') as f:
+with open('test 1 c3.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("DDPG_Parameter 2022-2-14" + '\n')
     f.write('\n')
@@ -297,4 +297,4 @@ plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("10 episode MVA")
 plt.plot(length, avg_history)
-plt.savefig('test 1 c1.png')
+plt.savefig('test 1 c3.png')

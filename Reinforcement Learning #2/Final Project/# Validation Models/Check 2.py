@@ -192,10 +192,10 @@ def train(mu1,mu2,mu3,mu4,mu_target1,mu_target2,mu_target3,mu_target4, q, q_targ
     Critic.backward()
     q_optimizer.step()
 
-    Actor1 = -q(states, mu1(states)).mean()
-    Actor2 = -q(states, mu2(states)).mean()
-    Actor3 = -q(states, mu3(states)).mean()
-    Actor4 = -q(states, mu4(states)).mean()
+    Actor1 = q(states, mu1(states)).mean()
+    Actor2 = q(states, mu2(states)).mean()
+    Actor3 = q(states, mu3(states)).mean()
+    Actor4 = q(states, mu4(states)).mean()
 
     mu_optimizer1.zero_grad()
     Actor1.backward()

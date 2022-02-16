@@ -31,7 +31,7 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.0005         # Learning Rate for Torque (Action)
+lr_mu = 0.005         # Learning Rate for Torque (Action)
 lr_q  = 0.05          # Learning Rate for Q
 gamma = 0.99         # discount factor
 batch_size = 128      # Mini Batch Size for Sampling from Replay Memory
@@ -208,34 +208,30 @@ while episode < MAX_EPISODES:
 
         with torch.no_grad():
 
-            # stack는 memory에 저장할 것
-            # Batch Norm을 위해 여기서만 4개로 복제하고 평균 취할 것
             stack = [state] * 2
             stack = np.array(stack)
             stack = torch.from_numpy(stack).float().to(device).squeeze(0)
 
-            # 아마 4개로 나올 것
             action1 = mu1(stack)
-            action2 = mu2(stack)
-            action3 = mu3(stack)
-            action4 = mu4(stack)
-            action5 = mu4(stack)
+            #action2 = mu2(stack)
+            #action3 = mu3(stack)
+            #action4 = mu4(stack)
+            #action5 = mu4(stack)
 
-            # 4개 중 가장 높은 Q Value 가진 Action으로 취하자
-            q_value_for_softmax1 = q_target(stack.to(device), action1)[0].unsqueeze(0)
-            q_value_for_softmax2 = q_target(stack.to(device), action2)[0].unsqueeze(0)
-            q_value_for_softmax3 = q_target(stack.to(device), action3)[0].unsqueeze(0)
-            q_value_for_softmax4 = q_target(stack.to(device), action4)[0].unsqueeze(0)
-            q_value_for_softmax5 = q_target(stack.to(device), action5)[0].unsqueeze(0)
+            #q_value_for_softmax1 = q_target(stack.to(device), action1)[0].unsqueeze(0)
+            #q_value_for_softmax2 = q_target(stack.to(device), action2)[0].unsqueeze(0)
+            #q_value_for_softmax3 = q_target(stack.to(device), action3)[0].unsqueeze(0)
+            #q_value_for_softmax4 = q_target(stack.to(device), action4)[0].unsqueeze(0)
+            #q_value_for_softmax5 = q_target(stack.to(device), action5)[0].unsqueeze(0)
 
-        actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4, q_value_for_softmax5])
-        action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().detach().numpy()
+        #actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4, q_value_for_softmax5])
+        #action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().numpy()
 
-        action_list = [action1[0], action2[0], action3[0], action4[0], action5[0]]
-        action_index = [0, 1, 2, 3, 4]
+        #action_list = [action1[0], action2[0], action3[0], action4[0], action5[0]]
+        #action_index = [0, 1, 2, 3, 4]
 
-        choice_action = np.random.choice(action_index, 1, p = action_softmax)
-        action = action_list[choice_action[0]].cpu().detach().numpy()
+        #choice_action = np.random.choice(action_index, 1, p = action_softmax)
+        action = action1[0].cpu().numpy()
 
         next_state, reward, done, _ = env.step(action)
         memory.put((state, action, reward * 10.0, next_state, done))
@@ -243,19 +239,19 @@ while episode < MAX_EPISODES:
         state = next_state
 
     if memory.size() > 2000:
-
-        # Bagging 을 통해 Variance 줄이기
-        train(mu1, mu_target1, q, q_target, memory, q_optimizer, mu_optimizer1)
-        train(mu2, mu_target2, q, q_target, memory, q_optimizer, mu_optimizer2)
-        train(mu3, mu_target3, q, q_target, memory, q_optimizer, mu_optimizer3)
-        train(mu4, mu_target4, q, q_target, memory, q_optimizer, mu_optimizer4)
-        train(mu5, mu_target5, q, q_target, memory, q_optimizer, mu_optimizer5)
+        for _ in range(10):
+            # Bagging 을 통해 Variance 줄이기
+            train(mu1, mu_target1, q, q_target, memory, q_optimizer, mu_optimizer1)
+            #train(mu2, mu_target2, q, q_target, memory, q_optimizer, mu_optimizer2)
+            #train(mu3, mu_target3, q, q_target, memory, q_optimizer, mu_optimizer3)
+            #train(mu4, mu_target4, q, q_target, memory, q_optimizer, mu_optimizer4)
+            #train(mu5, mu_target5, q, q_target, memory, q_optimizer, mu_optimizer5)
 
         soft_update(mu1, mu_target1)
-        soft_update(mu2, mu_target2)
-        soft_update(mu3, mu_target3)
-        soft_update(mu4, mu_target4)
-        soft_update(mu5, mu_target5)
+        #soft_update(mu2, mu_target2)
+        #soft_update(mu3, mu_target3)
+        #soft_update(mu4, mu_target4)
+        #soft_update(mu5, mu_target5)
         soft_update(q, q_target)
 
     # Moving Average Count
