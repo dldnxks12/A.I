@@ -1,5 +1,5 @@
-# MU NET 동일하게 4개 복제
-# Q NET 1개
+# Batch Normalization 사용
+# Bagging + Soft Voting -> Variance 줄이기
 
 ###########################################################################
 # To Avoid Library Collision
@@ -30,12 +30,13 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.05         # Learning Rate for Torque (Action)
+lr_mu = 0.0005         # Learning Rate for Torque (Action)
 lr_q  = 0.05          # Learning Rate for Q
 gamma = 0.99         # discount factor
-batch_size = 64      # Mini Batch Size for Sampling from Replay Memory
+batch_size = 128      # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 50000 # Replay Memory Size
 tau = 0.05          # for target network soft update
+
 
 
 ###########################################################################
@@ -87,50 +88,8 @@ class MuNet1(nn.Module):  # Output : Deterministic Action !
         self.fc_mu = nn.Linear(32, 4)  # Output : 4 continuous actions
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        mu = torch.tanh(self.fc_mu(x))
-        return mu
-
-
-class MuNet2(nn.Module):  # Output : Deterministic Action !
-    def __init__(self):
-        super(MuNet2, self).__init__()
-        self.fc1 = nn.Linear(24, 32)  # Input  : 24 continuous states
-        self.fc2 = nn.Linear(32, 16)
-        self.fc_mu = nn.Linear(16, 4)  # Output : 4 continuous actions
-
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        mu = torch.tanh(self.fc_mu(x))
-        return mu
-
-
-class MuNet3(nn.Module):  # Output : Deterministic Action !
-    def __init__(self):
-        super(MuNet3, self).__init__()
-        self.fc1 = nn.Linear(24, 128)  # Input  : 24 continuous states
-        self.fc2 = nn.Linear(128, 32)
-        self.fc_mu = nn.Linear(32, 4)  # Output : 4 continuous actions
-
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        mu = torch.tanh(self.fc_mu(x))
-        return mu
-
-
-class MuNet4(nn.Module):  # Output : Deterministic Action !
-    def __init__(self):
-        super(MuNet4, self).__init__()
-        self.fc1 = nn.Linear(24, 64)  # Input  : 24 continuous states
-        self.fc2 = nn.Linear(64, 64)
-        self.fc_mu = nn.Linear(64, 4)  # Output : 4 continuous actions
-
-    def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        x = F.relu((self.fc1(x)))
+        x = F.relu((self.fc2(x)))
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
@@ -145,12 +104,12 @@ class QNet(nn.Module):
 
     def forward(self, x, a):
 
-        h1 = F.relu(self.fc_s(x)) # 128
-        h2 = F.relu(self.fc_a(a)) # 128
-        cat = torch.cat([h1, h2], dim = 1)  # 256
+        h1 = F.relu(self.fc_s(x))              # 128
+        h2 = F.relu(self.fc_a(a))              # 128
+        cat = torch.cat([h1, h2], dim = 1)     # 256
         q = F.relu(self.fc_q(cat))   # 128
-        q = self.fc_out(q)   # 64
-        q = self.fc_out2(q)  # 1 - Q Value
+        q = F.relu(self.fc_out(q))   # 64
+        q = self.fc_out2(q)                    # 1 - Q Value
         return q
 
 
@@ -169,55 +128,28 @@ class OrnsteinUhlenbeckNoise:
 
 ###########################################################################
 # Train ...
-def train(mu1,mu2,mu3,mu4,mu_target1,mu_target2,mu_target3,mu_target4, q, q_target, memory, q_optimizer, mu_optimizer1,mu_optimizer2,mu_optimizer3,mu_optimizer4):
+def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
     Critic = 0.0
-    Actor1 = 0.0
-    Actor2 = 0.0
-    Actor3 = 0.0
-    Actor4 = 0.0
+    Actor = 0.0
 
-    y1 = rewards + (gamma * q_target(next_states, mu_target1(next_states)) * dones)
-    y2 = rewards + (gamma * q_target(next_states, mu_target2(next_states)) * dones)
-    y3 = rewards + (gamma * q_target(next_states, mu_target3(next_states)) * dones)
-    y4 = rewards + (gamma * q_target(next_states, mu_target4(next_states)) * dones)
+    y = rewards + (gamma * q_target(next_states, mu_target(next_states)) * dones)
+    Critic = torch.nn.functional.smooth_l1_loss(q(states, actions), y.detach())
 
-    Critic1 = torch.nn.functional.smooth_l1_loss(q(states, actions), y1.detach())
-    Critic2 = torch.nn.functional.smooth_l1_loss(q(states, actions), y2.detach())
-    Critic3 = torch.nn.functional.smooth_l1_loss(q(states, actions), y3.detach())
-    Critic4 = torch.nn.functional.smooth_l1_loss(q(states, actions), y4.detach())
-
-    Critic = Critic1 + Critic2 + Critic3 + Critic4
     q_optimizer.zero_grad()
     Critic.backward()
     q_optimizer.step()
 
-    Actor1 = -q(states, mu1(states)).mean()
-    Actor2 = -q(states, mu2(states)).mean()
-    Actor3 = -q(states, mu3(states)).mean()
-    Actor4 = -q(states, mu4(states)).mean()
+    Actor = -q(states, mu(states)).mean()
 
-    mu_optimizer1.zero_grad()
-    Actor1.backward()
-    mu_optimizer1.step()
-
-    mu_optimizer2.zero_grad()
-    Actor2.backward()
-    mu_optimizer2.step()
-
-    mu_optimizer3.zero_grad()
-    Actor3.backward()
-    mu_optimizer3.step()
-
-    mu_optimizer4.zero_grad()
-    Actor4.backward()
-    mu_optimizer4.step()
+    mu_optimizer.zero_grad()
+    Actor.backward()
+    mu_optimizer.step()
 
 # Soft Update
 def soft_update(net, net_target):
     for param_target, param in zip(net_target.parameters(), net.parameters()):
         param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
-
 
 # state  : continuous 24 state
 # action : continuous 4 action
@@ -235,13 +167,13 @@ q_optimizer  = optim.Adam(q.parameters(), lr=lr_q)
 
 # 4 개의 동일한 Mu Network
 mu1        = MuNet1().to(device)
-mu2        = MuNet2().to(device)
-mu3        = MuNet3().to(device)
-mu4        = MuNet4().to(device)
+mu2        = MuNet1().to(device)
+mu3        = MuNet1().to(device)
+mu4        = MuNet1().to(device)
 mu_target1 = MuNet1().to(device)
-mu_target2 = MuNet2().to(device)
-mu_target3 = MuNet3().to(device)
-mu_target4 = MuNet4().to(device)
+mu_target2 = MuNet1().to(device)
+mu_target3 = MuNet1().to(device)
+mu_target4 = MuNet1().to(device)
 
 mu_target1.load_state_dict(mu1.state_dict()) # 파라미터 동기화
 mu_target2.load_state_dict(mu2.state_dict()) # 파라미터 동기화
@@ -255,15 +187,14 @@ mu_optimizer4 = optim.Adam(mu4.parameters(), lr=lr_mu)
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 MAX_EPISODES = 1000
-
+DECAY_RATE = 1
 reward_history_20 = []
-
 episode = 0
 while episode < MAX_EPISODES:
     state = env.reset()
     done = False
     score = 0.0
-    env.render()
+
     while not done:
 
         action1 = mu1(torch.from_numpy(state).to(device))
@@ -271,14 +202,7 @@ while episode < MAX_EPISODES:
         action3 = mu3(torch.from_numpy(state).to(device))
         action4 = mu4(torch.from_numpy(state).to(device))
 
-        # 모두 다른 Noise 생성
-
-        '''
-        noise1 = torch.tensor(ou_noise(), device=device)
-        noise2 = torch.tensor(ou_noise(), device=device)
-        noise3 = torch.tensor(ou_noise(), device=device)
-        noise4 = torch.tensor(ou_noise(), device=device)
-        '''
+        noise = torch.tensor(ou_noise(), device=device)
 
         q_value_for_softmax1 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action1.unsqueeze(0))
         q_value_for_softmax2 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action2.unsqueeze(0))
@@ -294,31 +218,33 @@ while episode < MAX_EPISODES:
         choice_action = np.random.choice(action_index, 1, p = action_softmax)
         action = action_list[choice_action[0]].cpu().detach().numpy()
 
-        # Add Exploration property
-        #action = (action + noise).cpu().detach().numpy()
-
         next_state, reward, done, _ = env.step(action)
 
-        reward = reward * 10
-
-        # Type Check
-        # print(type(state), type(action), type(next_state), type(reward), type(done))
         memory.put((state, action, reward, next_state, done))
         score += reward
         state = next_state
 
-    if memory.size() > 500:
-        train(mu1,mu2,mu3,mu4,mu_target1,mu_target2,mu_target3,mu_target4, q, q_target, memory, q_optimizer, mu_optimizer1,mu_optimizer2,mu_optimizer3,mu_optimizer4)
+    if memory.size() > 2500:
+
+        # Bagging 을 통해 Variance 줄이기
+        train(mu1, mu_target1, q, q_target, memory, q_optimizer, mu_optimizer1)
+        train(mu2, mu_target2, q, q_target, memory, q_optimizer, mu_optimizer2)
+        train(mu3, mu_target3, q, q_target, memory, q_optimizer, mu_optimizer3)
+        train(mu4, mu_target4, q, q_target, memory, q_optimizer, mu_optimizer4)
+
         soft_update(mu1, mu_target1)
         soft_update(mu2, mu_target2)
         soft_update(mu3, mu_target3)
         soft_update(mu4, mu_target4)
         soft_update(q, q_target)
 
-    reward_history_20.append(score)
+    reward_history_20.insert(0, score)
+    if len(reward_history_20) == 10:
+        reward_history_20.pop()
     avg = sum(reward_history_20) / len(reward_history_20)
+    avg_history.append(avg)
     if episode % 10 == 0:
-        print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
+        print('episode: {}, reward: {:.1f}, 10 avg: {:.1f}'.format(episode, score, avg))
     episode += 1
 
 env.close()
@@ -326,7 +252,7 @@ env.close()
 #######################################################################
 # Record Hyperparamters & Result Graph
 
-with open('exploration-v2.txt', 'w', encoding = 'UTF-8') as f:
+with open('Check 5.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("DDPG_Parameter 2022-2-14" + '\n')
     f.write('\n')
@@ -345,10 +271,9 @@ with open('exploration-v2.txt', 'w', encoding = 'UTF-8') as f:
     f.write("memory.size() : 500" + '\n')
     f.write("# ----------------------- # " + '\n')
 
-length = np.arange(len(reward_history_20))*20
+length = np.arange(len(avg_history))
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
-plt.title("exploration-v2")
-plt.plot(length, reward_history_20)
-plt.savefig('exploration-v2.png')
+plt.plot(length, avg_history)
+plt.savefig('Check 5.png')

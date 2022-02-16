@@ -1,5 +1,5 @@
-# MU NET 동일하게 4개 복제
-# Q NET 1개
+# Batch Normalization 사용
+# Voting + Soft Voting -> Variance 줄이기
 
 ###########################################################################
 # To Avoid Library Collision
@@ -30,10 +30,10 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.05         # Learning Rate for Torque (Action)
-lr_q  = 0.005          # Learning Rate for Q
+lr_mu = 0.0005         # Learning Rate for Torque (Action)
+lr_q  = 0.01          # Learning Rate for Q
 gamma = 0.99         # discount factor
-batch_size = 64      # Mini Batch Size for Sampling from Replay Memory
+batch_size = 128      # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 50000 # Replay Memory Size
 tau = 0.05          # for target network soft update
 
@@ -83,12 +83,14 @@ class MuNet1(nn.Module):  # Output : Deterministic Action !
     def __init__(self):
         super(MuNet1, self).__init__()
         self.fc1 = nn.Linear(24, 64)  # Input  : 24 continuous states
-        self.fc2 = nn.Linear(64, 32)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, 32)
         self.fc_mu = nn.Linear(32, 4)  # Output : 4 continuous actions
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
@@ -97,12 +99,14 @@ class MuNet2(nn.Module):  # Output : Deterministic Action !
     def __init__(self):
         super(MuNet2, self).__init__()
         self.fc1 = nn.Linear(24, 32)  # Input  : 24 continuous states
-        self.fc2 = nn.Linear(32, 16)
-        self.fc_mu = nn.Linear(16, 4)  # Output : 4 continuous actions
+        self.fc2 = nn.Linear(32, 32)
+        self.fc3 = nn.Linear(32, 8)
+        self.fc_mu = nn.Linear(8, 4)  # Output : 4 continuous actions
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
@@ -112,11 +116,13 @@ class MuNet3(nn.Module):  # Output : Deterministic Action !
         super(MuNet3, self).__init__()
         self.fc1 = nn.Linear(24, 128)  # Input  : 24 continuous states
         self.fc2 = nn.Linear(128, 32)
-        self.fc_mu = nn.Linear(32, 4)  # Output : 4 continuous actions
+        self.fc3 = nn.Linear(32, 16)
+        self.fc_mu = nn.Linear(16, 4)  # Output : 4 continuous actions
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
@@ -125,12 +131,31 @@ class MuNet4(nn.Module):  # Output : Deterministic Action !
     def __init__(self):
         super(MuNet4, self).__init__()
         self.fc1 = nn.Linear(24, 64)  # Input  : 24 continuous states
-        self.fc2 = nn.Linear(64, 64)
-        self.fc_mu = nn.Linear(64, 4)  # Output : 4 continuous actions
+        self.fc2 = nn.Linear(64, 128)
+        self.fc3 = nn.Linear(128, 32)
+        self.fc_mu = nn.Linear(32, 4)  # Output : 4 continuous actions
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        mu = torch.tanh(self.fc_mu(x))
+        return mu
+
+class MuNet5(nn.Module):  # Output : Deterministic Action !
+    def __init__(self):
+        super(MuNet5, self).__init__()
+        self.fc1 = nn.Linear(24, 256)  # Input  : 24 continuous states
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, 16)
+        self.fc_mu = nn.Linear(16, 4)  # Output : 4 continuous actions
+
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = F.relu(self.fc4(x))
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
@@ -145,12 +170,12 @@ class QNet(nn.Module):
 
     def forward(self, x, a):
 
-        h1 = F.relu(self.fc_s(x)) # 128
-        h2 = F.relu(self.fc_a(a)) # 128
-        cat = torch.cat([h1, h2], dim = 1)  # 256
-        q = F.relu(self.fc_q(cat))   # 128
-        q = self.fc_out(q)   # 64
-        q = self.fc_out2(q)  # 1 - Q Value
+        h1 = F.relu(self.fc_s(x))              # 128
+        h2 = F.relu(self.fc_a(a))              # 128
+        cat = torch.cat([h1, h2], dim = 1)     # 256
+        q = F.relu(self.fc_q(cat)) # 128
+        q = F.relu(self.fc_out(q)) # 64
+        q = self.fc_out2(q)                    # 1 - Q Value
         return q
 
 
@@ -169,49 +194,23 @@ class OrnsteinUhlenbeckNoise:
 
 ###########################################################################
 # Train ...
-def train(mu1,mu2,mu3,mu4,mu_target1,mu_target2,mu_target3,mu_target4, q, q_target, memory, q_optimizer, mu_optimizer1,mu_optimizer2,mu_optimizer3,mu_optimizer4):
+def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
     Critic = 0.0
-    Actor1 = 0.0
-    Actor2 = 0.0
-    Actor3 = 0.0
-    Actor4 = 0.0
+    Actor = 0.0
 
-    y1 = rewards + (gamma * q_target(next_states, mu_target1(next_states)) * dones)
-    y2 = rewards + (gamma * q_target(next_states, mu_target2(next_states)) * dones)
-    y3 = rewards + (gamma * q_target(next_states, mu_target3(next_states)) * dones)
-    y4 = rewards + (gamma * q_target(next_states, mu_target4(next_states)) * dones)
+    y = rewards + (gamma * q_target(next_states, mu_target(next_states)) * dones)
+    Critic = torch.nn.functional.smooth_l1_loss(q(states, actions), y.detach())
 
-    Critic1 = torch.nn.functional.smooth_l1_loss(q(states, actions), y1.detach())
-    Critic2 = torch.nn.functional.smooth_l1_loss(q(states, actions), y2.detach())
-    Critic3 = torch.nn.functional.smooth_l1_loss(q(states, actions), y3.detach())
-    Critic4 = torch.nn.functional.smooth_l1_loss(q(states, actions), y4.detach())
-
-    Critic = Critic1 + Critic2 + Critic3 + Critic4
     q_optimizer.zero_grad()
     Critic.backward()
     q_optimizer.step()
 
-    Actor1 = -q(states, mu1(states)).mean()
-    Actor2 = -q(states, mu2(states)).mean()
-    Actor3 = -q(states, mu3(states)).mean()
-    Actor4 = -q(states, mu4(states)).mean()
+    Actor = -q(states, mu(states)).mean()
 
-    mu_optimizer1.zero_grad()
-    Actor1.backward()
-    mu_optimizer1.step()
-
-    mu_optimizer2.zero_grad()
-    Actor2.backward()
-    mu_optimizer2.step()
-
-    mu_optimizer3.zero_grad()
-    Actor3.backward()
-    mu_optimizer3.step()
-
-    mu_optimizer4.zero_grad()
-    Actor4.backward()
-    mu_optimizer4.step()
+    mu_optimizer.zero_grad()
+    Actor.backward()
+    mu_optimizer.step()
 
 # Soft Update
 def soft_update(net, net_target):
@@ -238,80 +237,100 @@ mu1        = MuNet1().to(device)
 mu2        = MuNet2().to(device)
 mu3        = MuNet3().to(device)
 mu4        = MuNet4().to(device)
+mu5        = MuNet5().to(device)
+mu6        = MuNet5().to(device)
 mu_target1 = MuNet1().to(device)
 mu_target2 = MuNet2().to(device)
 mu_target3 = MuNet3().to(device)
 mu_target4 = MuNet4().to(device)
+mu_target5 = MuNet5().to(device)
+mu_target6 = MuNet5().to(device)
 
 mu_target1.load_state_dict(mu1.state_dict()) # 파라미터 동기화
 mu_target2.load_state_dict(mu2.state_dict()) # 파라미터 동기화
 mu_target3.load_state_dict(mu3.state_dict()) # 파라미터 동기화
 mu_target4.load_state_dict(mu4.state_dict()) # 파라미터 동기화
+mu_target5.load_state_dict(mu5.state_dict()) # 파라미터 동기화
+mu_target6.load_state_dict(mu6.state_dict()) # 파라미터 동기화
 
 mu_optimizer1 = optim.Adam(mu1.parameters(), lr=lr_mu)
 mu_optimizer2 = optim.Adam(mu2.parameters(), lr=lr_mu)
 mu_optimizer3 = optim.Adam(mu3.parameters(), lr=lr_mu)
 mu_optimizer4 = optim.Adam(mu4.parameters(), lr=lr_mu)
+mu_optimizer5 = optim.Adam(mu5.parameters(), lr=lr_mu)
+mu_optimizer6 = optim.Adam(mu6.parameters(), lr=lr_mu)
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
-MAX_EPISODES = 1000
-
+MAX_EPISODES = 2000
+DECAY_RATE = 1
 reward_history_20 = []
-
 episode = 0
 while episode < MAX_EPISODES:
     state = env.reset()
     done = False
     score = 0.0
-    while not done:
 
+    while not done:
         action1 = mu1(torch.from_numpy(state).to(device))
         action2 = mu2(torch.from_numpy(state).to(device))
         action3 = mu3(torch.from_numpy(state).to(device))
         action4 = mu4(torch.from_numpy(state).to(device))
+        action5 = mu4(torch.from_numpy(state).to(device))
+        action6 = mu4(torch.from_numpy(state).to(device))
 
-        # 모두 다른 Noise 생성
-
-        '''
-        noise1 = torch.tensor(ou_noise(), device=device)
-        noise2 = torch.tensor(ou_noise(), device=device)
-        noise3 = torch.tensor(ou_noise(), device=device)
-        noise4 = torch.tensor(ou_noise(), device=device)
-        '''
+        noise = torch.tensor(ou_noise(), device=device)
 
         q_value_for_softmax1 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action1.unsqueeze(0))
         q_value_for_softmax2 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action2.unsqueeze(0))
         q_value_for_softmax3 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action3.unsqueeze(0))
         q_value_for_softmax4 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action4.unsqueeze(0))
+        q_value_for_softmax5 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action5.unsqueeze(0))
+        q_value_for_softmax6 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action6.unsqueeze(0))
 
-        actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4])
+        actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4, q_value_for_softmax5, q_value_for_softmax6])
         action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().detach().numpy()
 
-        action_list = [action1, action2, action3, action4]
-        action_index = [0, 1, 2, 3]
+        action_list = [action1, action2, action3, action4, action5, action6]
+        action_index = [0, 1, 2, 3, 4, 5]
 
         choice_action = np.random.choice(action_index, 1, p = action_softmax)
         action = action_list[choice_action[0]].cpu().detach().numpy()
 
-        # Add Exploration property
-        #action = (action + noise).cpu().detach().numpy()
+        '''
+        # 5번 마다 Noise 추가 ...
+        if episode > 500 :
+            noise = noise * (DECAY_RATE - (0.001 * episode))
+            if DECAY_RATE - (0.001 * episode) < 0:
+                DECAY_RATE = 0
+            action = action_list[choice_action[0]]
+            action = (action + noise).cpu().detach().numpy()
+        else:
+            action = action_list[choice_action[0]].cpu().detach().numpy()        
+        '''
 
         next_state, reward, done, _ = env.step(action)
-
         reward = reward * 10
 
-        # Type Check
-        # print(type(state), type(action), type(next_state), type(reward), type(done))
         memory.put((state, action, reward, next_state, done))
         score += reward
         state = next_state
 
-    if memory.size() > 500:
-        train(mu1,mu2,mu3,mu4,mu_target1,mu_target2,mu_target3,mu_target4, q, q_target, memory, q_optimizer, mu_optimizer1,mu_optimizer2,mu_optimizer3,mu_optimizer4)
+    if memory.size() > 5000:
+
+        # Bagging 을 통해 Variance 줄이기
+        train(mu1, mu_target1, q, q_target, memory, q_optimizer, mu_optimizer1)
+        train(mu2, mu_target2, q, q_target, memory, q_optimizer, mu_optimizer2)
+        train(mu3, mu_target3, q, q_target, memory, q_optimizer, mu_optimizer3)
+        train(mu4, mu_target4, q, q_target, memory, q_optimizer, mu_optimizer4)
+        train(mu5, mu_target5, q, q_target, memory, q_optimizer, mu_optimizer5)
+        train(mu6, mu_target5, q, q_target, memory, q_optimizer, mu_optimizer6)
+
         soft_update(mu1, mu_target1)
         soft_update(mu2, mu_target2)
         soft_update(mu3, mu_target3)
         soft_update(mu4, mu_target4)
+        soft_update(mu5, mu_target5)
+        soft_update(mu6, mu_target6)
         soft_update(q, q_target)
 
     reward_history_20.append(score)
@@ -325,7 +344,7 @@ env.close()
 #######################################################################
 # Record Hyperparamters & Result Graph
 
-with open('exploration-v2-2.txt', 'w', encoding = 'UTF-8') as f:
+with open('Check 6.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("DDPG_Parameter 2022-2-14" + '\n')
     f.write('\n')
@@ -344,10 +363,9 @@ with open('exploration-v2-2.txt', 'w', encoding = 'UTF-8') as f:
     f.write("memory.size() : 500" + '\n')
     f.write("# ----------------------- # " + '\n')
 
-length = np.arange(len(reward_history_20))*20
+length = np.arange(len(reward_history_20))
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
-plt.title("exploration-v2-2")
 plt.plot(length, reward_history_20)
-plt.savefig('exploration-v2-2.png')
+plt.savefig('Check 6.png')
