@@ -294,7 +294,7 @@ while episode < MAX_EPISODES:
 
         next_observation = np.array(get_screen())
         stack.pop(0)
-        stack.append(next_observation)
+        stack.insert(0, next_observation)
 
         next_state = np.array(stack)
         next_state = torch.from_numpy(next_state).float().to(device).unsqueeze(0)

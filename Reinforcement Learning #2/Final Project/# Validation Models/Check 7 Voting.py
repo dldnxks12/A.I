@@ -284,6 +284,8 @@ while episode < MAX_EPISODES:
         actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4, q_value_for_softmax5])
         action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().detach().numpy()
 
+        print(action_softmax)
+
         action_list = [action1, action2, action3, action4, action5]
         action_index = [0, 1, 2, 3, 4]
 

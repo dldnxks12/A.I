@@ -6,12 +6,12 @@ DDPG_Parameter 2022-2-14
 
 Reward        : reward x 10
 lr_mu         : 0.0005
-lr_q          : 0.05
-tau           : 0.05
+lr_q          : 0.001
+tau           : 0.005
 
 # - Category 2 - #
 
-batch_size    : 128
-buffer_limit  : 50000
+batch_size    : 32
+buffer_limit  : 100000
 memory.size() : 500
 # ----------------------- # 

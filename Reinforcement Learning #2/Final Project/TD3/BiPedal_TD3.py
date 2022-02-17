@@ -1,6 +1,10 @@
 # TD3 = DDPG + Remove Maximization Bias
-# 학습 X
+###########################################################################
+# To Avoid Library Collision
+import os
 
+os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+###########################################################################
 import gym
 import sys
 import random
@@ -15,7 +19,6 @@ from collections import deque
 
 #GPU Setting
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-#device = 'cpu'
 
 print("")
 print(f"On {device}")
@@ -58,15 +61,13 @@ class ReplayBuffer():
 class MuNet(nn.Module):  # Output : Deterministic Action !
     def __init__(self):
         super(MuNet, self).__init__()
-        self.fc1 = nn.Linear(24, 128) # Input  : 24 continuous states
-        self.fc2 = nn.Linear(128, 128)
-        self.fc3 = nn.Linear(128, 64)
-        self.fc_mu = nn.Linear(64, 4) # Output : 4 continuous actions
+        self.fc1 = nn.Linear(24, 256) # Input  : 24 continuous states
+        self.fc2 = nn.Linear(256, 256)
+        self.fc_mu = nn.Linear(256, 4) # Output : 4 continuous actions
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
@@ -74,20 +75,39 @@ class MuNet(nn.Module):  # Output : Deterministic Action !
 class QNet(nn.Module):
     def __init__(self):
         super(QNet, self).__init__()
-        self.fc_s   = nn.Linear(24, 128)    # State  24 개
-        self.fc_a   = nn.Linear(4, 128)     # Action 4  개
-        self.fc_q   = nn.Linear(256, 128)  # State , Action 이어붙이기
-        self.fc_out = nn.Linear(128, 64)  # Output : Q value
-        self.fc_out2 = nn.Linear(64, 1)  # Output : Q value
+        self.fc_sA   = nn.Linear(24, 128)    # State  24 개
+        self.fc_aA   = nn.Linear(4, 128)     # Action 4  개
+        self.fc_qA   = nn.Linear(256, 128)   # State , Action 이어붙이기
+        self.fc_outA = nn.Linear(128, 1)     # Output : Q value
+
+        self.fc_sB   = nn.Linear(24, 128)    # State  24 개
+        self.fc_aB   = nn.Linear(4, 128)     # Action 4  개
+        self.fc_qB   = nn.Linear(256, 128)   # State , Action 이어붙이기
+        self.fc_outB = nn.Linear(128, 1)     # Output : Q value
+
 
     def forward(self, x, a):
-        h1 = F.relu(self.fc_s(x)) # 128
-        h2 = F.relu(self.fc_a(a)) # 128
-        cat = torch.cat([h1, h2], dim = 1)  # 256
-        q = F.relu(self.fc_q(cat))   # 128
-        q = self.fc_out(q)   # 64
-        q = self.fc_out2(q)  # 1 - Q Value
-        return q
+        h1A = F.relu(self.fc_sA(x))
+        h2A = F.relu(self.fc_aA(a))
+        catA = torch.cat([h1A, h2A], dim = 1)
+        q1 = F.relu(self.fc_qA(catA))
+        q1 = self.fc_outA(q1)
+
+        h1B = F.relu(self.fc_sB(x))
+        h2B = F.relu(self.fc_aB(a))
+        catB = torch.cat([h1B, h2B], dim = 1)
+        q2 = F.relu(self.fc_qB(catB))
+        q2 = self.fc_outB(q2)
+        return q1, q2
+
+    def Q(self, x, a):
+        h1A = F.relu(self.fc_sA(x))
+        h2A = F.relu(self.fc_aA(a))
+        catA = torch.cat([h1A, h2A], dim = 1)
+        q1 = F.relu(self.fc_qA(catA))
+        q1 = self.fc_outA(q1)
+
+        return q1
 
 
 # Add Noise to deterministic action for improving exploration property
@@ -111,58 +131,42 @@ def soft_update(net, net_target):
     for param_target, param in zip(net_target.parameters(), net.parameters()):
         param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
-def train(episode, mu, mu_target, q1, q2, q1_target, q2_target, memory, q1_optimizer, q2_optimizer, mu_optimizer):
+def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
 
-    Q_loss, mu_loss = 0, 0
-    noise_bar = torch.clamp(ou_noise(), -1, 1)
+    with torch.no_grad():
+        noise_bar  = torch.clamp(ou_noise(), -0.5, 0.5)
+        next_action_bar = mu_target(next_states) + noise_bar
 
-    # print("Point 1")
-    # print(noise_bar) # 0.1425
+        target_q1, target_q2 = q_target(next_states, next_action_bar)
+        target_q = torch.min(target_q1, target_q2)
 
-    action_bar = mu_target(next_states) + noise_bar
+        target_Q = reward + (gamma*target_q*dones)
 
-    # Shape Check 필요
-    q1_value = q1_target(next_states, action_bar).mean()
-    q2_value = q2_target(next_states, action_bar).mean()
+    current_q1, current_q2 = q(states, actions)
 
-    selected_Q = torch.min( q1_value, q2_value)
-    selected_Q_index = torch.argmin(torch.tensor([q1_value, q2_value]), axis = 0)
+    Critic_loss = torch.nn.functional.mse_loss(current_q1,  target_Q) + torch.nn.functional.mse_loss(current_q2, target_Q)
 
-    if selected_Q_index == 0:
-        # q1 Network Update
-        y = rewards + (gamma * q1_target(next_states, action_bar)) * dones
-        Q_loss = torch.nn.functional.smooth_l1_loss(q2(states, actions), y.detach())
-        q2_optimizer.zero_grad()
-        Q_loss.backward()
-        q2_optimizer.step()
-    else:
-        # q2 Network Update
-        y = rewards + (gamma * q2_target(next_states, action_bar)) * dones
-        Q_loss = torch.nn.functional.smooth_l1_loss(q1(states, actions), y.detach())
-        q1_optimizer.zero_grad()
-        Q_loss.backward()
-        q1_optimizer.step()
+    q_optimizer.zero_grad()
+    Critic_loss.backward()
+    q_optimizer.step()
 
 
     # Update Policy Network periodically ...
-    if episode % 5 == 0:
-        if selected_Q_index == 0:
-            mu_loss = -q2(states, mu(states)).mean()
-        else:
-            mu_loss = -q1(states, mu(states)).mean()
+    if episode % 3 == 0:
+        mu_loss = -q.Q(states, mu(states)).mean()
         mu_optimizer.zero_grad()
         mu_loss.backward()
         mu_optimizer.step()
 
 
 # Hyperparameters
-lr_mu = 0.0005       # Learning Rate for Torque (Action)
-lr_q = 0.001         # Learning Rate for Q
-gamma = 0.99         # discount factor
-batch_size = 16      # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 50000 # Replay Memory Size
-tau = 0.005          # for target network soft update
+lr_mu      = 0.0005         # Learning Rate for Torque (Action)
+lr_q       = 0.005         # Learning Rate for Q
+gamma      = 0.99         # discount factor
+batch_size = 100          # Mini Batch Size for Sampling from Replay Memory
+buffer_limit = 50000      # Replay Memory Size
+tau = 0.01                # for target network soft update
 
 # Import Gym Environment
 env = gym.make('BipedalWalker-v3')
@@ -171,39 +175,32 @@ env = gym.make('BipedalWalker-v3')
 memory = ReplayBuffer()
 
 # Networks
-q1 =  QNet().to(device) # Twin Network for avoiding maximization bias
-q2 =  QNet().to(device) # Twin Network for avoiding maximization bias
-
-q1_target = QNet().to(device)
-q2_target = QNet().to(device)
+q =  QNet().to(device) # Twin Network for avoiding maximization bias
+q_target = QNet().to(device)
 
 mu = MuNet().to(device)
 mu_target = MuNet().to(device)
 
 # Parameter Synchronize
-q1_target.load_state_dict(q1.state_dict())
-q2_target.load_state_dict(q2.state_dict())
+q_target.load_state_dict(q.state_dict())
 mu_target.load_state_dict(mu.state_dict())
-
 
 # Optimizer
 mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
-q1_optimizer = optim.Adam(q1.parameters(), lr=lr_q)
-q2_optimizer = optim.Adam(q2.parameters(), lr=lr_q)
+q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
 
 # Noise
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 
 score = 0.0
-print_interval = 20
-reward_history = []
-reward_history_100 = deque(maxlen=100)
-MAX_EPISODES = 50000
+avg_history = []
+reward_history_20 = []
+MAX_EPISODES = 1000
 
 for episode in range(MAX_EPISODES):
     state = env.reset()
     done = False
-
+    score = 0.0
     while not done: # Stacking Experiences
 
         #if episode % 100 == 0:
@@ -211,26 +208,37 @@ for episode in range(MAX_EPISODES):
 
         action = mu(torch.from_numpy(state).float().to(device)) # Return action (-2 ~ 2 사이의 torque  ... )
         noise = torch.tensor(ou_noise(), device=device)
+
         action = (action + noise).cpu().detach().numpy() # Action에 Noise를 추가해서 Exploration 기능 추가 ...
-        next_state, reward, done, info = env.step(action)
-        memory.put((state, action, reward / 100.0, next_state, done))
-        score = score + reward
+        next_state, reward, done, _ = env.step(action)
+
+        memory.put((state, action, reward, next_state, done))
+        score += reward
         state = next_state
 
         if memory.size() > 2000:
-            for i in range(10):
-                train(episode, mu, mu_target, q1, q2, q1_target, q2_target, memory, q1_optimizer,q2_optimizer, mu_optimizer)
-                soft_update(q1, q1_target)
-                soft_update(q2, q2_target)
+            for _ in range(10):
+                train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
+                soft_update(q, q_target)
                 soft_update(mu, mu_target)
 
-    reward_history.append(score)
-    reward_history_100.append(score)
-    avg = sum(reward_history_100) / len(reward_history_100)
+    # Moving Average Count
+    reward_history_20.insert(0, score)
+    if len(reward_history_20) == 10:
+        reward_history_20.pop()
+
+    avg = sum(reward_history_20) / len(reward_history_20)
+    avg_history.append(avg)
+    print(episode)
     if episode % 10 == 0:
-        print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
-    score = 0.0
-    episode = episode + 1
+        print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
+    episode += 1
 
 env.close()
 
+length = np.arange(len(avg_history))
+plt.figure()
+plt.xlabel("Episode")
+plt.ylabel("10 episode MVA")
+plt.plot(length, avg_history)
+plt.savefig('TD3 check 1.png')

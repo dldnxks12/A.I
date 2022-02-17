@@ -31,12 +31,12 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.005         # Learning Rate for Torque (Action)
-lr_q  = 0.05          # Learning Rate for Q
-gamma = 0.99         # discount factor
-batch_size = 128      # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 50000 # Replay Memory Size
-tau = 0.05          # for target network soft update
+lr_mu = 0.001            # Learning Rate for Torque (Action)
+lr_q = 0.001             # Learning Rate for Q
+gamma = 0.99             # discount factor
+batch_size = 100         # Mini Batch Size for Sampling from Replay Memory
+buffer_limit = 2000000   # Replay Memory Size
+tau = 0.01               # for target network soft update
 
 
 ###########################################################################
@@ -81,17 +81,14 @@ class MuNet1(nn.Module):  # Output : Deterministic Action
         self.bn1 = nn.BatchNorm1d(256)
         self.fc2 = nn.Linear(256, 128)
         self.bn2 = nn.BatchNorm1d(128)
-        self.fc3 = nn.Linear(128, 64)
-        self.bn3 = nn.BatchNorm1d(64)
-        self.fc4 = nn.Linear(64, 16)
-        self.bn4 = nn.BatchNorm1d(16)
-        self.fc_mu = nn.Linear(16, 4)  # Output : 4 continuous actions
+        self.fc3 = nn.Linear(128, 32)
+        self.bn3 = nn.BatchNorm1d(32)
+        self.fc_mu = nn.Linear(32, 4)  # Output : 4 continuous actions
 
     def forward(self, x):
         x = F.relu(self.bn1(self.fc1(x)))
         x = F.relu(self.bn2(self.fc2(x)))
         x = F.relu(self.bn3(self.fc3(x)))
-        x = F.relu(self.bn4(self.fc4(x)))
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
@@ -136,7 +133,7 @@ def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
     Critic = 0.0
     Actor = 0.0
 
-    y = rewards + (gamma * q_target(next_states, mu_target(next_states)) * dones)
+    y = rewards + gamma * q_target(next_states, mu_target(next_states)) * dones
     Critic = torch.nn.functional.smooth_l1_loss(q(states, actions), y.detach())
 
     q_optimizer.zero_grad()
@@ -155,11 +152,7 @@ def soft_update(net, net_target):
         param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
 
-# state  : continuous 24 state
-# action : continuous 4 action
 env = gym.make('BipedalWalker-v3')
-env.reset()
-
 memory = ReplayBuffer()
 
 # 1개의 Q Net
@@ -169,29 +162,12 @@ q_target = QNet().to(device)
 q_target.load_state_dict(q.state_dict())   # 파라미터 동기화
 q_optimizer  = optim.Adam(q.parameters(), lr=lr_q)
 
-# 4 개의 동일한 Mu Network
 mu1        = MuNet1().to(device)
-mu2        = MuNet1().to(device)
-mu3        = MuNet1().to(device)
-mu4        = MuNet1().to(device)
-mu5        = MuNet1().to(device)
 mu_target1 = MuNet1().to(device)
-mu_target2 = MuNet1().to(device)
-mu_target3 = MuNet1().to(device)
-mu_target4 = MuNet1().to(device)
-mu_target5 = MuNet1().to(device)
 
 mu_target1.load_state_dict(mu1.state_dict()) # 파라미터 동기화
-mu_target2.load_state_dict(mu2.state_dict()) # 파라미터 동기화
-mu_target3.load_state_dict(mu3.state_dict()) # 파라미터 동기화
-mu_target4.load_state_dict(mu4.state_dict()) # 파라미터 동기화
-mu_target5.load_state_dict(mu4.state_dict()) # 파라미터 동기화
-
 mu_optimizer1 = optim.Adam(mu1.parameters(), lr=lr_mu)
-mu_optimizer2 = optim.Adam(mu2.parameters(), lr=lr_mu)
-mu_optimizer3 = optim.Adam(mu3.parameters(), lr=lr_mu)
-mu_optimizer4 = optim.Adam(mu4.parameters(), lr=lr_mu)
-mu_optimizer5 = optim.Adam(mu5.parameters(), lr=lr_mu)
+
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 MAX_EPISODES = 1000
@@ -205,36 +181,14 @@ while episode < MAX_EPISODES:
     score = 0.0
 
     while not done:
+        stack = [state] * 2
+        stack = np.array(stack)
+        stack = torch.from_numpy(stack).float().to(device).squeeze(0)
 
-        with torch.no_grad():
-
-            stack = [state] * 2
-            stack = np.array(stack)
-            stack = torch.from_numpy(stack).float().to(device).squeeze(0)
-
-            action1 = mu1(stack)
-            #action2 = mu2(stack)
-            #action3 = mu3(stack)
-            #action4 = mu4(stack)
-            #action5 = mu4(stack)
-
-            #q_value_for_softmax1 = q_target(stack.to(device), action1)[0].unsqueeze(0)
-            #q_value_for_softmax2 = q_target(stack.to(device), action2)[0].unsqueeze(0)
-            #q_value_for_softmax3 = q_target(stack.to(device), action3)[0].unsqueeze(0)
-            #q_value_for_softmax4 = q_target(stack.to(device), action4)[0].unsqueeze(0)
-            #q_value_for_softmax5 = q_target(stack.to(device), action5)[0].unsqueeze(0)
-
-        #actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4, q_value_for_softmax5])
-        #action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().numpy()
-
-        #action_list = [action1[0], action2[0], action3[0], action4[0], action5[0]]
-        #action_index = [0, 1, 2, 3, 4]
-
-        #choice_action = np.random.choice(action_index, 1, p = action_softmax)
-        action = action1[0].cpu().numpy()
+        action = mu1(stack)[0].cpu().detach().numpy()
 
         next_state, reward, done, _ = env.step(action)
-        memory.put((state, action, reward * 10.0, next_state, done))
+        memory.put((state, action, reward / 10.0, next_state, done))
         score += reward
         state = next_state
 
@@ -242,16 +196,8 @@ while episode < MAX_EPISODES:
         for _ in range(10):
             # Bagging 을 통해 Variance 줄이기
             train(mu1, mu_target1, q, q_target, memory, q_optimizer, mu_optimizer1)
-            #train(mu2, mu_target2, q, q_target, memory, q_optimizer, mu_optimizer2)
-            #train(mu3, mu_target3, q, q_target, memory, q_optimizer, mu_optimizer3)
-            #train(mu4, mu_target4, q, q_target, memory, q_optimizer, mu_optimizer4)
-            #train(mu5, mu_target5, q, q_target, memory, q_optimizer, mu_optimizer5)
 
         soft_update(mu1, mu_target1)
-        #soft_update(mu2, mu_target2)
-        #soft_update(mu3, mu_target3)
-        #soft_update(mu4, mu_target4)
-        #soft_update(mu5, mu_target5)
         soft_update(q, q_target)
 
     # Moving Average Count

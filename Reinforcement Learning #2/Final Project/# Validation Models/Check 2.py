@@ -273,10 +273,10 @@ while episode < MAX_EPISODES:
 
         noise = torch.tensor(ou_noise(), device=device)
 
-        q_value_for_softmax1 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action1.unsqueeze(0))
-        q_value_for_softmax2 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action2.unsqueeze(0))
-        q_value_for_softmax3 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action3.unsqueeze(0))
-        q_value_for_softmax4 = q_target(torch.from_numpy(state).unsqueeze(0).to(device), action4.unsqueeze(0))
+        q_value_for_softmax1 = q(torch.from_numpy(state).unsqueeze(0).to(device), action1.unsqueeze(0))
+        q_value_for_softmax2 = q(torch.from_numpy(state).unsqueeze(0).to(device), action2.unsqueeze(0))
+        q_value_for_softmax3 = q(torch.from_numpy(state).unsqueeze(0).to(device), action3.unsqueeze(0))
+        q_value_for_softmax4 = q(torch.from_numpy(state).unsqueeze(0).to(device), action4.unsqueeze(0))
 
         actions = torch.stack([q_value_for_softmax1,q_value_for_softmax2,q_value_for_softmax3,q_value_for_softmax4])
         action_softmax = torch.nn.functional.softmax(actions, dim = 0).squeeze(1).squeeze(1).cpu().detach().numpy()
