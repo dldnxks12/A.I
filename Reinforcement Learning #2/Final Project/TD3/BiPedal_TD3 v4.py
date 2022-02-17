@@ -366,7 +366,6 @@ for episode in range(MAX_EPISODES):
         reward_history_20.pop()
     avg = sum(reward_history_20) / len(reward_history_20)
     avg_history.append(avg)
-    print(episode)
     if episode % 10 == 0:
         print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
     episode += 1

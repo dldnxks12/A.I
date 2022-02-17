@@ -309,7 +309,7 @@ ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 score = 0.0
 avg_history = []
 reward_history_20 = []
-MAX_EPISODES = 1000
+MAX_EPISODES = 2000
 
 for episode in range(MAX_EPISODES):
     state = env.reset()
@@ -369,7 +369,6 @@ for episode in range(MAX_EPISODES):
         reward_history_20.pop()
     avg = sum(reward_history_20) / len(reward_history_20)
     avg_history.append(avg)
-    print(episode)
     if episode % 10 == 0:
         print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
     episode += 1

@@ -161,11 +161,11 @@ def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer
 
 
 # Hyperparameters
-lr_mu      = 0.0005         # Learning Rate for Torque (Action)
+lr_mu      = 0.005         # Learning Rate for Torque (Action)
 lr_q       = 0.005         # Learning Rate for Q
 gamma      = 0.99         # discount factor
 batch_size = 100          # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 50000      # Replay Memory Size
+buffer_limit = 100000      # Replay Memory Size
 tau = 0.01                # for target network soft update
 
 # Import Gym Environment
@@ -195,7 +195,7 @@ ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 score = 0.0
 avg_history = []
 reward_history_20 = []
-MAX_EPISODES = 1000
+MAX_EPISODES = 2000
 
 for episode in range(MAX_EPISODES):
     state = env.reset()
@@ -229,7 +229,6 @@ for episode in range(MAX_EPISODES):
 
     avg = sum(reward_history_20) / len(reward_history_20)
     avg_history.append(avg)
-    print(episode)
     if episode % 10 == 0:
         print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
     episode += 1
