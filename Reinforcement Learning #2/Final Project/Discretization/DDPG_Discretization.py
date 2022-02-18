@@ -147,6 +147,7 @@ q_target.load_state_dict(q.state_dict())   # 파라미터 동기화
 mu_target.load_state_dict(mu.state_dict()) # 파라미터 동기화
 
 score = 0.0
+avg_history = []
 reward_history_20 = deque(maxlen=100)
 
 mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
@@ -165,15 +166,14 @@ for episode in range(MAX_EPISODES):
 
         a = mu(torch.from_numpy(s).float().to(device)) # Return action (-2 ~ 2 사이의 torque  ... )
 
-        # Discretize Action Space ...
+        # Discretize Action Space (A = np.arange(-2, 2, 0.001))
         discrete_action = np.digitize(a.cpu().detach().numpy(), bins = A)
 
-        # Soft Greedy
+        # Soft Greedy Policy
         sample = random.random()
         if sample < 0.1:
             random_action = np.array([random.randrange(0, len(A))])
             action = A[random_action - 1]
-
         else:
             action = A[discrete_action - 1]
 
@@ -188,11 +188,15 @@ for episode in range(MAX_EPISODES):
                 soft_update(mu, mu_target)
                 soft_update(q, q_target)
 
-    reward_history_20.append(score)
+    # Moving Average Count
+    reward_history_20.insert(0, score)
+    if len(reward_history_20) == 10:
+        reward_history_20.pop()
     avg = sum(reward_history_20) / len(reward_history_20)
-    if episode % 20 == 0:
-        print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
-    episode = episode + 1
+    avg_history.append(avg)
+    if episode % 10 == 0:
+        print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
+    episode += 1
 
 env.close()
 
@@ -223,3 +227,7 @@ plt.ylabel("Reward")
 plt.title("DDPG_Discretization")
 plt.plot(length, reward_history_20)
 plt.savefig('DDPG_Discretization.png')
+
+
+avg_history = np.array(avg_history)
+np.save("./ddpg_dis_save1", avg_history)

@@ -17,6 +17,8 @@ import torch.optim as optim
 from time import sleep
 from collections import deque
 
+import copy
+
 #GPU Setting
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
@@ -77,16 +79,17 @@ class QNet(nn.Module):
         super(QNet, self).__init__()
         self.fc_sA   = nn.Linear(24, 128)    # State  24 개
         self.fc_aA   = nn.Linear(4, 128)     # Action 4  개
-        self.fc_qA   = nn.Linear(256, 128)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(128, 1)     # Output : Q value
+        self.fc_qA   = nn.Linear(256, 256)   # State , Action 이어붙이기
+        self.fc_outA = nn.Linear(256, 1)     # Output : Q value
 
         self.fc_sB   = nn.Linear(24, 128)    # State  24 개
         self.fc_aB   = nn.Linear(4, 128)     # Action 4  개
-        self.fc_qB   = nn.Linear(256, 128)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(128, 1)     # Output : Q value
+        self.fc_qB   = nn.Linear(256, 256)   # State , Action 이어붙이기
+        self.fc_outB = nn.Linear(256, 1)     # Output : Q value
 
 
     def forward(self, x, a):
+
         h1A = F.relu(self.fc_sA(x))
         h2A = F.relu(self.fc_aA(a))
         catA = torch.cat([h1A, h2A], dim = 1)
@@ -98,16 +101,8 @@ class QNet(nn.Module):
         catB = torch.cat([h1B, h2B], dim = 1)
         q2 = F.relu(self.fc_qB(catB))
         q2 = self.fc_outB(q2)
+
         return q1, q2
-
-    def Q(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        return q1
 
 
 # Add Noise to deterministic action for improving exploration property
@@ -128,8 +123,9 @@ class OrnsteinUhlenbeckNoise:
 
 # Update Network Priodically ...
 def soft_update(net, net_target):
-    for param_target, param in zip(net_target.parameters(), net.parameters()):
-        param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
+    with torch.no_grad():
+        for param_target, param in zip(net_target.parameters(), net.parameters()):
+            param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
 def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
@@ -141,30 +137,44 @@ def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer
         target_q1, target_q2 = q_target(next_states, next_action_bar)
         target_q = torch.min(target_q1, target_q2)
 
-        target_Q = reward + (gamma*target_q*dones)
+        target_Q = reward + (gamma * target_q * dones)
 
     current_q1, current_q2 = q(states, actions)
 
-    Critic_loss = torch.nn.functional.mse_loss(current_q1,  target_Q) + torch.nn.functional.mse_loss(current_q2, target_Q)
+    loss1 = torch.nn.functional.mse_loss(current_q1, target_Q)
+    loss2 = torch.nn.functional.mse_loss(current_q2, target_Q)
 
+    Critic = loss1 + loss2
     q_optimizer.zero_grad()
-    Critic_loss.backward()
+    Critic.backward()
     q_optimizer.step()
 
 
     # Update Policy Network periodically ...
-    if episode % 3 == 0:
-        mu_loss = -q.Q(states, mu(states)).mean()
+    if episode % 5 == 0:
+
+        for p in q.parameters():
+            p.requires_grad = False
+        q_1, q_2 = q(states, mu(states))
+        q_val = torch.min(q_1, q_2)
+
+        mu_loss = (-q_val).mean()
         mu_optimizer.zero_grad()
         mu_loss.backward()
         mu_optimizer.step()
 
+        for p in q.parameters():
+            p.requires_grad = True
+
+        soft_update(q, q_target)
+        soft_update(mu, mu_target)
+
 
 # Hyperparameters
-lr_mu      = 0.005         # Learning Rate for Torque (Action)
-lr_q       = 0.005         # Learning Rate for Q
-gamma      = 0.99         # discount factor
-batch_size = 100          # Mini Batch Size for Sampling from Replay Memory
+lr_mu      = 0.001          # Learning Rate for Torque (Action)
+lr_q       = 0.001          # Learning Rate for Q
+gamma      = 0.99          # discount factor
+batch_size = 100           # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 100000      # Replay Memory Size
 tau = 0.01                # for target network soft update
 
@@ -176,14 +186,15 @@ memory = ReplayBuffer()
 
 # Networks
 q =  QNet().to(device) # Twin Network for avoiding maximization bias
-q_target = QNet().to(device)
-
+q_target = copy.deepcopy(q).eval().to(device)
 mu = MuNet().to(device)
 mu_target = MuNet().to(device)
 
-# Parameter Synchronize
-q_target.load_state_dict(q.state_dict())
-mu_target.load_state_dict(mu.state_dict())
+for p in q_target.parameters():
+    p.requires_grad = False
+
+for m in mu_target.parameters():
+    m.requires_grad = False
 
 # Optimizer
 mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
@@ -206,10 +217,11 @@ for episode in range(MAX_EPISODES):
         #if episode % 100 == 0:
         #    env.render()
 
-        action = mu(torch.from_numpy(state).float().to(device)) # Return action (-2 ~ 2 사이의 torque  ... )
+        with torch.no_grad():
+            action = mu(torch.from_numpy(state).float().to(device))
         noise = torch.tensor(ou_noise(), device=device)
 
-        action = (action + noise).cpu().detach().numpy() # Action에 Noise를 추가해서 Exploration 기능 추가 ...
+        action = (action + noise).cpu().detach().numpy()
         next_state, reward, done, _ = env.step(action)
 
         memory.put((state, action, reward, next_state, done))
@@ -219,8 +231,6 @@ for episode in range(MAX_EPISODES):
         if memory.size() > 2000:
             for _ in range(10):
                 train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
-                soft_update(q, q_target)
-                soft_update(mu, mu_target)
 
     # Moving Average Count
     reward_history_20.insert(0, score)
@@ -241,3 +251,6 @@ plt.xlabel("Episode")
 plt.ylabel("10 episode MVA")
 plt.plot(length, avg_history)
 plt.savefig('TD3 check 1.png')
+
+avg_history = np.array(avg_history)
+np.save("./TD3_single_model", avg_history)

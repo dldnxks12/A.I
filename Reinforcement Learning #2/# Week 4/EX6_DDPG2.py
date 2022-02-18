@@ -146,6 +146,7 @@ q_target.load_state_dict(q.state_dict())   # 파라미터 동기화
 mu_target.load_state_dict(mu.state_dict()) # 파라미터 동기화
 
 score = 0.0
+avg_history = []
 reward_history_20 = deque(maxlen=100)
 
 mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
@@ -156,7 +157,7 @@ MAX_EPISODES = 500
 for episode in range(MAX_EPISODES):
     state = env.reset()
     done = False
-
+    score = 0.0
     while not done: # Stacking Experiences
 
         action = mu(torch.from_numpy(state).float().to(device))        # Return action (-2 ~ 2 사이의 torque  ... )
@@ -174,12 +175,15 @@ for episode in range(MAX_EPISODES):
                 soft_update(mu, mu_target)
                 soft_update(q, q_target)
 
-    reward_history_20.append(score)
+    # Moving Average Count
+    reward_history_20.insert(0, score)
+    if len(reward_history_20) == 10:
+        reward_history_20.pop()
     avg = sum(reward_history_20) / len(reward_history_20)
-    if episode % 20 == 0:
-        print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
-    score = 0.0
-    episode = episode + 1
+    avg_history.append(avg)
+    if episode % 10 == 0:
+        print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
+    episode += 1
 
 env.close()
 
@@ -210,3 +214,6 @@ plt.ylabel("Reward")
 plt.title("DDPG_Continuous")
 plt.plot(length, reward_history_20)
 plt.savefig('DDPG_Continuous.png')
+
+avg_history = np.array(avg_history)
+np.save("./ddpg_con_save1", avg_history)

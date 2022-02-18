@@ -126,14 +126,6 @@ class QNet1(nn.Module):
         q2 = self.fc_outB(q2)
         return q1, q2
 
-    def Q(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        return q1
 
 class QNet2(nn.Module):
     def __init__(self):
@@ -163,14 +155,6 @@ class QNet2(nn.Module):
         q2 = self.fc_outB(q2)
         return q1, q2
 
-    def Q(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        return q1
 
 class QNet3(nn.Module):
     def __init__(self):
@@ -200,14 +184,6 @@ class QNet3(nn.Module):
         q2 = self.fc_outB(q2)
         return q1, q2
 
-    def Q(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        return q1
 
 # Add Noise to deterministic action for improving exploration property
 class OrnsteinUhlenbeckNoise:
@@ -222,13 +198,15 @@ class OrnsteinUhlenbeckNoise:
         self.x_prev = x
 
         x = torch.tensor(x, device = device, dtype = torch.float)
+
         return x
 
 
 # Update Network Priodically ...
 def soft_update(net, net_target):
-    for param_target, param in zip(net_target.parameters(), net.parameters()):
-        param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
+    with torch.no_grad():
+        for param_target, param in zip(net_target.parameters(), net.parameters()):
+            param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
 def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer, batch_size):
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
@@ -243,28 +221,38 @@ def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer
         target_Q = reward + (gamma*target_q*dones)
 
     current_q1, current_q2 = q(states, actions)
-    Critic_loss = torch.nn.functional.mse_loss(current_q1,  target_Q) + torch.nn.functional.mse_loss(current_q2, target_Q)
 
+    loss1 = torch.nn.functional.mse_loss(current_q1, target_Q)
+    loss2 = torch.nn.functional.mse_loss(current_q2, target_Q)
+
+    Critic = loss1 + loss2
     q_optimizer.zero_grad()
-    Critic_loss.backward()
+    Critic.backward()
     q_optimizer.step()
-
 
     # Update Policy Network periodically ...
     if episode % 3 == 0:
-        mu_loss = -q.Q(states, mu(states)).mean()
+        for p in q.parameters():
+            p.requires_grad = False
+
+        q_1, q_2 = q(states, mu(states))
+        q_val = torch.min(q_1, q_2)
+
+        mu_loss = (-q_val).mean()
         mu_optimizer.zero_grad()
         mu_loss.backward()
         mu_optimizer.step()
 
+        for p in q.parameters():
+            p.requires_grad = True
+        soft_update(q, q_target)
+        soft_update(mu, mu_target)
+
 
 # Hyperparameters
-#lr_mu      = 0.0005         # Learning Rate for Torque (Action)
-#lr_q       = 0.005         # Learning Rate for Q
 gamma      = 0.99         # discount factor
-#batch_size = 128          # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 100000      # Replay Memory Size
-tau = 0.005                # for target network soft update
+tau = 0.01                # for target network soft update
 
 # Import Gym Environment
 env = gym.make('BipedalWalker-v3')
@@ -287,13 +275,19 @@ mu_target1 = MuNet1().to(device)
 mu_target2 = MuNet2().to(device)
 mu_target3 = MuNet3().to(device)
 
-# Parameter Synchronize
-q_target1.load_state_dict(q1.state_dict())
-q_target2.load_state_dict(q2.state_dict())
-q_target3.load_state_dict(q3.state_dict())
-mu_target1.load_state_dict(mu1.state_dict())
-mu_target2.load_state_dict(mu2.state_dict())
-mu_target3.load_state_dict(mu3.state_dict())
+for p in q_target1.parameters():
+    p.requires_grad = False
+for p in q_target2.parameters():
+    p.requires_grad = False
+for p in q_target3.parameters():
+    p.requires_grad = False
+
+for m in mu_target1.parameters():
+    m.requires_grad = False
+for m in mu_target2.parameters():
+    m.requires_grad = False
+for m in mu_target3.parameters():
+    m.requires_grad = False
 
 # Optimizer
 mu_optimizer1 = optim.Adam(mu1.parameters(), lr=0.0005)
@@ -309,7 +303,7 @@ ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 score = 0.0
 avg_history = []
 reward_history_20 = []
-MAX_EPISODES = 2000
+MAX_EPISODES = 1000
 
 for episode in range(MAX_EPISODES):
     state = env.reset()
@@ -321,13 +315,26 @@ for episode in range(MAX_EPISODES):
         stack = np.array(stack)
         stack = torch.from_numpy(stack).float().to(device).squeeze(0)
 
-        action1 = mu1(stack)
-        action2 = mu2(stack)
-        action3 = mu3(stack)
+        noise = ou_noise()
+        noise_index = np.random.choice([0,1,2], 1)[0]
 
-        q_value_for_softmax1 = q1(stack, action1)[0][0].unsqueeze(0)
-        q_value_for_softmax2 = q2(stack, action2)[0][0].unsqueeze(0)
-        q_value_for_softmax3 = q3(stack, action3)[0][0].unsqueeze(0)
+        with torch.no_grad():
+            if noise_index == 0:
+                action1 = mu1(stack) + noise
+                action2 = mu2(stack)
+                action3 = mu3(stack)
+            elif noise_index == 1:
+                action1 = mu1(stack)
+                action2 = mu2(stack) + noise
+                action3 = mu3(stack)
+            else:
+                action1 = mu1(stack)
+                action2 = mu2(stack) + noise
+                action3 = mu3(stack)
+
+            q_value_for_softmax1 = q1(stack, action1)[0][0].unsqueeze(0)
+            q_value_for_softmax2 = q2(stack, action2)[0][0].unsqueeze(0)
+            q_value_for_softmax3 = q3(stack, action3)[0][0].unsqueeze(0)
 
         # Voting
         actions = torch.stack([q_value_for_softmax1, q_value_for_softmax2, q_value_for_softmax3])
@@ -339,6 +346,7 @@ for episode in range(MAX_EPISODES):
         choice_action = np.random.choice(action_index, 1, p=action_softmax.cpu().detach().numpy())
         best_action = torch.argmax(actions)
 
+        # 분포가 수렴하면서, random choice가 점점 무의미해질 것
         sample = random.random()
         if sample > 0.1:
             action = action_list[best_action].cpu().detach().numpy()
@@ -356,12 +364,6 @@ for episode in range(MAX_EPISODES):
                 train(episode, mu2, mu_target2, q2, q_target2, memory, q_optimizer2, mu_optimizer2, batch_size = 128)
                 train(episode, mu3, mu_target3, q3, q_target3, memory, q_optimizer3, mu_optimizer3, batch_size = 256)
 
-                soft_update(q1, q_target1)
-                soft_update(q2, q_target2)
-                soft_update(q3, q_target3)
-                soft_update(mu1, mu_target1)
-                soft_update(mu2, mu_target2)
-                soft_update(mu3, mu_target3)
 
     # Moving Average Count
     reward_history_20.insert(0, score)
@@ -380,4 +382,7 @@ plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("10 episode MVA")
 plt.plot(length, avg_history)
-plt.savefig('TD3 check .png')
+plt.savefig('TD3 check v2.png')
+
+avg_history = np.array(avg_history)
+np.save("./TD3_ensemble_model v2", avg_history)
