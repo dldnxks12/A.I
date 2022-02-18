@@ -5,20 +5,18 @@ from time import sleep
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
+data  = np.load("./ddpg_con_save1.npy")
+data2 = np.load("./ddpg_dis_save1.npy")
 
-env = gym.make('BipedalWalker-v3')
-env.reset()
+#print(data.shape)
+#print(data2.shape)
 
-print("Action Space {}".format(env.action_space))
-print("State Space {}".format(env.observation_space))
-
-
-done = False
-for i in range(300):
-    env.render()
-    action = env.action_space.sample()
-    next_state, reward, done, _ = env.step(action)
-
-
-
-env.close()
+length = np.arange(len(data))
+plt.figure()
+plt.title("DDPG")
+plt.plot(length, data , label = 'Continuous')
+plt.plot(length, data2, label = 'Discrete')
+plt.xlabel("Episode")
+plt.ylabel("10 Avg Reward")
+plt.legend()
+plt.show()

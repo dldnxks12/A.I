@@ -1,10 +1,10 @@
-# TD3 = DDPG + Remove Maximization Bias
+# 학습 OK
 ###########################################################################
 # To Avoid Library Collision
 import os
-
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 ###########################################################################
+
 import gym
 import sys
 import random
@@ -16,15 +16,23 @@ import torch.nn.functional as F
 import torch.optim as optim
 from time import sleep
 from collections import deque
-
-import copy
+import matplotlib.pyplot as plt
 
 #GPU Setting
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 print("")
 print(f"On {device}")
 print("")
+
+# Hyperparameters
+lr_mu = 0.0005       # Learning Rate for Torque (Action)
+lr_q = 0.001         # Learning Rate for Q
+gamma = 0.99         # discount factor
+batch_size = 16      # Mini Batch Size for Sampling from Replay Memory
+buffer_limit = 50000 # Replay Memory Size
+tau = 0.005          # for target network soft update
 
 class ReplayBuffer():
     def __init__(self):
@@ -35,61 +43,59 @@ class ReplayBuffer():
 
     def sample(self, n):
         mini_batch = random.sample(self.buffer, n) # buffer에서 n개 뽑기
-        s_lst, a_lst, r_lst, s_prime_lst, done_mask_lst = [], [], [], [], []
+        states, actions, rewards, next_states, done_mask_lst = [], [], [], [], []
 
         for transition in mini_batch:
-            s, a, r, s_prime, done = transition
-            s_lst.append(s) # s = [COS SIN 각속도]
-            a_lst.append(a)
-            r_lst.append([r])
-            s_prime_lst.append(s_prime)
+            state, action, reward, next_state, done = transition
+            states.append(state) # s = [COS SIN 각속도]
+            actions.append([action])
+            rewards.append([reward])
+            next_states.append(next_state)
             done_mask = 0.0 if done else 1.0
             done_mask_lst.append([done_mask])
 
-        s_lst = np.array(s_lst)
-        a_lst = np.array(a_lst)
-        r_lst = np.array(r_lst)
-        s_prime_lst = np.array(s_prime_lst)
+        s_lst = np.array(states)
+        #a_lst = np.array(actions)
+        r_lst = np.array(rewards)
+        s_prime_lst = np.array(next_states)
         done_mask_lst = np.array(done_mask_lst)
 
-        return torch.tensor(s_lst, device = device, dtype=torch.float), torch.tensor(a_lst, device = device, dtype=torch.float), \
-               torch.tensor(r_lst, device = device,dtype=torch.float), torch.tensor(s_prime_lst, device = device, dtype=torch.float), \
+        return torch.tensor(s_lst, device = device, dtype=torch.float), torch.tensor(actions, device = device,dtype=torch.float), \
+               torch.tensor(r_lst, device = device,dtype=torch.float), torch.tensor(s_prime_lst,device = device, dtype=torch.float), \
                torch.tensor(done_mask_lst, device = device, dtype=torch.float)
 
     def size(self):
         return len(self.buffer)
 
 
-class MuNet(nn.Module):  # Output : Deterministic Action !
+class MuNet(nn.Module):  # Mu = Torque -> Action
     def __init__(self):
         super(MuNet, self).__init__()
-        self.fc1 = nn.Linear(24, 256) # Input  : 24 continuous states
-        self.fc2 = nn.Linear(256, 256)
-        self.fc_mu = nn.Linear(256, 4) # Output : 4 continuous actions
+        self.fc1 = nn.Linear(3, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc_mu = nn.Linear(64, 1)
 
-    def forward(self, x):
+    def forward(self, x): # Input : state (COS, SIN, 각속도)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        mu = torch.tanh(self.fc_mu(x))
-        return mu
-
+        mu = torch.tanh(self.fc_mu(x)) * 2
+        return mu # Return Deterministic Policy
 
 class QNet(nn.Module):
     def __init__(self):
         super(QNet, self).__init__()
-        self.fc_sA   = nn.Linear(24, 128)    # State  24 개
-        self.fc_aA   = nn.Linear(4, 128)     # Action 4  개
-        self.fc_qA   = nn.Linear(256, 256)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(256, 1)     # Output : Q value
+        self.fc_sA = nn.Linear(3, 64)   # State = (COS, SIN, 각속도)
+        self.fc_aA = nn.Linear(1, 64)   # Action = Torque
+        self.fc_qA = nn.Linear(128, 32) # State , Action 이어붙이기
+        self.fc_outA = nn.Linear(32, 1) # Output : Q value
 
-        self.fc_sB   = nn.Linear(24, 128)    # State  24 개
-        self.fc_aB   = nn.Linear(4, 128)     # Action 4  개
-        self.fc_qB   = nn.Linear(256, 256)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(256, 1)     # Output : Q value
+        self.fc_sB = nn.Linear(3, 64)   # State = (COS, SIN, 각속도)
+        self.fc_aB = nn.Linear(1, 64)   # Action = Torque
+        self.fc_qB = nn.Linear(128, 32) # State , Action 이어붙이기
+        self.fc_outB = nn.Linear(32, 1) # Output : Q value
 
 
     def forward(self, x, a):
-
         h1A = F.relu(self.fc_sA(x))
         h2A = F.relu(self.fc_aA(a))
         catA = torch.cat([h1A, h2A], dim = 1)
@@ -105,7 +111,6 @@ class QNet(nn.Module):
         return q1, q2
 
 
-# Add Noise to deterministic action for improving exploration property
 class OrnsteinUhlenbeckNoise:
     def __init__(self, mu):
         self.theta, self.dt, self.sigma = 0.1, 0.01, 0.1
@@ -116,27 +121,20 @@ class OrnsteinUhlenbeckNoise:
         x = self.x_prev + self.theta * (self.mu - self.x_prev) * self.dt + \
             self.sigma * np.sqrt(self.dt) * np.random.normal(size=self.mu.shape)
         self.x_prev = x
-
         x = torch.tensor(x, device = device, dtype = torch.float)
         return x
 
 
-# Update Network Priodically ...
-def soft_update(net, net_target):
-    with torch.no_grad():
-        for param_target, param in zip(net_target.parameters(), net.parameters()):
-            param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
-
-def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
+def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
     states, actions, rewards, next_states, dones = memory.sample(batch_size)
 
-
+    Q_loss, mu_loss = 0, 0
     with torch.no_grad():
-        noise_bar  = torch.clamp(ou_noise(), -0.5, 0.5)
+        noise_bar = torch.clamp(ou_noise(), -0.5, 0.5)
         next_action_bar = mu_target(next_states) + noise_bar
-
         target_q1, target_q2 = q_target(next_states, next_action_bar)
         target_q = torch.min(target_q1, target_q2)
+
         target_Q = rewards + (gamma * target_q * dones)
 
     current_q1, current_q2 = q(states, actions)
@@ -148,7 +146,6 @@ def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer
     q_optimizer.zero_grad()
     Critic.backward()
     q_optimizer.step()
-
 
     # Update Policy Network periodically ...
     if episode % 5 == 0:
@@ -170,70 +167,68 @@ def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer
         soft_update(mu, mu_target)
 
 
-# Hyperparameters
-lr_mu      = 0.001          # Learning Rate for Torque (Action)
-lr_q       = 0.001          # Learning Rate for Q
-gamma      = 0.99          # discount factor
-batch_size = 100           # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 100000      # Replay Memory Size
-tau = 0.01                # for target network soft update
+def soft_update(net, net_target):
+    for param_target, param in zip(net_target.parameters(), net.parameters()):
+        param_target.data.copy_(param_target.data * (1.0 - tau) + param.data * tau)
 
-# Import Gym Environment
-env = gym.make('BipedalWalker-v3')
-
-# Replay Buffer
+env = gym.make('Pendulum-v1')
 memory = ReplayBuffer()
 
-# Networks
-q =  QNet().to(device) # Twin Network for avoiding maximization bias
-q_target = copy.deepcopy(q).eval().to(device)
+# 2개의 동일한 네트워크 생성 ...
+q =  QNet().to(device)
+q_target = QNet().to(device)
 mu = MuNet().to(device)
 mu_target = MuNet().to(device)
 
-for p in q_target.parameters():
-    p.requires_grad = False
-
-for m in mu_target.parameters():
-    m.requires_grad = False
-
-# Optimizer
-mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
-q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
-
-# Noise
-ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
+q_target.load_state_dict(q.state_dict())   # 파라미터 동기화
+mu_target.load_state_dict(mu.state_dict()) # 파라미터 동기화
 
 score = 0.0
 avg_history = []
-reward_history_20 = []
-MAX_EPISODES = 1000
+reward_history_20 = deque(maxlen=100)
 
+mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
+q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
+ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(1))
+MAX_EPISODES = 500
+
+# Action Space Map
+A = np.arange(-2, 2, 0.001)
 for episode in range(MAX_EPISODES):
-    state = env.reset()
+    s = env.reset()
     done = False
     score = 0.0
+
     while not done: # Stacking Experiences
 
-        with torch.no_grad():
-            action = mu(torch.from_numpy(state).float().to(device))
-        noise = torch.tensor(ou_noise(), device=device)
+        a = mu(torch.from_numpy(s).float().to(device)) # Return action (-2 ~ 2 사이의 torque  ... )
 
-        action = (action + noise).cpu().detach().numpy()
-        next_state, reward, done, _ = env.step(action)
+        # Discretize Action Space (A = np.arange(-2, 2, 0.001))
+        discrete_action = np.digitize(a.cpu().detach().numpy(), bins = A)
 
-        memory.put((state, action, reward, next_state, done))
-        score += reward
-        state = next_state
+        # Soft Greedy Policy
+        sample = random.random()
+        if sample < 0.1:
+            random_action = np.array([random.randrange(0, len(A))])
+            action = A[random_action - 1]
+        else:
+            action = A[discrete_action - 1]
+
+        s_prime, r, done, info = env.step(action)
+        memory.put((s, a, r / 100.0, s_prime, done))
+        score = score + r
+        s = s_prime
 
         if memory.size() > 2000:
-            for _ in range(10):
-                train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
+            for i in range(10):
+                train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
+                soft_update(mu, mu_target)
+                soft_update(q, q_target)
 
     # Moving Average Count
     reward_history_20.insert(0, score)
     if len(reward_history_20) == 10:
         reward_history_20.pop()
-
     avg = sum(reward_history_20) / len(reward_history_20)
     avg_history.append(avg)
     if episode % 10 == 0:
@@ -242,12 +237,16 @@ for episode in range(MAX_EPISODES):
 
 env.close()
 
+# Record Hyperparamters & Result Graph
+
 length = np.arange(len(avg_history))
 plt.figure()
 plt.xlabel("Episode")
-plt.ylabel("10 episode MVA")
+plt.ylabel("Reward")
+plt.title("TD3_Pendulum v2")
 plt.plot(length, avg_history)
-plt.savefig('TD3 check 1.png')
+plt.savefig('TD3_Pendulum v2.png')
+
 
 avg_history = np.array(avg_history)
-np.save("./TD3_single_model", avg_history)
+np.save("./TD3_Pendulum v2", avg_history)

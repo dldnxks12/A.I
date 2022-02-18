@@ -93,7 +93,6 @@ class QNet(nn.Module):
         h1 = F.relu(self.fc_s(x)) # 64
         h2 = F.relu(self.fc_a(a)) # 64
         cat = torch.cat([h1, h2], dim = 1)  # 128
-
         q = F.relu(self.fc_q(cat)) # 32
         q = self.fc_out(q)  # 1
         return q
@@ -220,12 +219,12 @@ with open('DDPG_Discretization.txt', 'w', encoding = 'UTF-8') as f:
     f.write("memory.size() : 2000" + '\n')
     f.write("# ----------------------- # " + '\n')
 
-length = np.arange(len(reward_history_20))
+length = np.arange(len(avg_history))
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
 plt.title("DDPG_Discretization")
-plt.plot(length, reward_history_20)
+plt.plot(length, avg_history)
 plt.savefig('DDPG_Discretization.png')
 
 

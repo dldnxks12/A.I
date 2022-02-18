@@ -207,12 +207,12 @@ with open('DDPG_Continuous.txt', 'w', encoding = 'UTF-8') as f:
     f.write("memory.size() : 2000" + '\n')
     f.write("# ----------------------- # " + '\n')
 
-length = np.arange(len(reward_history_20))
+length = np.arange(len(avg_history))
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
 plt.title("DDPG_Continuous")
-plt.plot(length, reward_history_20)
+plt.plot(length, avg_history)
 plt.savefig('DDPG_Continuous.png')
 
 avg_history = np.array(avg_history)

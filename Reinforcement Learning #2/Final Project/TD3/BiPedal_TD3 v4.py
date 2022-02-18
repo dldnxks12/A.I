@@ -222,7 +222,7 @@ def train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer
         target_q1, target_q2 = q_target(next_states, next_action_bar)
         target_q = torch.min(target_q1, target_q2)
 
-        target_Q = reward + (gamma * target_q * dones)
+        target_Q = rewards + (gamma * target_q * dones)
 
     current_q1, current_q2 = q(states, actions)
 
@@ -307,19 +307,22 @@ ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 score = 0.0
 avg_history = []
 reward_history_20 = []
+softmax_recores = []
 MAX_EPISODES = 1000
-
+time_step = 0
+DECAYING_RATE = 3
 for episode in range(MAX_EPISODES):
     state = env.reset()
     done = False
     score = 0.0
     while not done:  # Stacking Experiences
-
         stack = [state] * 2
         stack = np.array(stack)
         stack = torch.from_numpy(stack).float().to(device).squeeze(0)
 
-        noise = ou_noise()
+        noise = ou_noise() * (DECAYING_RATE - episode * 0.05)
+        if (DECAYING_RATE - episode * 0.05) < 0:
+            noise = 0
         noise_index = np.random.choice([0, 1, 2], 1)[0]
 
         with torch.no_grad():
@@ -333,8 +336,8 @@ for episode in range(MAX_EPISODES):
                 action3 = mu3(stack)
             else:
                 action1 = mu1(stack)
-                action2 = mu2(stack) + noise
-                action3 = mu3(stack)
+                action2 = mu2(stack)
+                action3 = mu3(stack) + noise
 
             q_value_for_softmax1 = q1(stack, action1)[0][0].unsqueeze(0)
             q_value_for_softmax2 = q2(stack, action2)[0][0].unsqueeze(0)
@@ -343,6 +346,11 @@ for episode in range(MAX_EPISODES):
         # Voting
         actions = torch.stack([q_value_for_softmax1, q_value_for_softmax2, q_value_for_softmax3])
         action_softmax = torch.nn.functional.softmax(actions, dim=0).squeeze(1).squeeze(1)
+
+        # Soft max Converge Check
+        if time_step % 1000 == 0:
+            softmax_recores.append(action_softmax.cpu().detach().numpy())
+        time_step += 1
 
         action_list = [action1[0], action2[0], action3[0]]
         action_index = [0, 1, 2]
@@ -364,9 +372,9 @@ for episode in range(MAX_EPISODES):
 
         if memory.size() > 2000:
             for i in range(5):
-                train(episode, mu1, mu_target1, q1, q_target1, memory, q_optimizer1, mu_optimizer1, batch_size=128)
-                train(episode, mu2, mu_target2, q2, q_target2, memory, q_optimizer2, mu_optimizer2, batch_size=256)
-                train(episode, mu3, mu_target3, q3, q_target3, memory, q_optimizer3, mu_optimizer3, batch_size=512)
+                train(episode, mu1, mu_target1, q1, q_target1, memory, q_optimizer1, mu_optimizer1, batch_size=32)
+                train(episode, mu2, mu_target2, q2, q_target2, memory, q_optimizer2, mu_optimizer2, batch_size=64)
+                train(episode, mu3, mu_target3, q3, q_target3, memory, q_optimizer3, mu_optimizer3, batch_size=128)
 
     # Moving Average Count
     reward_history_20.insert(0, score)
@@ -389,3 +397,4 @@ plt.savefig('TD3 check v4 .png')
 
 avg_history = np.array(avg_history)
 np.save("./TD3_ensemble_model v4", avg_history)
+np.save("./TD3_ensemble_model v4_Softmax_Converge", softmax_recores)
