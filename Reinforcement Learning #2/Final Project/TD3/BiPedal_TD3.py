@@ -16,7 +16,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from time import sleep
 from collections import deque
-
+import matplotlib.pyplot as plt
 import copy
 
 #GPU Setting
@@ -188,7 +188,8 @@ memory = ReplayBuffer()
 q =  QNet().to(device) # Twin Network for avoiding maximization bias
 q_target = copy.deepcopy(q).eval().to(device)
 mu = MuNet().to(device)
-mu_target = MuNet().to(device)
+mu_target = copy.deepcopy(mu).eval().to(device)
+
 
 for p in q_target.parameters():
     p.requires_grad = False

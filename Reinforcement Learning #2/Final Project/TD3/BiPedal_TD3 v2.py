@@ -8,6 +8,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 ###########################################################################
 import gym
 import sys
+import copy
 import random
 import collections
 import numpy as np
@@ -17,6 +18,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from time import sleep
 from collections import deque
+import matplotlib.pyplot as plt
 
 #GPU Setting
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -264,16 +266,16 @@ memory = ReplayBuffer()
 q1 =  QNet1().to(device) # Twin Network for avoiding maximization bias
 q2 =  QNet2().to(device) # Twin Network for avoiding maximization bias
 q3 =  QNet3().to(device) # Twin Network for avoiding maximization bias
-q_target1 = QNet1().to(device)
-q_target2 = QNet2().to(device)
-q_target3 = QNet3().to(device)
+q_target1 = copy.deepcopy(q1).eval().to(device)
+q_target2 = copy.deepcopy(q2).eval().to(device)
+q_target3 = copy.deepcopy(q3).eval().to(device)
 
 mu1 = MuNet1().to(device)
 mu2 = MuNet2().to(device)
 mu3 = MuNet3().to(device)
-mu_target1 = MuNet1().to(device)
-mu_target2 = MuNet2().to(device)
-mu_target3 = MuNet3().to(device)
+mu_target1 = copy.deepcopy(mu1).eval().to(device)
+mu_target2 = copy.deepcopy(mu2).eval().to(device)
+mu_target3 = copy.deepcopy(mu3).eval().to(device)
 
 for p in q_target1.parameters():
     p.requires_grad = False
@@ -344,7 +346,7 @@ for episode in range(MAX_EPISODES):
         actions = torch.stack([q_value_for_softmax1, q_value_for_softmax2, q_value_for_softmax3])
         action_softmax = torch.nn.functional.softmax(actions, dim=0).squeeze(1).squeeze(1)
 
-        # Soft max Converge Check
+        # Soft max Converge Check - Deterministic하게 변한다.
         if time_step % 1000 == 0:
             softmax_recores.append(action_softmax.cpu().detach().numpy())
         time_step += 1
@@ -355,11 +357,12 @@ for episode in range(MAX_EPISODES):
         choice_action = np.random.choice(action_index, 1, p=action_softmax.cpu().detach().numpy())
         best_action = torch.argmax(actions)
 
-        # 분포가 수렴하면서, random choice가 점점 무의미해질 것
         sample = random.random()
         if sample > 0.1:
+            # Only 최적의 행동만 선택
             action = action_list[best_action].cpu().detach().numpy()
         else:
+            # 최적의 행동이 아니라도 Softmax를 통해 확률적으로 다른 Action을 취할 수 있도록
             action = action_list[choice_action[0]].cpu().detach().numpy()
 
         next_state, reward, done, info = env.step(action)

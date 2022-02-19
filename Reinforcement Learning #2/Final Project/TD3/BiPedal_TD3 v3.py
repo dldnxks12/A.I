@@ -9,6 +9,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 ###########################################################################
 import gym
 import sys
+import copy
 import random
 import collections
 import numpy as np
@@ -18,6 +19,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from time import sleep
 from collections import deque
+import matplotlib.pyplot as plt
 
 #GPU Setting
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -281,16 +283,16 @@ memory = ReplayBuffer()
 q1 =  QNet1().to(device) # Twin Network for avoiding maximization bias
 q2 =  QNet2().to(device) # Twin Network for avoiding maximization bias
 q3 =  QNet3().to(device) # Twin Network for avoiding maximization bias
-q_target1 = QNet1().to(device)
-q_target2 = QNet2().to(device)
-q_target3 = QNet3().to(device)
+q_target1 = copy.deepcopy(q1).eval().to(device)
+q_target2 = copy.deepcopy(q2).eval().to(device)
+q_target3 = copy.deepcopy(q3).eval().to(device)
 
 mu1 = MuNet1().to(device)
 mu2 = MuNet2().to(device)
 mu3 = MuNet3().to(device)
-mu_target1 = MuNet1().to(device)
-mu_target2 = MuNet2().to(device)
-mu_target3 = MuNet3().to(device)
+mu_target1 = copy.deepcopy(mu1).eval().to(device)
+mu_target2 = copy.deepcopy(mu2).eval().to(device)
+mu_target3 = copy.deepcopy(mu3).eval().to(device)
 
 for p in q_target1.parameters():
     p.requires_grad = False
@@ -322,7 +324,7 @@ avg_history       = []
 reward_history_20 = []
 softmax_recores   = []
 time_step = 0
-MAX_EPISODES = 1000
+MAX_EPISODES = 500
 DECAYING_RATE = 3
 for episode in range(MAX_EPISODES):
     state = env.reset()
