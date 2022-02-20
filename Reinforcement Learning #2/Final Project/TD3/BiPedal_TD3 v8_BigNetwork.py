@@ -537,14 +537,14 @@ for m in mu_target8.parameters():
     m.requires_grad = False
 
 # Optimizer
-mu_optimizer1 = optim.Adam(mu1.parameters(), lr=0.001)
-mu_optimizer2 = optim.Adam(mu2.parameters(), lr=0.001)
-mu_optimizer3 = optim.Adam(mu3.parameters(), lr=0.001)
-mu_optimizer4 = optim.Adam(mu4.parameters(), lr=0.001)
-mu_optimizer5 = optim.Adam(mu5.parameters(), lr=0.001)
-mu_optimizer6 = optim.Adam(mu6.parameters(), lr=0.001)
-mu_optimizer7 = optim.Adam(mu7.parameters(), lr=0.001)
-mu_optimizer8 = optim.Adam(mu8.parameters(), lr=0.001)
+mu_optimizer1 = optim.Adam(mu1.parameters(), lr=0.005)
+mu_optimizer2 = optim.Adam(mu2.parameters(), lr=0.005)
+mu_optimizer3 = optim.Adam(mu3.parameters(), lr=0.005)
+mu_optimizer4 = optim.Adam(mu4.parameters(), lr=0.005)
+mu_optimizer5 = optim.Adam(mu5.parameters(), lr=0.005)
+mu_optimizer6 = optim.Adam(mu6.parameters(), lr=0.005)
+mu_optimizer7 = optim.Adam(mu7.parameters(), lr=0.005)
+mu_optimizer8 = optim.Adam(mu8.parameters(), lr=0.005)
 
 q_optimizer1  = optim.Adam(q1.parameters(), lr=0.001)
 q_optimizer2  = optim.Adam(q2.parameters(), lr=0.001)
@@ -575,7 +575,6 @@ for episode in range(MAX_EPISODES):
         DECAY = DECAYING_RATE - episode * 0.01
         if DECAY < 0:
             DECAY = 0
-
         state = torch.from_numpy(state).float().to(device)
 
         noise1 = ou_noise() * DECAY
@@ -656,8 +655,8 @@ plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("10 episode MVA")
 plt.plot(length, avg_history)
-plt.savefig('TD3 BigNetwork.png')
+plt.savefig('TD3 BigNetwork2-2.png')
 
 avg_history = np.array(avg_history)
-np.save("./TD3_ensemble_model_BigNetwork", avg_history)
-np.save("./TD3_ensemble_model_BigNetwork_Softmax", softmax_recores)
+np.save("./TD3_ensemble_model_BigNetwork2-2", avg_history)
+np.save("./TD3_ensemble_model_BigNetwork2-2_Softmax", softmax_recores)

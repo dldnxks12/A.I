@@ -1,4 +1,5 @@
 # Noise 여러 개
+# Q Network는 Only 1개 ...
 # Best Action Choice 삭제 Only Softmax Choice
 ###########################################################################
 # To Avoid Library Collision
@@ -196,201 +197,6 @@ class QNet1(nn.Module):
         return q1, q2
 
 
-class QNet2(nn.Module):
-    def __init__(self):
-        super(QNet2, self).__init__()
-        self.fc_sA   = nn.Linear(24, 128)    # State  24 개
-        self.fc_aA   = nn.Linear(4, 128)     # Action 4  개
-        self.fc_qA   = nn.Linear(256, 256)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(256, 1)     # Output : Q value
-
-        self.fc_sB   = nn.Linear(24, 128)    # State  24 개
-        self.fc_aB   = nn.Linear(4, 128)     # Action 4  개
-        self.fc_qB   = nn.Linear(256, 256)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(256, 1)     # Output : Q value
-
-    def forward(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        h1B = F.relu(self.fc_sB(x))
-        h2B = F.relu(self.fc_aB(a))
-        catB = torch.cat([h1B, h2B], dim = 1)
-        q2 = F.relu(self.fc_qB(catB))
-        q2 = self.fc_outB(q2)
-        return q1, q2
-
-
-class QNet3(nn.Module):
-    def __init__(self):
-        super(QNet3, self).__init__()
-        self.fc_sA   = nn.Linear(24, 64)    # State  24 개
-        self.fc_aA   = nn.Linear(4, 64)     # Action 4  개
-        self.fc_qA   = nn.Linear(128, 128)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(128, 1)     # Output : Q value
-
-        self.fc_sB   = nn.Linear(24, 64)    # State  24 개
-        self.fc_aB   = nn.Linear(4, 64)     # Action 4  개
-        self.fc_qB   = nn.Linear(128, 128)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(128, 1)     # Output : Q value
-
-    def forward(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        h1B = F.relu(self.fc_sB(x))
-        h2B = F.relu(self.fc_aB(a))
-        catB = torch.cat([h1B, h2B], dim = 1)
-        q2 = F.relu(self.fc_qB(catB))
-        q2 = self.fc_outB(q2)
-        return q1, q2
-
-class QNet4(nn.Module):
-    def __init__(self):
-        super(QNet4, self).__init__()
-        self.fc_sA   = nn.Linear(24, 48)    # State  24 개
-        self.fc_aA   = nn.Linear(4, 48)     # Action 4  개
-        self.fc_qA   = nn.Linear(96, 96)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(96, 1)     # Output : Q value
-
-        self.fc_sB   = nn.Linear(24, 48)    # State  24 개
-        self.fc_aB   = nn.Linear(4, 48)     # Action 4  개
-        self.fc_qB   = nn.Linear(96, 96)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(96, 1)     # Output : Q value
-
-
-    def forward(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        h1B = F.relu(self.fc_sB(x))
-        h2B = F.relu(self.fc_aB(a))
-        catB = torch.cat([h1B, h2B], dim = 1)
-        q2 = F.relu(self.fc_qB(catB))
-        q2 = self.fc_outB(q2)
-        return q1, q2
-
-class QNet5(nn.Module):
-    def __init__(self):
-        super(QNet5, self).__init__()
-        self.fc_sA   = nn.Linear(24, 96)     # State  24 개
-        self.fc_aA   = nn.Linear(4, 96)      # Action 4  개
-        self.fc_qA   = nn.Linear(192, 192)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(192, 1)     # Output : Q value
-
-        self.fc_sB   = nn.Linear(24, 96)     # State  24 개
-        self.fc_aB   = nn.Linear(4, 96)      # Action 4  개
-        self.fc_qB   = nn.Linear(192, 192)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(192, 1)     # Output : Q value
-
-
-    def forward(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        h1B = F.relu(self.fc_sB(x))
-        h2B = F.relu(self.fc_aB(a))
-        catB = torch.cat([h1B, h2B], dim = 1)
-        q2 = F.relu(self.fc_qB(catB))
-        q2 = self.fc_outB(q2)
-        return q1, q2
-
-class QNet6(nn.Module):
-    def __init__(self):
-        super(QNet6, self).__init__()
-        self.fc_sA   = nn.Linear(24, 48)     # State  24 개
-        self.fc_aA   = nn.Linear(4, 48)      # Action 4  개
-        self.fc_qA   = nn.Linear(96, 192)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(192, 1)     # Output : Q value
-
-        self.fc_sB   = nn.Linear(24, 48)     # State  24 개
-        self.fc_aB   = nn.Linear(4, 48)      # Action 4  개
-        self.fc_qB   = nn.Linear(96, 192)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(192, 1)     # Output : Q value
-
-
-    def forward(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        h1B = F.relu(self.fc_sB(x))
-        h2B = F.relu(self.fc_aB(a))
-        catB = torch.cat([h1B, h2B], dim = 1)
-        q2 = F.relu(self.fc_qB(catB))
-        q2 = self.fc_outB(q2)
-        return q1, q2
-
-class QNet7(nn.Module):
-    def __init__(self):
-        super(QNet7, self).__init__()
-        self.fc_sA   = nn.Linear(24, 100)     # State  24 개
-        self.fc_aA   = nn.Linear(4, 100)      # Action 4  개
-        self.fc_qA   = nn.Linear(200, 200)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(200, 1)     # Output : Q value
-
-        self.fc_sB   = nn.Linear(24, 100)     # State  24 개
-        self.fc_aB   = nn.Linear(4, 100)      # Action 4  개
-        self.fc_qB   = nn.Linear(200, 200)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(200, 1)     # Output : Q value
-
-
-    def forward(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        h1B = F.relu(self.fc_sB(x))
-        h2B = F.relu(self.fc_aB(a))
-        catB = torch.cat([h1B, h2B], dim = 1)
-        q2 = F.relu(self.fc_qB(catB))
-        q2 = self.fc_outB(q2)
-        return q1, q2
-
-class QNet8(nn.Module):
-    def __init__(self):
-        super(QNet8, self).__init__()
-        self.fc_sA   = nn.Linear(24, 100)     # State  24 개
-        self.fc_aA   = nn.Linear(4, 100)      # Action 4  개
-        self.fc_qA   = nn.Linear(200, 150)   # State , Action 이어붙이기
-        self.fc_outA = nn.Linear(150, 1)     # Output : Q value
-
-        self.fc_sB   = nn.Linear(24, 100)     # State  24 개
-        self.fc_aB   = nn.Linear(4, 100)      # Action 4  개
-        self.fc_qB   = nn.Linear(200, 150)   # State , Action 이어붙이기
-        self.fc_outB = nn.Linear(150, 1)     # Output : Q value
-
-
-    def forward(self, x, a):
-        h1A = F.relu(self.fc_sA(x))
-        h2A = F.relu(self.fc_aA(a))
-        catA = torch.cat([h1A, h2A], dim = 1)
-        q1 = F.relu(self.fc_qA(catA))
-        q1 = self.fc_outA(q1)
-
-        h1B = F.relu(self.fc_sB(x))
-        h2B = F.relu(self.fc_aB(a))
-        catB = torch.cat([h1B, h2B], dim = 1)
-        q2 = F.relu(self.fc_qB(catB))
-        q2 = self.fc_outB(q2)
-        return q1, q2
-
 # Add Noise to deterministic action for improving exploration property
 class OrnsteinUhlenbeckNoise:
     def __init__(self, mu):
@@ -469,21 +275,8 @@ memory = ReplayBuffer()
 
 # Networks
 q1 =  QNet1().to(device) # Twin Network for avoiding maximization bias
-q2 =  QNet2().to(device) # Twin Network for avoiding maximization bias
-q3 =  QNet3().to(device) # Twin Network for avoiding maximization bias
-q4 =  QNet4().to(device) # Twin Network for avoiding maximization bias
-q5 =  QNet5().to(device) # Twin Network for avoiding maximization bias
-q6 =  QNet6().to(device) # Twin Network for avoiding maximization bias
-q7 =  QNet7().to(device) # Twin Network for avoiding maximization bias
-q8 =  QNet8().to(device) # Twin Network for avoiding maximization bias
 q_target1 = copy.deepcopy(q1).eval().to(device)
-q_target2 = copy.deepcopy(q2).eval().to(device)
-q_target3 = copy.deepcopy(q3).eval().to(device)
-q_target4 = copy.deepcopy(q4).eval().to(device)
-q_target5 = copy.deepcopy(q5).eval().to(device)
-q_target6 = copy.deepcopy(q6).eval().to(device)
-q_target7 = copy.deepcopy(q7).eval().to(device)
-q_target8 = copy.deepcopy(q8).eval().to(device)
+
 
 mu1 = MuNet1().to(device)
 mu2 = MuNet2().to(device)
@@ -504,20 +297,6 @@ mu_target8 = copy.deepcopy(mu8).eval().to(device)
 
 for p in q_target1.parameters():
     p.requires_grad = False
-for p in q_target2.parameters():
-    p.requires_grad = False
-for p in q_target3.parameters():
-    p.requires_grad = False
-for p in q_target4.parameters():
-    p.requires_grad = False
-for p in q_target5.parameters():
-    p.requires_grad = False
-for p in q_target6.parameters():
-    p.requires_grad = False
-for p in q_target7.parameters():
-    p.requires_grad = False
-for p in q_target8.parameters():
-    p.requires_grad = False
 
 for m in mu_target1.parameters():
     m.requires_grad = False
@@ -537,23 +316,17 @@ for m in mu_target8.parameters():
     m.requires_grad = False
 
 # Optimizer
-mu_optimizer1 = optim.Adam(mu1.parameters(), lr=0.001)
-mu_optimizer2 = optim.Adam(mu2.parameters(), lr=0.001)
-mu_optimizer3 = optim.Adam(mu3.parameters(), lr=0.001)
-mu_optimizer4 = optim.Adam(mu4.parameters(), lr=0.001)
-mu_optimizer5 = optim.Adam(mu5.parameters(), lr=0.001)
-mu_optimizer6 = optim.Adam(mu6.parameters(), lr=0.001)
-mu_optimizer7 = optim.Adam(mu7.parameters(), lr=0.001)
-mu_optimizer8 = optim.Adam(mu8.parameters(), lr=0.001)
+mu_optimizer1 = optim.Adam(mu1.parameters(), lr=0.005)
+mu_optimizer2 = optim.Adam(mu2.parameters(), lr=0.005)
+mu_optimizer3 = optim.Adam(mu3.parameters(), lr=0.005)
+mu_optimizer4 = optim.Adam(mu4.parameters(), lr=0.005)
+mu_optimizer5 = optim.Adam(mu5.parameters(), lr=0.005)
+mu_optimizer6 = optim.Adam(mu6.parameters(), lr=0.005)
+mu_optimizer7 = optim.Adam(mu7.parameters(), lr=0.005)
+mu_optimizer8 = optim.Adam(mu8.parameters(), lr=0.005)
 
 q_optimizer1  = optim.Adam(q1.parameters(), lr=0.001)
-q_optimizer2  = optim.Adam(q2.parameters(), lr=0.001)
-q_optimizer3  = optim.Adam(q3.parameters(), lr=0.001)
-q_optimizer4  = optim.Adam(q4.parameters(), lr=0.001)
-q_optimizer5  = optim.Adam(q5.parameters(), lr=0.001)
-q_optimizer6  = optim.Adam(q6.parameters(), lr=0.001)
-q_optimizer7  = optim.Adam(q7.parameters(), lr=0.001)
-q_optimizer8  = optim.Adam(q8.parameters(), lr=0.001)
+
 
 # Noise
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
@@ -575,7 +348,6 @@ for episode in range(MAX_EPISODES):
         DECAY = DECAYING_RATE - episode * 0.01
         if DECAY < 0:
             DECAY = 0
-
         state = torch.from_numpy(state).float().to(device)
 
         noise1 = ou_noise() * DECAY
@@ -598,13 +370,13 @@ for episode in range(MAX_EPISODES):
             action8 = mu8(state) + noise8
 
             q_value_for_softmax1 = q1(state.unsqueeze(0), action1.unsqueeze(0))[0][0].unsqueeze(0)
-            q_value_for_softmax2 = q2(state.unsqueeze(0), action2.unsqueeze(0))[0][0].unsqueeze(0)
-            q_value_for_softmax3 = q3(state.unsqueeze(0), action3.unsqueeze(0))[0][0].unsqueeze(0)
-            q_value_for_softmax4 = q4(state.unsqueeze(0), action4.unsqueeze(0))[0][0].unsqueeze(0)
-            q_value_for_softmax5 = q5(state.unsqueeze(0), action5.unsqueeze(0))[0][0].unsqueeze(0)
-            q_value_for_softmax6 = q6(state.unsqueeze(0), action6.unsqueeze(0))[0][0].unsqueeze(0)
-            q_value_for_softmax7 = q7(state.unsqueeze(0), action7.unsqueeze(0))[0][0].unsqueeze(0)
-            q_value_for_softmax8 = q8(state.unsqueeze(0), action8.unsqueeze(0))[0][0].unsqueeze(0)
+            q_value_for_softmax2 = q1(state.unsqueeze(0), action2.unsqueeze(0))[0][0].unsqueeze(0)
+            q_value_for_softmax3 = q1(state.unsqueeze(0), action3.unsqueeze(0))[0][0].unsqueeze(0)
+            q_value_for_softmax4 = q1(state.unsqueeze(0), action4.unsqueeze(0))[0][0].unsqueeze(0)
+            q_value_for_softmax5 = q1(state.unsqueeze(0), action5.unsqueeze(0))[0][0].unsqueeze(0)
+            q_value_for_softmax6 = q1(state.unsqueeze(0), action6.unsqueeze(0))[0][0].unsqueeze(0)
+            q_value_for_softmax7 = q1(state.unsqueeze(0), action7.unsqueeze(0))[0][0].unsqueeze(0)
+            q_value_for_softmax8 = q1(state.unsqueeze(0), action8.unsqueeze(0))[0][0].unsqueeze(0)
 
         # Voting
         actions = torch.stack([q_value_for_softmax1, q_value_for_softmax2, q_value_for_softmax3, q_value_for_softmax4, q_value_for_softmax5, q_value_for_softmax6, q_value_for_softmax7, q_value_for_softmax8])
@@ -631,13 +403,13 @@ for episode in range(MAX_EPISODES):
         if memory.size() > 2000:
             for i in range(5):
                 train(episode, mu1, mu_target1, q1, q_target1, memory, q_optimizer1, mu_optimizer1, batch_size = 100)
-                train(episode, mu2, mu_target2, q2, q_target2, memory, q_optimizer2, mu_optimizer2, batch_size = 100)
-                train(episode, mu3, mu_target3, q3, q_target3, memory, q_optimizer3, mu_optimizer3, batch_size = 100)
-                train(episode, mu4, mu_target4, q4, q_target4, memory, q_optimizer4, mu_optimizer4, batch_size = 100)
-                train(episode, mu5, mu_target5, q5, q_target5, memory, q_optimizer5, mu_optimizer5, batch_size = 100)
-                train(episode, mu6, mu_target6, q6, q_target6, memory, q_optimizer6, mu_optimizer6, batch_size = 100)
-                train(episode, mu7, mu_target7, q7, q_target7, memory, q_optimizer7, mu_optimizer7, batch_size = 100)
-                train(episode, mu8, mu_target8, q8, q_target8, memory, q_optimizer8, mu_optimizer8, batch_size = 100)
+                train(episode, mu2, mu_target2, q1, q_target1, memory, q_optimizer1, mu_optimizer2, batch_size = 100)
+                train(episode, mu3, mu_target3, q1, q_target1, memory, q_optimizer1, mu_optimizer3, batch_size = 100)
+                train(episode, mu4, mu_target4, q1, q_target1, memory, q_optimizer1, mu_optimizer4, batch_size = 100)
+                train(episode, mu5, mu_target5, q1, q_target1, memory, q_optimizer1, mu_optimizer5, batch_size = 100)
+                train(episode, mu6, mu_target6, q1, q_target1, memory, q_optimizer1, mu_optimizer6, batch_size = 100)
+                train(episode, mu7, mu_target7, q1, q_target1, memory, q_optimizer1, mu_optimizer7, batch_size = 100)
+                train(episode, mu8, mu_target8, q1, q_target1, memory, q_optimizer1, mu_optimizer8, batch_size = 100)
 
     # Moving Average Count
     reward_history_20.insert(0, score)
@@ -656,8 +428,8 @@ plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("10 episode MVA")
 plt.plot(length, avg_history)
-plt.savefig('TD3 BigNetwork.png')
+plt.savefig('TD3_ensemble_model_newversion2.png')
 
 avg_history = np.array(avg_history)
-np.save("./TD3_ensemble_model_BigNetwork", avg_history)
-np.save("./TD3_ensemble_model_BigNetwork_Softmax", softmax_recores)
+np.save("./TD3_ensemble_model_newversion2", avg_history)
+np.save("./TD3_ensemble_model_newversion_Softmax2", softmax_recores)

@@ -230,6 +230,10 @@ for episode in range(MAX_EPISODES):
             for _ in range(10):
                 train(episode, mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
 
+        if memory.size() > 3000:
+            memory.buffer.clear()
+            print("Buffer Size", memory.size())
+
     # Moving Average Count
     reward_history_20.insert(0, score)
     if len(reward_history_20) == 10:
