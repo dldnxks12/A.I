@@ -1,7 +1,7 @@
 '''
 # Info
 # 이산화 ing
-# RuntimeError: grad can be implicitly created only for scalar outputs
+# Optimize Part Error : RuntimeError: grad can be implicitly created only for scalar outputs
 '''
 import gym
 import sys
@@ -53,7 +53,6 @@ class PPO(nn.Module):
 
         self.fc_v = nn.Linear(256, 1)
 
-
     def PI(self, x, softmax_dim = 0):
         x1 = F.relu(self.fc1(x))
         x1 = self.fc_pi_a11(x1)
@@ -77,7 +76,6 @@ class PPO(nn.Module):
 
         return [x1, prob_a1], [x2, prob_a2], [x3, prob_a3], [x4, prob_a4]
 
-    # Critic
     def v(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
@@ -141,12 +139,13 @@ def train(ppo, optimizer):
         probs_old = torch.stack([probs_old_1, probs_old_2, probs_old_3, probs_old_4], axis = 1).transpose(0, 2)
         Ratio = torch.exp(torch.log(probs_old) - torch.log(probs)).squeeze(2)
 
-        # Ratio shape : Batch Size x 4
         ######################################### ? ####################################################
-
         ######################################## Error #################################################
-        # RuntimeError: grad can be implicitly created only for scalar outputs
-        '''   
+
+        '''
+        
+        # Ratio shape : Batch Size x 4
+           
         Surrogate11 = Ratio[:,0].unsqueeze(1) * GAE_Value
         Surrogate12 = Ratio[:,1].unsqueeze(1) * GAE_Value
         Surrogate13 = Ratio[:,2].unsqueeze(1) * GAE_Value
@@ -156,7 +155,7 @@ def train(ppo, optimizer):
         Surrogate23 = torch.clamp(Ratio[:,2].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
         Surrogate24 = torch.clamp(Ratio[:,3].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
         
-        # -torch.min(~) : 문제 있음
+        # -torch.min(~) : 문제 있음 # RuntimeError: grad can be implicitly created only for scalar outputs
         # F.smooth_l1_loss( ~ ) : 문제 없음
         
         loss = ((- torch.min(Surrogate11, Surrogate21) - torch.min(Surrogate12, Surrogate22)  \
@@ -164,7 +163,10 @@ def train(ppo, optimizer):
                  + F.smooth_l1_loss(ppo.v(states) , TD_Target.detach()))
         '''
 
-        # Continuous Action Space Method (Origin)
+        ######################################## Error #################################################
+
+
+        # Continuous Action Space Method (Original Baseline Method)
         Surrogate1 = Ratio * GAE_Value
         Surrogate2 = torch.clamp(Ratio, 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
 
@@ -219,8 +221,8 @@ def Discretization(a1, a2, a3, a4):
   return action, action_prob, action_index
 
 
-A = np.arange(-1, 1, 0.005)
 env = gym.make('BipedalWalker-v3')
+A = np.arange(-1, 1, 0.005) # Discrete Action Range
 ppo = PPO(DiscretizedActionRange=len(A)).to(device)
 optimizer = optim.Adam(ppo.parameters(), lr=lr)
 
