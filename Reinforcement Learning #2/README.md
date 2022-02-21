@@ -49,4 +49,13 @@
 
 - `Week 5 : Advanced RL`
 
+        - D3QN
+        - Double Deep
+        - Dueling Deep
+        - TD3
+        - TRPO
+        - PPO
+ 
 - `Week 6 : Project `
+
+        # Solve BiPedal 

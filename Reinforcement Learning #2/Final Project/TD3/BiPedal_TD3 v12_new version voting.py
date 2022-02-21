@@ -166,8 +166,6 @@ class MuNet8(nn.Module):  # Output : Deterministic Action !
         mu = torch.tanh(self.fc_mu(x))
         return mu
 
-
-
 class QNet1(nn.Module):
     def __init__(self):
         super(QNet1, self).__init__()
@@ -335,7 +333,7 @@ score = 0.0
 avg_history       = []
 reward_history_20 = []
 MAX_EPISODES = 500
-DECAYING_RATE = 1
+DECAYING_RATE = 2
 softmax_recores   = []
 time_step = 0
 

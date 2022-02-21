@@ -277,7 +277,6 @@ memory = ReplayBuffer()
 q1 =  QNet1().to(device) # Twin Network for avoiding maximization bias
 q_target1 = copy.deepcopy(q1).eval().to(device)
 
-
 mu1 = MuNet1().to(device)
 mu2 = MuNet2().to(device)
 mu3 = MuNet3().to(device)
@@ -335,7 +334,7 @@ score = 0.0
 avg_history       = []
 reward_history_20 = []
 MAX_EPISODES = 500
-DECAYING_RATE = 1
+DECAYING_RATE = 2
 softmax_recores   = []
 time_step = 0
 

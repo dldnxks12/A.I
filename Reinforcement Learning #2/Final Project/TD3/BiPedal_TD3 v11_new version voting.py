@@ -335,7 +335,7 @@ score = 0.0
 avg_history       = []
 reward_history_20 = []
 MAX_EPISODES = 500
-DECAYING_RATE = 1
+DECAYING_RATE = 2
 softmax_recores   = []
 time_step = 0
 
