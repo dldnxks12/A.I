@@ -326,7 +326,7 @@ env.close()
 #######################################################################
 # Record Hyperparamters & Result Graph
 
-with open('exploration-v2.txt', 'w', encoding = 'UTF-8') as f:
+with open('exploration-v2-3.txt', 'w', encoding = 'UTF-8') as f:
     f.write("# ----------------------- # " + '\n')
     f.write("DDPG_Parameter 2022-2-14" + '\n')
     f.write('\n')
@@ -349,6 +349,6 @@ length = np.arange(len(reward_history_20))*20
 plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("Reward")
-plt.title("exploration-v2")
+plt.title("exploration-v2-3")
 plt.plot(length, reward_history_20)
-plt.savefig('exploration-v2.png')
+plt.savefig('exploration-v2-3.png')
