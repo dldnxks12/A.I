@@ -1,0 +1,17 @@
+# ----------------------- # 
+DDPG_Parameter 2022-2-14
+
+
+# - Category 1 - #
+
+Reward        : reward x 10
+lr_mu         : 0.0005
+lr_q          : 0.05
+tau           : 0.05
+
+# - Category 2 - #
+
+batch_size    : 256
+buffer_limit  : 50000
+memory.size() : 500
+# ----------------------- # 

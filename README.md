@@ -102,8 +102,19 @@
               - KL divergence
               - Cross Entropy
 
-  - `Week 5 : Advanced RL`
-  - `Week 6 : Project `
+- `Week 5 : Advanced RL`
+
+        - D3QN
+        - Double Deep
+        - Dueling Deep
+        - TD3
+        - TRPO
+        - PPO
+ 
+- `Week 6 : Project `
+
+        # Solve BiPedal 
+
 
 ---
 
