@@ -1,6 +1,7 @@
 '''
 # Info
-# 이산화 과정 ~ ing
+# 이산화 ing
+# RuntimeError: grad can be implicitly created only for scalar outputs
 '''
 import gym
 import sys
@@ -52,46 +53,29 @@ class PPO(nn.Module):
 
         self.fc_v = nn.Linear(256, 1)
 
-    # Actors (For 4 Joint)
-    def pi_a1(self, x, softmax_dim=0):
-        x = F.relu(self.fc1(x))
-        x = self.fc_pi_a11(x)
-        x = self.fc_pi_a12(x)
-
-        prob_a1 = F.softmax(x, dim=softmax_dim)
-        return [x, prob_a1]
-
-    def pi_a2(self, x, softmax_dim=0):
-        x = F.relu(self.fc1(x))
-        x = self.fc_pi_a21(x)
-        x = self.fc_pi_a22(x)
-
-        prob_a2 = F.softmax(x, dim=softmax_dim)
-        return [x, prob_a2]
-
-    def pi_a3(self, x, softmax_dim=0):
-        x = F.relu(self.fc1(x))
-        x = self.fc_pi_a31(x)
-        x = self.fc_pi_a32(x)
-
-        prob_a3 = F.softmax(x, dim=softmax_dim)
-        return [x, prob_a3]
-
-    def pi_a4(self, x, softmax_dim=0):
-        x = F.relu(self.fc1(x))
-        x = self.fc_pi_a41(x)
-        x = self.fc_pi_a42(x)
-
-        prob_a4 = F.softmax(x, dim=softmax_dim)
-        return [x, prob_a4]
 
     def PI(self, x, softmax_dim = 0):
-      action1_prob = self.pi_a1(x, softmax_dim)
-      action2_prob = self.pi_a2(x, softmax_dim)
-      action3_prob = self.pi_a3(x, softmax_dim)
-      action4_prob = self.pi_a4(x, softmax_dim)
+        x1 = F.relu(self.fc1(x))
+        x1 = self.fc_pi_a11(x1)
+        x1 = self.fc_pi_a12(x1)
+        prob_a1 = F.softmax(x1, dim=softmax_dim)
 
-      return action1_prob, action2_prob, action3_prob, action4_prob
+        x2 = F.relu(self.fc1(x))
+        x2 = self.fc_pi_a11(x2)
+        x2 = self.fc_pi_a12(x2)
+        prob_a2 = F.softmax(x2, dim=softmax_dim)
+
+        x3 = F.relu(self.fc1(x))
+        x3 = self.fc_pi_a11(x3)
+        x3 = self.fc_pi_a12(x3)
+        prob_a3 = F.softmax(x3, dim=softmax_dim)
+
+        x4 = F.relu(self.fc1(x))
+        x4 = self.fc_pi_a11(x4)
+        x4 = self.fc_pi_a12(x4)
+        prob_a4 = F.softmax(x4, dim=softmax_dim)
+
+        return [x1, prob_a1], [x2, prob_a2], [x3, prob_a3], [x4, prob_a4]
 
     # Critic
     def v(self, x):
@@ -102,35 +86,35 @@ class PPO(nn.Module):
 
 
 def make_batch():
-    states, actions, rewards, next_states, probs, dones = [],[],[],[],[],[]
+    states, actions, action_idx, rewards, next_states, probs, dones = [],[],[],[],[],[], []
 
     for transition in data:
-        state, action, reward, next_state, prob, done = transition
+        state, action, action_index, reward, next_state, prob, done = transition
         states.append(state)
         actions.append(action)
+        action_idx.append(action_index)
         rewards.append(torch.tensor(reward))
         next_states.append(next_state)
         probs.append(prob)
         done_mask = 0 if done else 1
         dones.append(done_mask)
 
-    states      = torch.tensor(states, dtype=torch.float)
-    actions     = torch.tensor(actions)
-    rewards     = torch.tensor(rewards, dtype=torch.float)
-    next_states = torch.tensor(next_states, dtype=torch.float)
-    dones       = torch.tensor(dones, dtype=torch.float)
-    probs       = torch.tensor(probs, dtype=torch.float)
+    states         = torch.tensor(states, dtype=torch.float)
+    actions        = torch.tensor(actions)
+    action_idx     = torch.tensor(action_idx)
+    rewards        = torch.tensor(rewards, dtype=torch.float)
+    next_states    = torch.tensor(next_states, dtype=torch.float)
+    dones          = torch.tensor(dones)
+    probs          = torch.tensor(probs, dtype=torch.float)
 
-    return states, actions, rewards, next_states, dones, probs
+    return states, actions, action_idx, rewards, next_states, dones, probs
 
 def train(ppo, optimizer):
-    states, actions, rewards, next_states, dones, probs = make_batch()
-
+    states, actions, action_idx, rewards, next_states, dones, probs = make_batch()
     for i in range(K): # 같은 배치 데이터에 대해 K번 학습
         TD_Target = rewards + gamma * ppo.v(next_states) * dones
         Delta = TD_Target - ppo.v(states)
         Delta = Delta.detach().numpy()
-
 
         GAE_list = []
         GAE = 0.0
@@ -141,28 +125,64 @@ def train(ppo, optimizer):
 
         GAE_Value = torch.tensor(GAE_list, dtype = torch.float)
 
-        ############################################# Ok ##################################
-        ############################################# Restart From here ... ##################################
-        old_a1,old_a2,old_a3,old_a4  = ppo.PI(states, softmax_dim = 1) # 현재 Action에 대한 Policy ...
+        old_a1, old_a2, old_a3, old_a4  = ppo.PI(states, softmax_dim = 1)
 
-        actions  = Discretization(old_a1,old_a2,old_a3,old_a4, Probs = False)
+        # Softmax 분포만 가져오기
+        _, a1_prob = old_a1
+        _, a2_prob = old_a2
+        _, a3_prob = old_a3
+        _, a4_prob = old_a4
 
-        print("Ok")
+        probs_old_1 = a1_prob.gather(1, action_idx[:, 0].unsqueeze(0))
+        probs_old_2 = a2_prob.gather(1, action_idx[:, 1].unsqueeze(0))
+        probs_old_3 = a3_prob.gather(1, action_idx[:, 2].unsqueeze(0))
+        probs_old_4 = a4_prob.gather(1, action_idx[:, 3].unsqueeze(0))
 
-        sys.exit()
-        PI_action_probs = PI_.gather(1, actions) # Action에 대한 Old 확률 가져와야한다.
-        Ratio = torch.exp(torch.log(PI_action_probs) - torch.log(probs))
+        probs_old = torch.stack([probs_old_1, probs_old_2, probs_old_3, probs_old_4], axis = 1).transpose(0, 2)
+        Ratio = torch.exp(torch.log(probs_old) - torch.log(probs)).squeeze(2)
+
+        # Ratio shape : Batch Size x 4
+        ######################################### ? ####################################################
+        # Restart
+        ''' 실패 
+        Surrogate11 = Ratio[:,0].unsqueeze(1) * GAE_Value
+        Surrogate12 = Ratio[:,1].unsqueeze(1) * GAE_Value
+        Surrogate13 = Ratio[:,2].unsqueeze(1) * GAE_Value
+        Surrogate14 = Ratio[:,3].unsqueeze(1) * GAE_Value
+        Surrogate21 = torch.clamp(Ratio[:,0].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
+        Surrogate22 = torch.clamp(Ratio[:,1].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
+        Surrogate23 = torch.clamp(Ratio[:,2].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
+        Surrogate24 = torch.clamp(Ratio[:,3].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
+
+        loss = ((- torch.min(Surrogate11, Surrogate21) - torch.min(Surrogate12, Surrogate22)  \
+                 - torch.min(Surrogate13, Surrogate23) - torch.min(Surrogate14, Surrogate24)) \
+                 + F.smooth_l1_loss(ppo.v(states) , TD_Target.detach()))
+        '''
 
         Surrogate1 = Ratio * GAE_Value
         Surrogate2 = torch.clamp(Ratio, 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
 
-        loss = -torch.min(Surrogate1, Surrogate2) + F.smooth_l1_loss(ppo.v(states) - TD_Target.detach())
+        #print(Surrogate1.shape)
+        #print(Surrogate2.shape)
 
+        Surrogate1 = Surrogate1.mean(axis = 1)
+        Surrogate2 = Surrogate2.mean(axis = 1)
+
+        #print(Surrogate1.shape)
+
+        #sys.exit()
+        loss = (-torch.min(Surrogate1, Surrogate2) + F.smooth_l1_loss(ppo.v(states), TD_Target.detach())).unsqueeze(1)
+
+        print(loss)
+        print(loss.shape)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-def Discretization(a1, a2, a3, a4, Probs = True):
+        print("OK")
+        sys.exit()
+
+def Discretization(a1, a2, a3, a4):
   actions1, prob_a1 = a1
   actions2, prob_a2 = a2
   actions3, prob_a3 = a3
@@ -198,14 +218,10 @@ def Discretization(a1, a2, a3, a4, Probs = True):
   action3_prob = np.array([prob_a3[action_index3].cpu().detach().numpy()])
   action4_prob = np.array([prob_a4[action_index4].cpu().detach().numpy()])
 
-  action = [discrete_action1, discrete_action2, discrete_action3, discrete_action4]
-  action_prob = [action1_prob, action2_prob, action3_prob, action4_prob]
-
-  if Probs == True:
-    return action, action_prob
-
-  else:
-    return action
+  action       = [discrete_action1, discrete_action2, discrete_action3, discrete_action4]
+  action_prob  = [action1_prob, action2_prob, action3_prob, action4_prob]
+  action_index = [action_index1, action_index2, action_index3, action_index4]
+  return action, action_prob, action_index
 
 
 A = np.arange(-1, 1, 0.005)
@@ -227,9 +243,9 @@ while episode < MAX_EPISODES:
         # T Step 동안 데이터 수집
         for t in range(T):
             a1, a2, a3, a4 = ppo.PI(torch.from_numpy(state).float().to(device))
-            action, action_prob = Discretization(a1, a2, a3, a4)
+            action, action_prob, action_index = Discretization(a1, a2, a3, a4)
             next_state, reward, done, _ = env.step(action)
-            data.append((state, action, reward, next_state, action_prob, done))
+            data.append((state, action, action_index, reward, next_state, action_prob, done))
 
             state = next_state
             score += reward
@@ -242,10 +258,10 @@ while episode < MAX_EPISODES:
 
     # Moving Average Count
     reward_history_10.append(score)
-    avg = reward_history_10[-10:].mean()
+    avg = sum(reward_history_10[-10:]) / 10
     avg_history.append(avg)
     if episode % 10 == 0:
-        print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
+        print(f'episode: {episode} | reward: {score} | 10 avg: {avg} ')
     episode += 1
 
 env.close()
