@@ -143,8 +143,10 @@ def train(ppo, optimizer):
 
         # Ratio shape : Batch Size x 4
         ######################################### ? ####################################################
-        # Restart
-        ''' 실패 
+
+        ######################################## Error #################################################
+        # RuntimeError: grad can be implicitly created only for scalar outputs
+        '''   
         Surrogate11 = Ratio[:,0].unsqueeze(1) * GAE_Value
         Surrogate12 = Ratio[:,1].unsqueeze(1) * GAE_Value
         Surrogate13 = Ratio[:,2].unsqueeze(1) * GAE_Value
@@ -153,28 +155,21 @@ def train(ppo, optimizer):
         Surrogate22 = torch.clamp(Ratio[:,1].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
         Surrogate23 = torch.clamp(Ratio[:,2].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
         Surrogate24 = torch.clamp(Ratio[:,3].unsqueeze(1), 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
-
+        
+        # -torch.min(~) : 문제 있음
+        # F.smooth_l1_loss( ~ ) : 문제 없음
+        
         loss = ((- torch.min(Surrogate11, Surrogate21) - torch.min(Surrogate12, Surrogate22)  \
                  - torch.min(Surrogate13, Surrogate23) - torch.min(Surrogate14, Surrogate24)) \
                  + F.smooth_l1_loss(ppo.v(states) , TD_Target.detach()))
         '''
 
+        # Continuous Action Space Method (Origin)
         Surrogate1 = Ratio * GAE_Value
         Surrogate2 = torch.clamp(Ratio, 1 - Eps_clip, 1 + Eps_clip) * GAE_Value
 
-        #print(Surrogate1.shape)
-        #print(Surrogate2.shape)
+        loss = -torch.min(Surrogate1, Surrogate2) + F.smooth_l1_loss(ppo.v(states), TD_Target.detach())
 
-        Surrogate1 = Surrogate1.mean(axis = 1)
-        Surrogate2 = Surrogate2.mean(axis = 1)
-
-        #print(Surrogate1.shape)
-
-        #sys.exit()
-        loss = (-torch.min(Surrogate1, Surrogate2) + F.smooth_l1_loss(ppo.v(states), TD_Target.detach())).unsqueeze(1)
-
-        print(loss)
-        print(loss.shape)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
