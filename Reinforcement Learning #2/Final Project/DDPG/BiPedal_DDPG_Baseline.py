@@ -1,5 +1,3 @@
-# 코드 동작 OK
-# 학습 X
 ###########################################################################
 # To Avoid Library Collision
 import os
@@ -8,15 +6,14 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 import gym
 import sys
+import copy
 import random
 import collections
 import numpy as np
-
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
-
+import torch.optim as optim
 from time import sleep
 from collections import deque
 import matplotlib.pyplot as plt
@@ -30,12 +27,11 @@ print("")
 
 # Hyperparameters
 lr_mu = 0.0005         # Learning Rate for Torque (Action)
-lr_q  = 0.05          # Learning Rate for Q
+lr_q  = 0.001          # Learning Rate for Q
 gamma = 0.99         # discount factor
-batch_size = 64      # Mini Batch Size for Sampling from Replay Memory
+batch_size = 32      # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 50000 # Replay Memory Size
-tau = 0.05          # for target network soft update
-
+tau = 0.005          # for target network soft update
 
 ###########################################################################
 # Model and ReplayBuffer
@@ -81,9 +77,9 @@ class ReplayBuffer():
 class MuNet(nn.Module):  # Output : Deterministic Action !
     def __init__(self):
         super(MuNet, self).__init__()
-        self.fc1 = nn.Linear(24, 64) # Input  : 24 continuous states
-        self.fc2 = nn.Linear(64, 32)
-        self.fc_mu = nn.Linear(32, 4) # Output : 4 continuous actions
+        self.fc1 = nn.Linear(24, 128) # Input  : 24 continuous states
+        self.fc2 = nn.Linear(128, 64)
+        self.fc_mu = nn.Linear(64, 4) # Output : 4 continuous actions
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -97,20 +93,16 @@ class QNet(nn.Module):
         self.fc_s   = nn.Linear(24, 64)    # State  24 개
         self.fc_a   = nn.Linear(4, 64)     # Action 4  개
         self.fc_q   = nn.Linear(128, 64)  # State , Action 이어붙이기
-        self.fc_out = nn.Linear(64, 32)   # Output : Q value
-        self.fc_out2 = nn.Linear(32, 1)    # Output : Q value
+        self.fc_out = nn.Linear(64, 1)    # Output : Q value
 
     def forward(self, x, a):
         h1 = F.relu(self.fc_s(x)) # 128
         h2 = F.relu(self.fc_a(a)) # 128
         cat = torch.cat([h1, h2], dim = 1)  # 256
         q = F.relu(self.fc_q(cat))   # 128
-        q = self.fc_out(q)   # 64
-        q = self.fc_out2(q)  # 1 - Q Value
+        q = self.fc_out(q)  # 1 - Q Value
         return q
 
-
-# Action에 Noise를 추가하여 Exploration ---- 이후 앙상블로 바꿔볼 것
 class OrnsteinUhlenbeckNoise:
     def __init__(self, mu):
         self.theta, self.dt, self.sigma = 0.1, 0.01, 0.1
@@ -167,18 +159,16 @@ q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
 mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
-MAX_EPISODES = 1000
-
+MAX_EPISODES = 500
 reward_history_20 = []
-
+avg_history = []
+avg = 0.0
 episode = 0
 while episode < MAX_EPISODES:
     state = env.reset()
     done = False
     score = 0.0
     while not done:
-        #if episode % 500 == 0:
-        #   env.render()
 
         action = mu(torch.from_numpy(state).to(device))
         noise = torch.tensor(ou_noise(), device = device)
@@ -194,44 +184,23 @@ while episode < MAX_EPISODES:
         state = next_state
 
     if memory.size() > 2000:
-        train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
-        soft_update(mu, mu_target)
-        soft_update(q, q_target)
+        for i in range(10):
+            train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer)
+            soft_update(mu, mu_target)
+            soft_update(q, q_target)
 
+    # Moving Average Count
     reward_history_20.append(score)
-    avg = sum(reward_history_20) / len(reward_history_20)
-    if episode % 20 == 0:
-        print('episode: {}, reward: {:.1f}, avg: {:.1f}'.format(episode, score, avg))
+
+    if len(reward_history_20) > 10:
+        avg = sum(reward_history_20[-10:]) / 10
+        avg_history.append(avg)
+    if episode % 10 == 0:
+        print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
     episode += 1
 
 env.close()
-
-#######################################################################
-# Record Hyperparamters & Result Graph
-
-with open('DDPG_1.txt', 'w', encoding = 'UTF-8') as f:
-    f.write("# ----------------------- # " + '\n')
-    f.write("DDPG_Parameter 2022-2-12" + '\n')
-    f.write('\n')
-    f.write('\n')
-    f.write("# - Category 1 - #" + '\n')
-    f.write('\n')
-    f.write("Reward        : constant" + '\n')
-    f.write("lr_mu         : " + str(lr_mu) + '\n')
-    f.write("lr_q          : " + str(lr_q) + '\n')
-    f.write("tau           : " + str(tau) + '\n')
-    f.write('\n')
-    f.write("# - Category 2 - #" + '\n')
-    f.write('\n')
-    f.write("batch_size    : " + str(batch_size)   + '\n')
-    f.write("buffer_limit  : " + str(buffer_limit) + '\n')
-    f.write("memory.size() : 2000" + '\n')
-    f.write("# ----------------------- # " + '\n')
-
-length = np.arange(len(reward_history_20))*20
-plt.figure()
-plt.xlabel("Episode")
-plt.ylabel("Reward")
-plt.title("DDPG")
-plt.plot(length, reward_history_20)
-plt.savefig('DDPG_1.png')
+avg_history = np.array(avg_history)
+reward_history_20 = np.array(reward_history_20)
+np.save("./Rewards_base", reward_history_20)
+np.save("./Base Model  ", avg_history)
