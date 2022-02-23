@@ -108,7 +108,10 @@ def train(model, optimizer):
         surr2 = torch.clamp(ratio, 1 - eps_clip, 1 + eps_clip) * advantage
 
         # Loss Function = Policy Loss(maximize) + Value Loss(minimize)
-        loss = -torch.min(surr1, surr2) + F.smooth_l1_loss(model.v(states), td_target.detach()) # detach()가 매우매우 중요
+        loss1 = -torch.min(surr1, surr2)
+        loss2 = F.smooth_l1_loss(model.v(states), td_target.detach()) # detach()가 매우매우 중요
+
+        loss = loss1 + loss2
 
         optimizer.zero_grad()
         loss.mean().backward()
