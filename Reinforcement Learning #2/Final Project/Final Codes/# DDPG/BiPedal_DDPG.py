@@ -29,8 +29,8 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.001          # Learning Rate for Torque (Action)
-lr_q  = 0.001          # Learning Rate for Q
+lr_mu = 0.0005          # Learning Rate for Torque (Action)
+lr_q  = 0.005          # Learning Rate for Q
 gamma = 0.99          # discount factor
 batch_size = 64       # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 100000  # Replay Memory Size
@@ -236,4 +236,4 @@ env.close()
 
 # Numpy array로 list 저장
 avg_history = np.array(avg_history)
-np.save("./single type4", avg_history)
+np.save("./single type8", avg_history)

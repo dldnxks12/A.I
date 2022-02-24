@@ -427,6 +427,7 @@ for episode in range(MAX_EPISODES):
                 train(episode, mu8, mu_target8, q1, q_target1, memory, q_optimizer1, mu_optimizer8, batch_size = 100)
 
     # Moving Average Count
+    reward_history_20.append(score)
     if len(reward_history_20) > 10:
         avg = sum(reward_history_20[-10:]) / 10
         avg_history.append(avg)

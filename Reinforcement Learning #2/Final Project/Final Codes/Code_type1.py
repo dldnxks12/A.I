@@ -305,6 +305,10 @@ for episode in range(MAX_EPISODES):
 
         # Soft Voting
         actions = torch.stack([q_value_for_softmax1, q_value_for_softmax2, q_value_for_softmax3, q_value_for_softmax4, q_value_for_softmax5, q_value_for_softmax6, q_value_for_softmax7, q_value_for_softmax8])
+
+        print(actions.shape)
+        sys.exit()
+
         action_softmax = torch.nn.functional.softmax(actions, dim=0).squeeze(1).squeeze(1)
 
         # Soft max Converge Check - 분포가 어떻게 수렴하는지
@@ -337,7 +341,7 @@ for episode in range(MAX_EPISODES):
                 train(episode, mu8, mu_target8, q1, q_target1, memory, q_optimizer1, mu_optimizer8, batch_size = 100)
 
     # Moving Average Count
-    reward_history_20.insert(0, score)
+    reward_history_20.append(score)
     if len(reward_history_20) > 10:
         avg = sum(reward_history_20[-10:]) / 10
         avg_history.append(avg)

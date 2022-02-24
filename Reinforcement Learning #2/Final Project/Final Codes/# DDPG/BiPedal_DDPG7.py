@@ -29,12 +29,12 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.005          # Learning Rate for Torque (Action)
-lr_q  = 0.1          # Learning Rate for Q
+lr_mu = 0.0005          # Learning Rate for Torque (Action)
+lr_q  = 0.005          # Learning Rate for Q
 gamma = 0.99          # discount factor
 batch_size = 64       # Mini Batch Size for Sampling from Replay Memory
-buffer_limit = 20000  # Replay Memory Size
-tau = 0.05            # for target network soft update
+buffer_limit = 100000  # Replay Memory Size
+tau = 0.01            # for target network soft update
 
 
 ###########################################################################
@@ -135,10 +135,15 @@ def train(mu, mu_target, q, q_target, memory, q_optimizer, mu_optimizer):
     Critic.backward()
     q_optimizer.step()
 
+    for p in q.parameters():
+        p.requires_grad = False
     Actor = -q(states, mu(states)).mean()
     mu_optimizer.zero_grad()
     Actor.backward()
     mu_optimizer.step()
+
+    for p in q.parameters():
+        p.requires_grad = True
 
 # Soft Update
 def soft_update(net, net_target):
@@ -166,9 +171,11 @@ q_optimizer = optim.Adam(q.parameters(), lr=lr_q)
 mu_optimizer = optim.Adam(mu.parameters(), lr=lr_mu)
 
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
-MAX_EPISODES = 3000
+MAX_EPISODES = 1000
 
-reward_history_20 = []
+avg_history       = [] # Average Reward List
+reward_history_20 = [] # Reward List
+avg = 0.0
 
 '''
     ### Action Space
@@ -185,7 +192,7 @@ while episode < MAX_EPISODES:
     score = 0.0
     lasting_time = 1
     while not done:
-        action = mu(torch.from_numpy(state).to(device))
+        action = mu(torch.from_numpy(state).float().to(device))
         noise = torch.tensor(ou_noise(), device = device)
 
         # Add Exploration property
@@ -199,13 +206,13 @@ while episode < MAX_EPISODES:
         else:
             lasting_time += 0.0005
             if reward <= -50:
-                reward = reward * 0.2
+                train_reward = reward * 0.2
             else:
-                reward = reward * lasting_time
+                train_reward = reward * lasting_time
 
         # Type Check
         # print(type(state), type(action), type(next_state), type(reward), type(done))
-        memory.put((state, action, reward, next_state, done))
+        memory.put((state, action, train_reward, next_state, done))
         score += reward
         state = next_state
         last_action = action
@@ -216,46 +223,17 @@ while episode < MAX_EPISODES:
             soft_update(mu, mu_target)
             soft_update(q, q_target)
 
-    if episode % 20 == 0:
-        reward_history_20.append(score)
-        # avg = sum(reward_history_20) / len(reward_history_20)
-        print('episode: {}, reward: {:.1f}'.format(episode, score))
+    reward_history_20.append(score)
+    if len(reward_history_20) > 10:
+        avg = sum(reward_history_20[-10:]) / 10
+        avg_history.append(avg)
+    if episode % 10 == 0:
+        print('episode: {} | reward: {:.1f} | 10 avg: {:.1f} '.format(episode, score, avg))
     episode += 1
+
 
 env.close()
 
-#######################################################################
-# Record Hyperparamters & Result Graph
-
-with open('DDPG_v2.txt', 'w', encoding = 'UTF-8') as f:
-    f.write("# ----------------------- # " + '\n')
-    f.write("DDPG_Parameter 2022-2-14" + '\n')
-    f.write('\n')
-    f.write('\n')
-    f.write("# - Extra ViewPoints - #" + '\n')
-    f.write('\n')
-    f.write("Fast Reset Version" + '\n')
-    f.write("Train x 10 Version" + '\n')
-    f.write('\n')
-    f.write('\n')
-    f.write("# - Category 1 - #" + '\n')
-    f.write('\n')
-    f.write("Reward        : Sign Assigned" + '\n')
-    f.write("lr_mu         : " + str(lr_mu) + '\n')
-    f.write("lr_q          : " + str(lr_q) + '\n')
-    f.write("tau           : " + str(tau) + '\n')
-    f.write('\n')
-    f.write("# - Category 2 - #" + '\n')
-    f.write('\n')
-    f.write("batch_size    : " + str(batch_size)   + '\n')
-    f.write("buffer_limit  : " + str(buffer_limit) + '\n')
-    f.write("memory.size() : 2000" + '\n')
-    f.write("# ----------------------- # " + '\n')
-
-length = np.arange(len(reward_history_20))
-plt.figure()
-plt.xlabel("Episode")
-plt.ylabel("Reward")
-plt.title("DDPG_v2")
-plt.plot(length, reward_history_20)
-plt.savefig('DDPG_v2.png')
+# Numpy array로 list 저장
+avg_history = np.array(avg_history)
+np.save("./single type5", avg_history)
