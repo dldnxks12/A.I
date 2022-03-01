@@ -1,6 +1,6 @@
 ### `Study Log`
 
-- Reinforcement Learning # 1 
+- Reinforcement Learning #1 
   
        1. Mathematical Background 
             - Probability                 - ok
@@ -54,7 +54,7 @@
 <br>
 
 
-- Reinforcement Learning # 2  
+- Reinforcement Learning #2  
 
   - `Week 1 : Dynamic Programming`
         
