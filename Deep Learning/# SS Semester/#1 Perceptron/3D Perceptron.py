@@ -49,5 +49,3 @@ for angle in range(0, 360):
     plt.pause(.001)
 
 
-
-
