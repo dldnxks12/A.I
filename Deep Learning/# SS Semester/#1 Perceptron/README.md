@@ -17,6 +17,12 @@
 
 prediction인 z와 target인 y의 곱이 음수 ? == 오답
 
+<br>
+
+`Result Graph`
+
+![img_1.png](img_1.png)
+
 </div>
 
 
