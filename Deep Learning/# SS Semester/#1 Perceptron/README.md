@@ -7,6 +7,12 @@
     
     *Linearly seperable : 직선으로 경계를 나눌 수 있다는 뜻 
 
+<div align="center">
+
+![img_2.png](img_2.png)
+
+</div>
+
 <br>
 
 - `Perceptron function`
@@ -19,9 +25,11 @@ prediction인 z와 target인 y의 곱이 음수 ? == 오답
 
 <br>
 
-`Result Graph`
+` 2D Result Graph`
 
 ![img_1.png](img_1.png)
+
+`3D Result Graph`
 
 </div>
 
