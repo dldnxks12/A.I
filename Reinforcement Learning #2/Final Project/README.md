@@ -1,26 +1,37 @@
-## `Improve BI-Pedal Walker`
+## `Solve and improve BI-Pedal Walker`
 
+- `개요`
+
+      OpenAI Gym에서 제공하는 Bi Pedal Walker는 총 24개의 연속 상태 공간과 4개의 연속 행동 공간을 가지고 있으며, 
+      매우 넓은 Searching space와 local minima 등으로 인해 해결하기 어려운 문제로 유명하다.
+      
+      로봇이 넘어지게 되면 -100의 Reward를 받으며, 한 걸음씩 나아갈 때마다 매우 작은 양수 Reward를 받는다. 
+      문제의 제작자는 보통 Reward 200을 문제의 해결 기준으로 판단한다.
+  
+      Youtube와 Github에 올라와있는 대부분의 문제 해결 방법은 DDPG, PPO의 알고리즘을 이용하여 문제를 하였으며,
+      양수의 Reward를 가지기까지 적어도 500~1000의 에피소드를 필요로 하고, 목표 Reward까지 3000 ~ 7500 에피소드가 걸리는 것으로 보인다.
+
+
+[참고영상 1](https://www.youtube.com/watch?v=EQRsvCwME0g)  
+[참고영상 2](https://www.youtube.com/watch?v=om7y9JKw0HE)
 
 
 - `Project Goal`
-    
 
-    Improve BiPedal Walker with Self-Modified RL Algorithms 
+      OpenAI Gym의 Bi Pedal Walker-v를 심층강화학습 기법을 적용하여 제어하는 강화학습을 만든다.  
+
+<br>
 
 <div align="center">
 
 ![img_1.png](img_1.png)
 
 </div>
-
-### `개요`
-
-이번 프로젝트는 OpenAI Gym에서 제공하는 Bi-Pedal 예제를 여러 알고리즘을 통해 풀어내고 성능을 향상시키는 것이다.   
-사용한 알고리즘은 `DQN, DDPG, TD3, PPO` 이며, `Batch Normalization, Boltzmann Approach(or Soft Voting), Ensemble (Bagging), Noise Decay, Discritization` 등의 기법을 사용해보았다.   
-또한 각 알고리즘 및 기법을 비교하고 타당성을 검증하기 위해 CartPole, Pendulum의 예제을 겸하여 과제를 진행하였다.  
-
-먼저 DQN과 D3QN, DDPG는 여러 기법과 하이퍼 파라미터 튜닝에도 성능이 눈에 띄게 좋아지지 않았음을 미리 밝힌다.   
  
+사용한 알고리즘은 `DQN, DDPG, TD3, PPO` 이며,   
+`Batch Normalization, Boltzmann Approach(or Soft Voting), Ensemble (Bagging), Noise Decay, Discritization` 등의 기법을 사용   
+또한 각 알고리즘 및 기법을 비교하고 타당성을 검증하기 위해 CartPole, Pendulum의 예제을 겸하여 과제를 진행.  
+DQN과 D3QN, DDPG는 여러 기법과 하이퍼 파라미터 튜닝에도 성능이 눈에 띄게 좋아지지 않았음.   
 
 ---
 
@@ -41,7 +52,6 @@
 
 이 방법은 Pixel의 크기를 최대한으로 줄여 학습하였음에도 학습 속도가 매우 느렸으며 비선형 모델을 사용하기 때문에 수렴성 또한 보장되지 않아 학습마다 결과가 매우 다르게 도출되었다.   
 D3QN의 경우에도 Maximization Bias를 제거하며 수렴 속도를 높이는 장점이 있지만, 그럼에도 불구하고 결과적으로 수렴하지 않거나, 비슷한 학습 성능을 보여주었다.
-
 
 <br>
 
