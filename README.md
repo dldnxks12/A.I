@@ -53,7 +53,6 @@
 
 <br>
 
-
 - Reinforcement Learning #2  
 
   - `Week 1 : Dynamic Programming`
