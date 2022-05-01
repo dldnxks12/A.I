@@ -1,6 +1,6 @@
 ### `Study Log`
-
-- Reinforcement Learning #1 
+ 
+- Reinforcement Learning #1   
   
        1. Mathematical Background 
             - Probability                 - ok
