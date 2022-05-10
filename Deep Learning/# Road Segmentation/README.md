@@ -5,11 +5,11 @@
 
             1. Fcn 
             2. SegNet
-            3. UNet
-            4. SPPNet
+            3. UNet *
+            4. SPPNet * 
             5. SPPUNet
 
         ### Dataset list
 
             1. Carvana
-            2. Side Walk 
+            2. Side Walk *  
