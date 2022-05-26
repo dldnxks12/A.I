@@ -340,7 +340,7 @@ q_optimizer1  = optim.Adam(q1.parameters(), lr=0.001)
 # Noise
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 
-MAX_EPISODES = 500
+MAX_EPISODES = 250
 DECAYING_RATE = 2      # For Decaying Noise
 avg               = 0
 avg_history       = [] # Average Reward List
@@ -355,8 +355,7 @@ for episode in range(MAX_EPISODES):
     score = 0.0
     while not done:
 
-        # Score check
-        if score > 295:
+        if episode > 240:
             env.render()
 
         # 100 ~ 150사이의 Episode에서 Noise 사라지도록

@@ -26,10 +26,10 @@ print(f"On {device}")
 print("")
 
 # Hyperparameters
-lr_mu = 0.0005         # Learning Rate for Torque (Action)
+lr_mu = 0.005         # Learning Rate for Torque (Action)
 lr_q  = 0.001          # Learning Rate for Q
 gamma = 0.99         # discount factor
-batch_size = 32      # Mini Batch Size for Sampling from Replay Memory
+batch_size = 64      # Mini Batch Size for Sampling from Replay Memory
 buffer_limit = 50000 # Replay Memory Size
 tau = 0.005          # for target network soft update
 
@@ -201,4 +201,4 @@ while episode < MAX_EPISODES:
 
 env.close()
 avg_history = np.array(avg_history)
-np.save("./Baseline", avg_history)
+np.save("./Baseline3", avg_history)

@@ -2,15 +2,18 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 
-# Baseline DDPG Model Output
-data1 = np.load("./BaseModel.npy")
-data2 = np.load("./Rewards_base.npy")
+# Baseline Model Output
+data1 = np.load("./Baseline.npy")
+data2 = np.load("./Baseline2.npy")
+data3 = np.load("./Baseline3.npy")
+
 length = np.arange(len(data1))
 
-print("Total Reward : ", sum(data2))
 plt.figure()
-plt.title("Soft Max Value")
-plt.plot(length, data1, label = 'Base Model')
+plt.title("Reward Graph")
+plt.plot(length, data1, label = 'Baseline1')
+plt.plot(length, data2, label = 'Baseline2')
+plt.plot(length, data3, label = 'Baseline3')
 plt.xlabel("Episode")
 plt.ylabel("10 Average Reward")
 plt.legend()
