@@ -340,7 +340,7 @@ q_optimizer1  = optim.Adam(q1.parameters(), lr=0.001)
 # Noise
 ou_noise = OrnsteinUhlenbeckNoise(mu=np.zeros(4))
 
-MAX_EPISODES = 250
+MAX_EPISODES = 500
 DECAYING_RATE = 2      # For Decaying Noise
 avg               = 0
 avg_history       = [] # Average Reward List
@@ -354,9 +354,6 @@ for episode in range(MAX_EPISODES):
     done  = False
     score = 0.0
     while not done:
-
-        if episode > 240:
-            env.render()
 
         # 100 ~ 150사이의 Episode에서 Noise 사라지도록
         DECAY = DECAYING_RATE - episode * 0.01
@@ -442,8 +439,8 @@ env.close()
 
 # Numpy array로 list 저장
 avg_history = np.array(avg_history)
-np.save("./type2", avg_history)
-np.save("./Softmax type2", softmax_recores)
+np.save("./type22", avg_history)
+np.save("./Softmax type22", softmax_recores)
 
 # Average Reward Plot
 length = np.arange(len(avg_history))
@@ -451,4 +448,4 @@ plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("10 episode MVA")
 plt.plot(length, avg_history)
-plt.savefig('type2.png')
+plt.savefig('type22.png')
