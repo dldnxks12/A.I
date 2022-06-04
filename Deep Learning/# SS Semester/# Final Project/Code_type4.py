@@ -439,8 +439,8 @@ env.close()
 
 # Numpy array로 list 저장
 avg_history = np.array(avg_history)
-np.save("./type3", avg_history)
-np.save("./Softmax type3", softmax_recores)
+np.save("./type4", avg_history)
+np.save("./Softmax type4", softmax_recores)
 
 # Average Reward Plot
 length = np.arange(len(avg_history))
@@ -448,4 +448,4 @@ plt.figure()
 plt.xlabel("Episode")
 plt.ylabel("10 episode MVA")
 plt.plot(length, avg_history)
-plt.savefig('type3.png')
+plt.savefig('type4.png')
